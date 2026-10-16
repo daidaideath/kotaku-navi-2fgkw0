@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>個タク準備ナビ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+/* Layout: 1問ずつのクイズ番組風パネル → 回答から作る1画面ダッシュボード。下地は薄い白、紺・青・黄 */
+:root{
+  --bg:#F4F6FC; --sheet:#FFFFFF; --sheet-2:#EEF1FA;
+  --ink:#151A45; --ink-soft:#4B5280; --rule:#D6DBEE; --rule-soft:#E6E9F5;
+  --navy:#1B2272; --navy-2:#2A3496; --on-navy:#FFFFFF; --on-navy-soft:#C9CEF2;
+  --blue:#2459E0; --blue-soft:#E4EBFD; --on-blue:#FFFFFF;
+  --gold:#FFC83D; --gold-soft:#FFF3D1; --gold-ink:#2B1D00;
+  --ok:#0B7A3B; --ok-bg:#E3F6EA; --warn:#9A5200; --ng:#B81A2F; --ng-bg:#FDE8EB;
+  --focus:#0B63CE;
+  --f-body:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic UI","Meiryo",sans-serif;
+  --f-disp:"Dela Gothic One","Zen Kaku Gothic New","Hiragino Sans",sans-serif;
+  --r:14px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E1233; --sheet:#1A2050; --sheet-2:#222963;
+  --ink:#EEF0FF; --ink-soft:#B4BAE0; --rule:#39407A; --rule-soft:#2A3170;
+  --navy:#131955; --navy-2:#232C8E; --on-navy:#FFFFFF; --on-navy-soft:#B9C0EE;
+  --blue:#7FA2FF; --blue-soft:#24306E; --on-blue:#0E1233;
+  --gold:#FFC83D; --gold-soft:#3A3115; --gold-ink:#2B1D00;
+  --ok:#4CD38A; --ok-bg:#10301F; --warn:#FFB45C; --ng:#FF6B7F; --ng-bg:#3B1424;
+  --focus:#7DB6FF; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E1233; --sheet:#1A2050; --sheet-2:#222963;
+  --ink:#EEF0FF; --ink-soft:#B4BAE0; --rule:#39407A; --rule-soft:#2A3170;
+  --navy:#131955; --navy-2:#232C8E; --on-navy:#FFFFFF; --on-navy-soft:#B9C0EE;
+  --blue:#7FA2FF; --blue-soft:#24306E; --on-blue:#0E1233;
+  --gold:#FFC83D; --gold-soft:#3A3115; --gold-ink:#2B1D00;
+  --ok:#4CD38A; --ok-bg:#10301F; --warn:#FFB45C; --ng:#FF6B7F; --ng-bg:#3B1424;
+  --focus:#7DB6FF; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.7;margin:0}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--navy)}
+a{color:var(--blue)}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+
+.top{background:var(--navy);color:var(--on-navy);background-image:repeating-linear-gradient(115deg,transparent 0 46px,rgba(255,255,255,.035) 46px 92px)}
+.top .wrap{display:flex;align-items:center;gap:12px;padding-block:14px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px}
+.logo .q{width:40px;height:40px;border-radius:50%;background:var(--gold);color:var(--gold-ink);font-family:var(--f-disp);font-size:20px;display:grid;place-items:center;box-shadow:0 0 0 3px rgba(255,200,61,.3);flex:none}
+.logo h1{font-family:var(--f-disp);font-weight:400;font-size:clamp(20px,2.8vw,26px);letter-spacing:.04em;margin:0;line-height:1.2}
+.logo small{display:block;font-size:12px;color:var(--on-navy-soft);letter-spacing:.06em}
+.top .sp{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:999px;border:2px solid transparent;padding:10px 20px;font-weight:700;cursor:pointer;min-height:46px;text-decoration:none;line-height:1.25;background:none}
+.btn-gold{background:var(--gold);color:var(--gold-ink)}
+.btn-blue{background:var(--blue);color:var(--on-blue)}
+.btn-line{border-color:var(--rule);color:var(--ink);background:var(--sheet)}
+.btn-line:hover{border-color:var(--blue);color:var(--blue)}
+.btn-ghost{color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;padding-inline:10px}
+.btn-sm{min-height:36px;padding:6px 14px;font-size:14px}
+.top .btn-line{background:transparent;color:var(--on-navy);border-color:rgba(255,255,255,.35)}
+main{padding-block:22px 48px}
+
+/* ---- start ---- */
+.hero{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:24px;align-items:center;margin-bottom:8px}
+@media (max-width:760px){.hero{grid-template-columns:1fr}}
+.hero h2{font-family:var(--f-disp);font-weight:400;font-size:clamp(26px,4vw,38px);line-height:1.3;margin:0 0 10px;text-wrap:balance}
+.hero h2 em{font-style:normal;background:linear-gradient(transparent 62%,var(--gold) 62%)}
+.hero p{margin:0 0 6px;color:var(--ink-soft)}
+.promise{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:6px;font-size:14px}
+.promise li{display:flex;gap:8px;align-items:flex-start}
+.promise li::before{content:"";flex:none;width:18px;height:18px;margin-top:3px;border-radius:50%;background:var(--ok-bg);border:2px solid var(--ok)}
+.modes{display:grid;gap:12px}
+.mode{appearance:none;text-align:left;cursor:pointer;background:var(--sheet);border:2px solid var(--rule);border-radius:var(--r);padding:16px 18px;display:grid;grid-template-columns:56px 1fr;gap:14px;align-items:center}
+.mode:hover{border-color:var(--blue)}
+.mode .ic{width:56px;height:56px;border-radius:12px;background:var(--navy);color:var(--gold);font-family:var(--f-disp);display:grid;place-items:center;font-size:17px;line-height:1.1;text-align:center}
+.mode b{font-size:18px;display:block}
+.mode span{font-size:14px;color:var(--ink-soft)}
+.mode.rec{border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.mode .rt{display:inline-block;font-size:11px;font-weight:900;background:var(--gold);color:var(--gold-ink);padding:1px 8px;border-radius:5px;margin-left:6px;vertical-align:2px}
+
+/* ---- question ---- */
+.qwrap{max-width:760px;margin:0 auto}
+.prog{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-size:13px;color:var(--ink-soft);font-weight:700}
+.pdots{display:flex;gap:6px;flex:1}
+.pdots i{flex:1;height:8px;border-radius:4px;background:var(--rule-soft)}
+.pdots i.on{background:var(--blue)}
+.pdots i.skip{background:repeating-linear-gradient(45deg,var(--gold) 0 4px,var(--gold-soft) 4px 8px)}
+.pdots i.cur{background:var(--gold)}
+.panel{background:var(--navy);color:var(--on-navy);border-radius:var(--r) var(--r) 0 0;padding:22px 22px 18px;position:relative;overflow:hidden}
+.panel::after{content:"";position:absolute;right:-50px;top:-70px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(255,200,61,.24),transparent 65%)}
+.panel .qn{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-disp);color:var(--gold);font-size:15px;letter-spacing:.08em}
+.panel .qn span{background:var(--gold);color:var(--gold-ink);border-radius:8px;padding:2px 10px}
+.panel h3{font-size:clamp(20px,3vw,25px);margin:10px 0 4px;line-height:1.45;font-weight:900;text-wrap:balance;position:relative;z-index:1}
+.panel p{margin:0;color:var(--on-navy-soft);font-size:14px;position:relative;z-index:1}
+.answers{background:var(--sheet);border:1px solid var(--rule);border-top:0;border-radius:0 0 var(--r) var(--r);padding:16px;display:grid;gap:10px}
+.ans{appearance:none;cursor:pointer;text-align:left;display:grid;grid-template-columns:40px 1fr auto;gap:12px;align-items:center;background:var(--sheet);border:2px solid var(--rule);border-radius:12px;padding:12px 14px;min-height:62px}
+.ans:hover{border-color:var(--blue)}
+.ans .k{width:40px;height:40px;border-radius:10px;background:var(--sheet-2);font-family:var(--f-disp);display:grid;place-items:center;color:var(--navy);font-size:16px}
+.ans b{display:block;font-size:17px;line-height:1.4}
+.ans small{display:block;color:var(--ink-soft);font-size:13px;line-height:1.5;margin-top:2px}
+.ans[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+.ans[aria-pressed="true"] .k{background:var(--blue);color:var(--on-blue)}
+.ans .ck{width:24px;height:24px;border-radius:6px;border:2px solid var(--rule);display:grid;place-items:center;font-weight:900;font-size:14px;color:transparent}
+.ans[aria-pressed="true"] .ck{background:var(--blue);border-color:var(--blue);color:var(--on-blue)}
+.month{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:6px 2px}
+.inp{border:1.5px solid var(--rule);background:var(--sheet);border-radius:10px;padding:8px 10px;min-height:46px}
+.qnav{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px}
+.qnav .sp{flex:1}
+.later{display:inline-flex;align-items:center;gap:6px}
+.later svg{width:18px;height:18px}
+.note{font-size:13px;color:var(--ink-soft);margin-top:12px;background:var(--sheet-2);border-radius:10px;padding:10px 12px}
+.note a{font-weight:700}
+
+/* ---- dashboard ---- */
+.grid{display:grid;gap:16px;grid-template-columns:repeat(12,minmax(0,1fr))}
+.c12{grid-column:span 12}.c7{grid-column:span 7}.c5{grid-column:span 5}.c6{grid-column:span 6}
+@media (max-width:900px){.c7,.c5,.c6{grid-column:span 12}}
+.card{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:18px;min-width:0}
+.card h2{font-size:16px;margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h2 .tag{font-family:var(--f-disp);font-weight:400;font-size:12px;background:var(--navy);color:var(--gold);padding:2px 9px;border-radius:6px;letter-spacing:.08em}
+.card h2 .sp{flex:1}
+.muted{color:var(--ink-soft)}.small{font-size:13px}
+
+.now{background:var(--navy);color:var(--on-navy);border:0;position:relative;overflow:hidden;align-self:start}
+.now::after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,200,61,.22),transparent 65%)}
+.now .lbl{display:inline-block;font-family:var(--f-disp);background:var(--gold);color:var(--gold-ink);font-size:12px;padding:3px 10px;border-radius:6px;letter-spacing:.1em}
+.now .phase{font-family:var(--f-disp);font-weight:400;font-size:clamp(22px,3.2vw,30px);line-height:1.3;margin:10px 0 4px;position:relative;z-index:1}
+.now .sub{color:var(--on-navy-soft);font-size:14px;position:relative;z-index:1}
+.steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:16px;position:relative;z-index:1}
+.steps div{background:rgba(255,255,255,.1);border-radius:8px;padding:6px 6px 7px;font-size:11px;line-height:1.35;color:var(--on-navy-soft);min-height:58px}
+.steps div b{display:block;font-family:var(--f-disp);font-weight:400;font-size:14px;color:var(--on-navy)}
+.steps div.on{background:var(--gold);color:var(--gold-ink)}
+.steps div.on b{color:var(--gold-ink)}
+.steps div.past{background:rgba(76,211,138,.18)}
+@media (max-width:520px){.steps{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+.prof{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.pf{appearance:none;cursor:pointer;text-align:left;background:var(--sheet-2);border:1.5px solid transparent;border-radius:10px;padding:9px 12px;min-width:0}
+.pf:hover{border-color:var(--blue)}
+.pf .k{font-size:12px;color:var(--ink-soft);font-weight:700;display:flex;justify-content:space-between;gap:6px}
+.pf .k i{font-style:normal;color:var(--blue);white-space:nowrap;flex:none}
+.pf .v{font-weight:700;font-size:15px;line-height:1.4}
+.pf.skip{background:var(--gold-soft);border:1.5px dashed var(--gold)}
+.pf.skip .v{color:var(--warn)}
+.guide{background:var(--sheet);border:1.5px solid var(--blue);border-radius:var(--r);padding:0;margin-bottom:16px}
+.guide summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:12px 16px;font-weight:900;flex-wrap:wrap}
+.guide summary::-webkit-details-marker{display:none}
+.guide summary .tag{font-family:var(--f-disp);font-weight:400;font-size:12px;background:var(--blue);color:var(--on-blue);padding:2px 9px;border-radius:6px;letter-spacing:.08em}
+.guide summary .tg{margin-left:auto;font-size:13px;font-weight:700;color:var(--blue)}
+.guide[open] summary .tg::after{content:"閉じる"}
+.guide:not([open]) summary .tg::after{content:"開く"}
+.howto{list-style:none;margin:0;padding:0 16px 6px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 18px}
+@media (max-width:760px){.howto{grid-template-columns:1fr}}
+.howto li{display:grid;grid-template-columns:30px 1fr;gap:10px;align-items:start;font-size:14px;line-height:1.55;padding:6px 0}
+.howto .hk{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-weight:900;font-size:13px;background:var(--sheet-2);color:var(--navy)}
+.howto .hk.ok{background:var(--ok);color:#fff}
+.howto .hk.y{background:var(--gold-soft);border:1.5px dashed var(--gold);color:var(--warn)}
+.howto b{display:block}
+.guide .gfoot{font-size:12px;color:var(--ink-soft);padding:4px 16px 14px}
+.later-box{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--gold-soft);border:1.5px solid var(--gold);border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:14px}
+.later-box .sp{flex:1}
+
+.todo{list-style:none;margin:0;padding:0}
+.todo li{display:grid;grid-template-columns:30px 1fr;gap:10px;padding:11px 0;border-bottom:1px solid var(--rule-soft)}
+.todo li:last-child{border-bottom:0}
+.cb{appearance:none;width:28px;height:28px;border-radius:8px;border:2px solid var(--rule);background:var(--sheet);cursor:pointer;display:grid;place-items:center;color:transparent;font-weight:900;padding:0}
+.cb[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.todo .t{font-weight:700;line-height:1.45}
+.todo li.done .t{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:1px}
+.todo .d{font-size:13px;color:var(--ink-soft);margin-top:2px}
+.todo .d a{font-weight:700}
+.chip{display:inline-block;font-size:11px;font-weight:900;border-radius:5px;padding:0 7px;margin-right:6px;vertical-align:1px;letter-spacing:.04em}
+.chip.th{background:var(--navy);color:var(--on-navy)}
+.chip.hot{background:var(--gold);color:var(--gold-ink)}
+.chip.now{background:var(--blue-soft);color:var(--blue);border:1px solid var(--blue)}
+
+.sch{list-style:none;margin:0;padding:0}
+.sch li{display:grid;grid-template-columns:34px 1fr;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule-soft)}
+.sch li:last-child{border-bottom:0}
+.sch .n{width:34px;height:34px;border-radius:9px;background:var(--sheet-2);display:grid;place-items:center;font-family:var(--f-disp);font-size:15px}
+.sch li.on .n{background:var(--gold);color:var(--gold-ink)}
+.sch li.past .n{background:var(--ok-bg);color:var(--ok)}
+.sch b{display:block;font-size:15px}
+.sch .w{font-size:13px;color:var(--blue);font-weight:700}
+.sch p{margin:0;font-size:13px;color:var(--ink-soft)}
+
+.study{display:flex;flex-direction:column;gap:8px}
+.srow{display:grid;grid-template-columns:30px 70px 1fr;gap:10px;align-items:center;background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:9px 12px}
+.srow.cur{border:2px solid var(--gold);box-shadow:0 0 0 3px var(--gold-soft)}
+.srow .wk{font-size:12px;color:var(--ink-soft);font-weight:700;font-variant-numeric:tabular-nums;line-height:1.3}
+.srow .tt{font-weight:700;font-size:14px;line-height:1.45}
+.srow.done .tt{color:var(--ink-soft)}
+.srow .mm{font-size:12px;color:var(--ink-soft)}
+.quiz{border:2px solid var(--navy-2);border-radius:var(--r);overflow:hidden;background:var(--sheet);margin-bottom:12px}
+.quiz .qh{background:var(--navy);color:var(--on-navy);padding:10px 14px;display:flex;align-items:center;gap:10px}
+.quiz .qh .q{font-family:var(--f-disp);background:var(--gold);color:var(--gold-ink);width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none}
+.quiz .qb{padding:12px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.quiz .qb p{margin:0 0 4px;width:100%;font-size:13px;color:var(--ink-soft)}
+
+.srcs{list-style:none;margin:0;padding:0;font-size:13px}
+.srcs li{padding:6px 0;border-bottom:1px dashed var(--rule)}
+.srcs li:last-child{border-bottom:0}
+.foot{margin-top:24px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--rule);padding-top:12px}
+.confirm{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--ng-bg);border:1.5px solid var(--ng);border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:14px}
+
+@media print{
+  body{background:#fff;color:#000;font-size:12px}
+  .top,.noprint,.qnav,.later-box,.confirm{display:none!important}
+  .card{border:1px solid #bbb;break-inside:avoid}
+  .now{background:#fff!important;color:#000!important;border:2px solid #1B2272!important}
+  .now .sub,.steps div{color:#333!important}
+  .grid{display:block}.card{margin-bottom:10px}
+  a{color:#000}
+}
+@media (prefers-reduced-motion:no-preference){.ans,.mode,.pf{transition:border-color .15s,background-color .15s}}
+</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <div class="logo"><div class="q" aria-hidden="true">Q</div><div><h1>個タク準備ナビ</h1><small>個人タクシー開業を考えている人の準備ボード</small></div></div>
+    <div class="sp"></div>
+    <button class="btn btn-line btn-sm noprint" type="button" id="toDash" hidden>ボードに戻る</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- START -->
+  <section id="vStart" hidden>
+    <div class="hero">
+      <div>
+        <h2>いくつか選ぶだけで、<em>自分の準備ボード</em>ができます</h2>
+        <p>答えにくい質問は「あとで答える」で飛ばせます。答えはいつでも直せます。</p>
+        <ul class="promise">
+          <li>名前や生年月日は聞きません</li>
+          <li>答えはこの端末のブラウザーの中だけに保存されます</li>
+          <li>開業できるかどうかの判定ではなく、準備の順番の目安です</li>
+        </ul>
+      </div>
+      <div class="modes">
+        <button class="mode rec" type="button" data-mode="quick"><span class="ic">4問</span><div><b>ざっくり 4問<span class="rt">おすすめ</span></b><span>約1分。経路・時期・年齢・勉強時間だけ</span></div></button>
+        <button class="mode" type="button" data-mode="full"><span class="ic">8問</span><div><b>しっかり 8問</b><span>約3分。済んでいること・気になることも反映</span></div></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- QUESTION -->
+  <section id="vQ" hidden>
+    <div class="qwrap">
+      <div class="prog"><span id="qCount"></span><div class="pdots" id="pdots"></div></div>
+      <div class="panel"><div class="qn"><span id="qNum">Q1</span><em id="qTag" style="font-style:normal"></em></div><h3 id="qTitle"></h3><p id="qHelp"></p></div>
+      <div class="answers" id="qAns" role="group"></div>
+      <div class="qnav">
+        <button class="btn btn-line btn-sm" type="button" id="qBack">← 戻る</button>
+        <div class="sp"></div>
+        <button class="btn btn-ghost later" type="button" id="qLater"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>あとで答える</button>
+        <button class="btn btn-blue" type="button" id="qNext" hidden>次へ</button>
+      </div>
+      <div class="note" id="qNote" hidden></div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="vDash" hidden>
+    <div class="confirm" id="resetBox" hidden><span>回答とチェックをすべて消して、最初からやり直しますか？</span><span style="flex:1"></span><button class="btn btn-sm btn-line" type="button" id="resetNo">やめる</button><button class="btn btn-sm" style="background:var(--ng);color:#fff" type="button" id="resetYes">消してやり直す</button></div>
+    <details class="guide noprint" id="guide" open>
+      <summary><span class="tag">HOW TO</span>使い方<span class="small muted" style="font-weight:500">押すとどうなるか</span><span class="tg"></span></summary>
+      <ul class="howto">
+        <li><span class="hk ok">✓</span><span><b>「いまやること」の□を押す</b>済みになり、右上の「○ / ○ 済み」が増えます。もう一度押すと戻ります。</span></li>
+        <li><span class="hk ok">✓</span><span><b>「学習」の□を押す</b>個タクQUIZの6回をクリアすると最初のテーマには自動で付きます。押すとそのテーマが済みになり、「いまここ」が次のテーマへ移ります。12テーマすべて済むと、段階が「2. 復習」へ進みます（開業まで1年以上あるとき）。</span></li>
+        <li><span class="hk">直</span><span><b>「あなたの回答」のカードを押す</b>その1問だけ答え直せます。やること・時期の目安・学習の週数がすぐ作り直されます。</span></li>
+        <li><span class="hk y">？</span><span><b>黄色い点線のカード</b>「あとで答える」にした質問です。答えるとボードに反映されます。</span></li>
+      </ul>
+      <div class="gfoot">押した内容はこの端末に自動で保存されます（ほかの端末とは共有されません）。いちばん下の「印刷・PDFにする」で、チェックの状態ごと印刷できます。</div>
+    </details>
+    <div class="later-box noprint" id="laterBox" hidden></div>
+    <div class="grid">
+      <div class="card now c7" id="nowCard"></div>
+      <div class="card c5">
+        <h2><span class="tag">YOU</span>あなたの回答<span class="sp"></span><span class="small muted">押すと直せます</span></h2>
+        <div class="prof" id="prof"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px" class="noprint">
+          <button class="btn btn-line btn-sm" type="button" id="goFull" hidden>もっと細かく答える</button>
+          <button class="btn btn-ghost btn-sm" type="button" id="reset">最初からやり直す</button>
+        </div>
+      </div>
+      <div class="card c7">
+        <h2><span class="tag">TODO</span>いまやること<span class="sp"></span><span class="small muted" id="todoCount"></span></h2>
+        <ul class="todo" id="todo"></ul>
+      </div>
+      <div class="card c5">
+        <h2><span class="tag">STEP</span>準備の順番と時期の目安</h2>
+        <ol class="sch" id="sch"></ol>
+        <p class="small muted" style="margin:10px 0 0">時期は回答から逆算した作業の目安です。制度上の期限や、申請できる日ではありません。</p>
+      </div>
+      <div class="card c12">
+        <h2><span class="tag">STUDY</span>学習<span class="sp"></span><span class="small muted" id="studyInfo"></span></h2>
+        <div id="learnMount" style="margin-bottom:16px"></div>
+        <div class="study" id="study"></div>
+      </div>
+      <div class="card c12">
+        <h2><span class="tag">SOURCE</span>確かめるときの公式資料</h2>
+        <ul class="srcs" id="srcs"></ul>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px" class="noprint">
+      <button class="btn btn-gold" type="button" id="print">印刷・PDFにする</button>
+    </div>
+    <p class="foot">このページは準備の順番を整理するための目安です。年齢・経歴・資金などの条件を満たすかは、公式資料と証明書類で確認してください。答えはこの端末のブラウザーの中だけに保存され、どこにも送信されません。資料の内容は2026/10時点で確認したものです。</p>
+  </section>
+</main>
+
+<script src="kotaku-learn.js"></script>
+<script>
+(()=>{
+"use strict";
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const KEY="kotaku-navi-v1";
+
+/* ===== 公式資料 ===== */
+const SRC={
+ r01:{n:"関東運輸局「個人タクシー事業の許可及び譲渡譲受認可申請事案の審査基準」",u:"https://wwwtb.mlit.go.jp/kanto/content/000107995.pdf"},
+ r03:{n:"関東運輸局「法令試験の実施要領」",u:"https://wwwtb.mlit.go.jp/kanto/content/000227879.pdf"},
+ r07:{n:"関東運輸局「許可申請の記入要領」",u:"https://wwwtb.mlit.go.jp/kanto/content/000284963.pdf"},
+ top:{n:"関東運輸局「タクシー事業を始めるには」（個人タクシーの案内と最新資料）",u:"https://wwwtb.mlit.go.jp/kanto/jidou_koutu/tabi2/taxi_jigyoukaisi/index.htm"},
+ nta:{n:"国税庁「個人で事業を行っている方の記帳・帳簿等の保存について」",u:"https://www.nta.go.jp/taxes/shiraberu/shinkoku/kojin_jigyo/index.htm"}
+};
+const L=k=>`<a href="${SRC[k].u}" target="_blank" rel="noopener">${esc(SRC[k].n)}</a>`;
+
+/* ===== 質問 ===== */
+const Q=[
+ {id:"route",modes:["quick","full"],t:"どの方法で開業したいですか？",h:"個人タクシーには、新しく許可を受ける方法と、今の事業者から事業をゆずり受ける方法があります。",
+  o:[["new","新規許可","新しく許可を受ける"],["transfer","譲渡譲受","個人タクシー事業をゆずり受ける"],["undecided","まだ決めていない",""],["unknown","違いがよく分からない","学習の最初のテーマで扱います"]]},
+ {id:"target",modes:["quick","full"],t:"いつごろ開業したいですか？",h:"だいたいで大丈夫です。あとで直せます。",
+  o:[["y1","1年以内",""],["y3","1〜3年後",""],["y5","3〜5年後",""],["y6","5年以上先",""],["none","まだ決めていない",""]],monthOpt:true},
+ {id:"age",modes:["quick","full"],t:"申請するころの年齢は？",h:"審査基準の年齢区分（35歳未満／35〜39歳／40〜64歳）に合わせた区切りです。区分ごとに経歴の条件が違います。",
+  o:[["a1","35歳未満",""],["a2","35〜39歳",""],["a3","40〜64歳",""],["a4","65歳以上",""]]},
+ {id:"study",modes:["quick","full"],t:"勉強に使える時間は、1週間でどれくらい？",h:"短くても続けられる量がおすすめです。",
+  o:[["s30","10分×3回くらい","週30分"],["s60","1時間くらい",""],["s120","2時間以上",""],["s0","まだ分からない","ひとまず週30分で計画します"]]},
+ {id:"region",modes:["full"],t:"開業したい営業区域は？",h:"営業区域は公式の審査基準で決まっています。",
+  o:[["tokyo","特別区・武三","東京23区と武蔵野市・三鷹市"],["other","それ以外の区域",""],["unknown","分からない",""]]},
+ {id:"exp",modes:["full"],t:"タクシー・ハイヤーの運転経験は？",h:"だいたいの年数で選びます。実際の条件は年齢区分ごとに細かく決まっていて、証明書類で確認します。",
+  o:[["e1","5年未満",""],["e2","5〜10年",""],["e3","10年以上",""]]},
+ {id:"done",modes:["full"],multi:true,t:"もう済んでいることは？",h:"当てはまるものを全部選んで「次へ」。なければそのまま「次へ」。",
+  o:[["flow","開業までの流れをだいたい知っている",""],["law","法令の勉強を始めた",""],["money","開業資金の目安を考えた",""],["garage","営業所（自宅）・車庫の条件を調べた",""],["career","職歴を証明する書類の取り方を知っている",""],["senpai","先輩に相談したことがある",""]]},
+ {id:"worry",modes:["full"],multi:true,t:"気になっていることは？",h:"選んだものは、やること・学習で目印を付けて先に出します。",
+  o:[["money","お金（開業資金・生活費）",""],["garage","営業所・車庫・車両",""],["exam","法令試験",""],["docs","書類・証明",""],["biz","開業後の経営・帳簿",""]]}
+];
+const ANS_LABEL=(q,v)=>{if(v==null)return "";if(Array.isArray(v))return v.length?v.map(x=>(q.o.find(o=>o[0]===x)||[,x])[1]).join("、"):"なし";if(q.id==="target"&&/^\d{4}-\d{2}$/.test(v))return v.replace("-","年")+"月ごろ";return (q.o.find(o=>o[0]===v)||[,v])[1]};
+
+/* ===== 状態 ===== */
+let S={mode:null,ans:{},skip:{},done:{},sdone:{},created:null,learn:{}};
+try{const v=localStorage.getItem(KEY);if(v)S=Object.assign(S,JSON.parse(v))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const TODAY=new Date();TODAY.setHours(0,0,0,0);
+const ym=d=>`${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}`;
+const addM=(d,n)=>new Date(d.getFullYear(),d.getMonth()+n,1);
+function qList(){return Q.filter(q=>q.modes.includes(S.mode||"quick"))}
+
+/* ===== 画面切替 ===== */
+function show(v){["vStart","vQ","vDash"].forEach(id=>$("#"+id).hidden=id!==v);$("#toDash").hidden=!(v==="vQ"&&S.created);window.scrollTo({top:0})}
+
+/* ===== 質問画面 ===== */
+let qi=0, single=false, onlyOpen=false, multiTmp=[];
+function openQ(i,one,open){qi=i;single=!!one;onlyOpen=!!open;renderQ();show("vQ")}
+function renderQ(){
+  const qs=qList(), q=qs[qi];
+  $("#qCount").textContent=single?"回答を直す":`${qi+1} / ${qs.length}`;
+  $("#pdots").innerHTML=single?"":qs.map((x,i)=>`<i class="${i===qi?"cur":S.ans[x.id]!=null?"on":S.skip[x.id]?"skip":""}"></i>`).join("");
+  $("#qNum").textContent="Q"+(Q.indexOf(q)+1);
+  $("#qTag").textContent=q.multi?"いくつでも":"";
+  $("#qTitle").textContent=q.t; $("#qHelp").textContent=q.h;
+  const cur=S.ans[q.id];
+  multiTmp=q.multi?(Array.isArray(cur)?cur.slice():[]):[];
+  const keys="ABCDEFGH";
+  let h=q.o.map((o,i)=>{
+    const on=q.multi?multiTmp.includes(o[0]):cur===o[0];
+    return `<button class="ans" type="button" data-v="${o[0]}" aria-pressed="${on}"><span class="k">${keys[i]}</span><span><b>${esc(o[1])}</b>${o[2]?`<small>${esc(o[2])}</small>`:""}</span>${q.multi?'<span class="ck">✓</span>':"<span></span>"}</button>`}).join("");
+  if(q.monthOpt){const mv=/^\d{4}-\d{2}$/.test(cur||"")?cur:"";h+=`<div class="month"><label for="qMonth" class="small muted" style="font-weight:700">月まで決めている：</label><input class="inp" type="month" id="qMonth" value="${mv}"><button class="btn btn-line btn-sm" type="button" id="qMonthOk">この月で決定</button></div>`}
+  $("#qAns").innerHTML=h;
+  $("#qNext").hidden=!q.multi; $("#qNext").textContent=single?"決定":"次へ";
+  $("#qBack").textContent=single||qi===0?"← やめる":"← 戻る";
+  $("#qLater").hidden=false;
+  const note=noteFor(q.id,cur); $("#qNote").hidden=!note; $("#qNote").innerHTML=note||"";
+}
+function noteFor(id,v){
+  if(id==="age") return `年齢の条件は審査基準で「申請日現在で65歳未満」とされています。区分ごとの経歴の条件は、審査基準の別表２で確認できます。出典：${L("r01")}（PDF6ページ・別表２）`;
+  if(id==="route") return `譲渡譲受は、ゆずり受ける人も新規許可とほぼ同じ基準を満たす必要があります。出典：${L("r01")}`;
+  return "";
+}
+function answer(id,v){S.ans[id]=v;delete S.skip[id];save();advance()}
+function advance(){
+  if(single){finish();return}
+  const qs=qList(); let n=qi+1; if(onlyOpen){while(n<qs.length&&S.ans[qs[n].id]!=null)n++} if(n<qs.length){qi=n;renderQ();window.scrollTo({top:0})} else finish();
+}
+function finish(){if(!S.created)S.created=new Date().toISOString().slice(0,10);save();renderDash();show("vDash")}
+$("#qAns").addEventListener("click",e=>{
+  const q=qList()[qi];
+  if(e.target.closest("#qMonthOk")){const m=$("#qMonth").value;if(m)answer(q.id,m);return}
+  const b=e.target.closest(".ans"); if(!b) return;
+  if(q.multi){const v=b.dataset.v;const i=multiTmp.indexOf(v);i>=0?multiTmp.splice(i,1):multiTmp.push(v);b.setAttribute("aria-pressed",i<0)}
+  else{ $$("#qAns .ans").forEach(x=>x.setAttribute("aria-pressed",x===b)); setTimeout(()=>answer(q.id,b.dataset.v),160)}
+});
+$("#qNext").addEventListener("click",()=>{const q=qList()[qi];answer(q.id,multiTmp.slice())});
+$("#qLater").addEventListener("click",()=>{const q=qList()[qi];if(single){delete S.ans[q.id]}if(S.ans[q.id]==null)S.skip[q.id]=true;save();advance()});
+$("#qBack").addEventListener("click",()=>{if(single||qi===0){S.created?(renderDash(),show("vDash")):show("vStart")}else{qi--;renderQ()}});
+$("#toDash").addEventListener("click",()=>{renderDash();show("vDash")});
+$$("[data-mode]").forEach(b=>b.addEventListener("click",()=>{S.mode=b.dataset.mode;save();openQ(0)}));
+
+/* ===== 計算 ===== */
+function targetDate(){
+  const v=S.ans.target; if(!v) return null;
+  if(/^\d{4}-\d{2}$/.test(v)){const [y,m]=v.split("-").map(Number);return {d:new Date(y,m-1,1),exact:true}}
+  const m={y1:9,y3:24,y5:48,y6:72}[v]; return m?{d:addM(TODAY,m),exact:false}:null;
+}
+function weeksPerTheme(){return {s30:2,s60:1,s120:0.5,s0:2}[S.ans.study]||2}
+const PH=[
+ {n:"まず全体を知る・基礎学習",d:"開業の流れ、法令の基礎、お金・営業所の考え方を一巡"},
+ {n:"復習しながら制度の変化を見る",d:"法令の少量復習。公式資料の更新を時々確認"},
+ {n:"自分の経歴・証明書類を整理",d:"職歴・勤務日数・区域などを証明書類で確かめ、条件と照らし合わせる"},
+ {n:"受験・申請の準備",d:"法令の問題演習、相談、見積や書類一覧の確認"},
+ {n:"証明書をそろえて申請",d:"有効期限のある証明書を申請日に合わせて取る"},
+ {n:"許可の後、営業開始の準備",d:"登録・保険・機器・帳簿など"}
+];
+function phaseInfo(){
+  const t=targetDate(); const studyMonths=Math.ceil(12*weeksPerTheme()*7/30);
+  const sched=PH.map((p,i)=>({...p,w:""}));
+  let cur=0;
+  if(t){
+    const mUntil=(t.d.getFullYear()-TODAY.getFullYear())*12+(t.d.getMonth()-TODAY.getMonth());
+    const end1=addM(TODAY,studyMonths);
+    sched[0].w=`${ym(TODAY)}〜${ym(end1)}`;
+    const s3=addM(t.d,-12),s4=addM(t.d,-6),s5=addM(t.d,-3);
+    sched[1].w=s3>end1?`${ym(addM(end1,1))}〜${ym(addM(s3,-1))}`:"（期間なし）";
+    sched[2].w=`${ym(s3)}〜${ym(addM(s4,-1))}`;
+    sched[3].w=`${ym(s4)}〜${ym(addM(s5,-1))}`;
+    sched[4].w=`${ym(s5)}〜${ym(t.d)}`;
+    sched[5].w=`${ym(addM(t.d,1))}〜（期間は公式資料で確認）`;
+    cur=mUntil<=3?4:mUntil<=6?3:mUntil<=12?2:(Object.keys(S.sdone).length>=12?1:0);
+    if(cur>=2&&s3<TODAY) sched[0].w=`${ym(TODAY)}〜（並行して）`;
+  }else{
+    sched[0].w=`${ym(TODAY)}〜 約${studyMonths}か月`;
+    sched[1].w="開業時期が決まるまで";
+    sched[2].w="開業希望の12〜6か月前";sched[3].w="6〜3か月前";sched[4].w="3か月前〜";sched[5].w="許可の後";
+    cur=Object.keys(S.sdone).length>=12?1:0;
+  }
+  return {sched,cur,t,studyMonths};
+}
+const STUDY=[
+ ["開業の全体像（新規許可と譲渡譲受、受験・申請・営業開始の関係）","今やること・後でやること","flow",null,true],
+ ["道路運送法の入口、許可・認可・届出の区別","三つの用語を自分の言葉で","law","exam"],
+ ["運輸規則と日々の運行・記録","独立後に自分が担う管理","law","exam"],
+ ["運送の引受け・拒否、接客に関係する法令","現場の事例と根拠の条文","law","exam"],
+ ["開業資金・毎月の費用・生活費の区別","三つに分けて書き出す（金額は後で）","money","money"],
+ ["営業所・車庫の条件と確認方法","物件を見る前の確認事項","garage","garage"],
+ ["車両法、点検・整備・事故報告","車の購入費以外に必要な管理","law","exam"],
+ ["タクシー業務適正化特別措置法、乗り場・乗車禁止地区","地域のルールの調べ方","law","exam"],
+ ["運賃・料金・運送約款","記憶だけで判断しないための確認先","law","exam"],
+ ["申請資料の種類、証明書の取得時期","早めに所在を確かめる資料","career","docs"],
+ ["許可・認可後の営業開始準備","車・保険・決済・記録管理の流れ","",null],
+ ["開業後の記帳・収支管理、全体の復習","分かったこと三つ、未確認三つ","","biz"]
+];
+
+/* ===== やること生成 ===== */
+function tasks(){
+  const a=S.ans, done=Array.isArray(a.done)?a.done:[], worry=Array.isArray(a.worry)?a.worry:[];
+  const T=[];
+  const add=(k,t,d,th,hot,pre)=>T.push({k,t,d,th,hot:!!hot,pre:!!pre});
+  add("flow","開業までの流れをつかむ","下の「個タクQUIZ」から1回10分で。新規許可と譲渡譲受の違い、受験と申請の順番が分かります。","全体像",false,done.includes("flow"));
+  if(a.route==="undecided"||a.route==="unknown"||!a.route) add("route","新規許可か譲渡譲受か、どちらで目指すか考える","まず違いを知ってから。急いで決めなくて大丈夫です。","経路");
+  if(a.route==="new") add("exam","法令試験の申込時期を知っておく",`申込は原則年3回（4/1〜5/31→7月、8/1〜9/30→11月、12/1〜1/31→3月の試験）。実際の日程は個別の公示で確認します。合格証には有効期限があります。出典：${L("r03")}（PDF7〜8ページ）`,"試験",worry.includes("exam"));
+  if(a.route==="transfer") add("transfer","譲渡譲受の条件を確かめる",`ゆずり受ける人にも基準があります。譲渡する人が75歳以上80歳未満の場合、ゆずり受ける人は60歳以下という条件もあります。出典：${L("r01")}`,"経路");
+  if(a.age==="a4") add("age65","年齢の条件を最初に確認する",`審査基準では申請日現在で65歳未満が条件です。出典：${L("r01")}（PDF6ページ）`,"条件",true);
+  if(a.age==="a1"||a.age==="a2") add("ageClass","自分の年齢区分の経歴条件を確かめる",`35歳未満と35〜39歳は、40歳以上と条件が違います（別表２）。出典：${L("r01")}`,"条件",true);
+  if(a.age==="a3") add("ageClass","40〜64歳区分の経歴条件を読んでおく",`運転を職業とした期間などの条件が別表２にあります。出典：${L("r01")}`,"条件");
+  add("law","法令の基礎を少しずつ","道路運送法・運輸規則・車両法・タクシー業務適正化特別措置法・運賃と約款。学習計画の順で。","試験",worry.includes("exam"),done.includes("law"));
+  add("money","お金を三つに分けて考える",`開業時の費用・営業中の費用・生活費。審査基準では設備資金80万円以上・運転資金80万円以上などを合計した所要資金の100%以上の自己資金が必要とされています。出典：${L("r01")}（PDF7〜8ページ）`,"資金",worry.includes("money"),done.includes("money"));
+  add("garage","営業所（自宅）と車庫の条件を知る",`住居と営業所が同じであること、車庫は営業所から直線2km以内で1年以上使えることなどの条件があります。出典：${L("r01")}（PDF8ページ）`,"営業所",worry.includes("garage"),done.includes("garage"));
+  add("career","職歴を証明する書類の取り方を調べる","在職期間・勤務日数・区域などを後で証明します。転職や退職のときは記録をなくさないように。","書類",worry.includes("docs"),done.includes("career"));
+  if(targetDate()&&targetDate().d<=addM(TODAY,12)) add("certs","証明書の取得時期を申請日から逆算する",`発行から申請まで3か月以内、3週間以内などの条件がある書類があります。出典：${L("r07")}（PDF6〜9ページ）`,"書類",true);
+  add("senpai","先輩に聞きたいことを書き出す","どちらの経路を選んだか、早めにやればよかったことなど。","相談",false,done.includes("senpai"));
+  if(worry.includes("biz")) add("biz","開業後の記帳の入口を見ておく",`収入・経費の記録と書類の保存。出典：${L("nta")}`,"経営",true);
+  add("official","公式の案内ページを一度見ておく",`最新の資料はここに載ります。${L("top")}`,"確認");
+  // order: hot first, then not pre-done
+  return T.sort((x,y)=>(x.pre-y.pre)||(y.hot-x.hot)).slice(0,12);
+}
+
+/* ===== ダッシュボード描画 ===== */
+let learnUI=null;
+function mountLearn(){
+  if(learnUI) return;
+  const el=$("#learnMount");
+  if(!window.KotakuLearn){el.innerHTML=`<p class="small muted">学習クイズを読み込めませんでした。ページを開き直してください。</p>`;return}
+  learnUI=window.KotakuLearn.mount(el,{state:S.learn,save:st=>{S.learn=st;save()},onDone:(id,all)=>{if(all.length>=window.KotakuLearn.sessions){S.sdone[0]=true;S.done.flow=true}save();renderDash()}});
+}
+function renderDash(){
+  mountLearn();
+  const {sched,cur,t,studyMonths}=phaseInfo();
+  const qs=Q.filter(q=>q.modes.includes(S.mode||"quick"));
+  const skipped=qs.filter(q=>S.ans[q.id]==null);
+  // later box
+  $("#laterBox").hidden=!skipped.length;
+  if(skipped.length) $("#laterBox").innerHTML=`<span><b>あとで答える質問が${skipped.length}つ</b>あります：${skipped.map(q=>esc(q.t.replace(/[？?]$/,""))).join("／")}</span><span class="sp"></span><button class="btn btn-gold btn-sm" type="button" data-ask="${skipped[0].id}">いま答える</button>`;
+  // now
+  $("#nowCard").innerHTML=`<span class="lbl">NOW</span><div class="phase">${cur+1}. ${esc(PH[cur].n)}</div>
+   <div class="sub">${t?(t.exact?`開業の希望 ${ym(t.d)}`:`開業の希望 ${esc(ANS_LABEL(Q[1],S.ans.target))}（${ym(t.d)}ごろとして仮置き）`):"開業の時期は未定。時期を決めると、各段階の時期が出ます。"}</div>
+   <div class="steps">${PH.map((p,i)=>`<div class="${i===cur?"on":i<cur?"past":""}"><b>${i+1}</b>${esc(p.n)}</div>`).join("")}</div>`;
+  // profile
+  $("#prof").innerHTML=qs.map(q=>{const v=S.ans[q.id];const sk=v==null;return `<button class="pf${sk?" skip":""}" type="button" data-ask="${q.id}"><div class="k">${esc(q.t.replace(/[？?]$/,""))}<i>${sk?"答える":"直す"}</i></div><div class="v">${sk?"あとで答える":esc(ANS_LABEL(q,v))}</div></button>`}).join("");
+  $("#goFull").hidden=S.mode==="full";
+  // todo
+  const ts=tasks();
+  $("#todo").innerHTML=ts.map(x=>{const dn=S.done[x.k]??x.pre;return `<li class="${dn?"done":""}"><button class="cb" type="button" data-task="${x.k}" aria-pressed="${!!dn}" aria-label="済みにする">✓</button><div><div class="t">${x.hot?'<span class="chip hot">気になる</span>':""}<span class="chip th">${esc(x.th)}</span>${esc(x.t)}</div><div class="d">${x.d}</div></div></li>`}).join("");
+  $("#todoCount").textContent=`${ts.filter(x=>S.done[x.k]??x.pre).length} / ${ts.length} 済み`;
+  // schedule
+  $("#sch").innerHTML=sched.map((p,i)=>`<li class="${i===cur?"on":i<cur?"past":""}"><span class="n">${i+1}</span><div><b>${esc(p.n)}</b><div class="w">${esc(p.w)}</div><p>${esc(p.d)}</p></div></li>`).join("");
+  // study
+  const wpt=weeksPerTheme(); const worry=Array.isArray(S.ans.worry)?S.ans.worry:[]; const doneA=Array.isArray(S.ans.done)?S.ans.done:[];
+  const firstOpen=STUDY.findIndex((s,i)=>!(S.sdone[i]));
+  $("#studyInfo").textContent=`${wpt>=1?`${wpt}週で1テーマ`:"1週で2テーマ"}・全12テーマ 約${studyMonths}か月`;
+  $("#study").innerHTML=STUDY.map((s,i)=>{const dn=!!S.sdone[i];const w0=Math.floor(i*wpt)+1,w1=Math.ceil((i+1)*wpt);const wk=w0>=w1?`第${w0}週`:`第${w0}〜${w1}週`;const hot=s[3]&&worry.includes(s[3]);
+    return `<div class="srow${dn?" done":""}${i===firstOpen?" cur":""}"><button class="cb" type="button" data-study="${i}" aria-pressed="${dn}" aria-label="済みにする">✓</button><div class="wk">${wk}</div><div><div class="tt">${i===firstOpen?'<span class="chip now">いまここ</span>':""}${hot?'<span class="chip hot">気になる</span>':""}${esc(s[0])}</div><div class="mm">メモに残すこと：${esc(s[1])}${s[4]?"　→ 上の個タクQUIZ（6回）で学べます":""}</div></div></div>`}).join("");
+  // sources
+  $("#srcs").innerHTML=["top","r01","r03","r07","nta"].map(k=>`<li>${L(k)}</li>`).join("");
+}
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-ask]"); if(a){const id=a.dataset.ask;let qs=qList();let i=qs.findIndex(q=>q.id===id);if(i<0){S.mode="full";save();qs=qList();i=qs.findIndex(q=>q.id===id)}openQ(i,true);return}
+  const tk=e.target.closest("[data-task]"); if(tk){const k=tk.dataset.task;const x=tasks().find(t=>t.k===k);const curv=S.done[k]??(x&&x.pre);S.done[k]=!curv;save();renderDash();return}
+  const st=e.target.closest("[data-study]"); if(st){const i=st.dataset.study;S.sdone[i]?delete S.sdone[i]:S.sdone[i]=true;save();renderDash();return}
+});
+$("#goFull").addEventListener("click",()=>{S.mode="full";save();const qs=qList();const i=qs.findIndex(q=>S.ans[q.id]==null&&!S.skip[q.id]);openQ(i<0?0:i,false,true)});
+$("#reset").addEventListener("click",()=>{$("#resetBox").hidden=false;window.scrollTo({top:0})});
+$("#resetNo").addEventListener("click",()=>{$("#resetBox").hidden=true});
+$("#resetYes").addEventListener("click",()=>{S={mode:null,ans:{},skip:{},done:{},sdone:{},created:null,learn:{}};try{localStorage.removeItem(KEY)}catch(e){}learnUI=null;$("#resetBox").hidden=true;show("vStart")});
+{const g=$("#guide");if(S.guideClosed)g.open=false;g.addEventListener("toggle",()=>{S.guideClosed=!g.open;save()})}
+$("#print").addEventListener("click",()=>{try{window.print()}catch(e){}});
+
+/* ===== 起動 ===== */
+if(S.created){renderDash();show("vDash")} else show("vStart");
+})();
+</script>
+
+</body>
+</html>
