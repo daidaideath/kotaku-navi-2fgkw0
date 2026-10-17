@@ -62,6 +62,15 @@ button,input,select{font:inherit;color:inherit}
 .btn-ghost{color:var(--ink-soft);text-decoration:underline;text-underline-offset:3px;padding-inline:10px}
 .btn-sm{min-height:36px;padding:6px 14px;font-size:14px}
 .top .btn-line{background:transparent;color:var(--on-navy);border-color:rgba(255,255,255,.35)}
+.vtabs{background:var(--sheet);border-bottom:1px solid var(--rule);position:sticky;top:env(safe-area-inset-top,0px);z-index:20}
+.vtabs .wrap{display:flex;gap:4px}
+.vtab{appearance:none;border:0;background:none;padding:12px 16px 10px;font-weight:700;color:var(--ink-soft);border-bottom:4px solid transparent;cursor:pointer;font-size:15px}
+.vtab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--gold)}
+.quizcall{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--navy);color:var(--on-navy);border-radius:12px;padding:12px 14px;margin-bottom:14px}
+.quizcall .q{font-family:var(--f-disp);background:var(--gold);color:var(--gold-ink);width:34px;height:34px;border-radius:50%;display:grid;place-items:center;flex:none}
+.quizcall b{display:block}
+.quizcall small{color:var(--on-navy-soft)}
+.quizcall .sp{flex:1}
 main{padding-block:22px 48px}
 
 /* ---- start ---- */
@@ -229,6 +238,7 @@ main{padding-block:22px 48px}
     <button class="btn btn-line btn-sm noprint" type="button" id="toDash" hidden>ボードに戻る</button>
   </div>
 </header>
+<nav class="vtabs noprint" id="vtabs" hidden aria-label="画面の切り替え"><div class="wrap" role="tablist"><button class="vtab" type="button" role="tab" data-view="vDash" aria-selected="true">ボード</button><button class="vtab" type="button" role="tab" data-view="vQuiz" aria-selected="false">個タクQUIZ</button></div></nav>
 
 <main class="wrap">
   <!-- START -->
@@ -267,13 +277,17 @@ main{padding-block:22px 48px}
   </section>
 
   <!-- DASHBOARD -->
+  <section id="vQuiz" hidden>
+    <div id="learnMount"></div>
+  </section>
+
   <section id="vDash" hidden>
     <div class="confirm" id="resetBox" hidden><span>回答とチェックをすべて消して、最初からやり直しますか？</span><span style="flex:1"></span><button class="btn btn-sm btn-line" type="button" id="resetNo">やめる</button><button class="btn btn-sm" style="background:var(--ng);color:#fff" type="button" id="resetYes">消してやり直す</button></div>
     <details class="guide noprint" id="guide" open>
       <summary><span class="tag">HOW TO</span>使い方<span class="small muted" style="font-weight:500">押すとどうなるか</span><span class="tg"></span></summary>
       <ul class="howto">
         <li><span class="hk ok">✓</span><span><b>「いまやること」の□を押す</b>済みになり、右上の「○ / ○ 済み」が増えます。もう一度押すと戻ります。</span></li>
-        <li><span class="hk ok">✓</span><span><b>「学習」の□を押す</b>個タクQUIZの6回をクリアすると最初のテーマには自動で付きます。押すとそのテーマが済みになり、「いまここ」が次のテーマへ移ります。12テーマすべて済むと、段階が「2. 復習」へ進みます（開業まで1年以上あるとき）。</span></li>
+        <li><span class="hk ok">✓</span><span><b>「学習」の□を押す</b>上の「個タクQUIZ」タブで6回をクリアすると最初のテーマには自動で付きます。押すとそのテーマが済みになり、「いまここ」が次のテーマへ移ります。12テーマすべて済むと、段階が「2. 復習」へ進みます（開業まで1年以上あるとき）。</span></li>
         <li><span class="hk">直</span><span><b>「あなたの回答」のカードを押す</b>その1問だけ答え直せます。やること・時期の目安・学習の週数がすぐ作り直されます。</span></li>
         <li><span class="hk y">？</span><span><b>黄色い点線のカード</b>「あとで答える」にした質問です。答えるとボードに反映されます。</span></li>
       </ul>
@@ -301,7 +315,7 @@ main{padding-block:22px 48px}
       </div>
       <div class="card c12">
         <h2><span class="tag">STUDY</span>学習<span class="sp"></span><span class="small muted" id="studyInfo"></span></h2>
-        <div id="learnMount" style="margin-bottom:16px"></div>
+        <div class="quizcall noprint"><span class="q">Q</span><div><b>個タクQUIZ：開業までの流れ（全6回・1回10分）</b><small id="quizProg"></small></div><span class="sp"></span><button class="btn btn-gold btn-sm" type="button" data-view="vQuiz">クイズを開く</button></div>
         <div class="study" id="study"></div>
       </div>
       <div class="card c12">
@@ -365,7 +379,7 @@ const addM=(d,n)=>new Date(d.getFullYear(),d.getMonth()+n,1);
 function qList(){return Q.filter(q=>q.modes.includes(S.mode||"quick"))}
 
 /* ===== 画面切替 ===== */
-function show(v){["vStart","vQ","vDash"].forEach(id=>$("#"+id).hidden=id!==v);$("#toDash").hidden=!(v==="vQ"&&S.created);window.scrollTo({top:0})}
+function show(v){["vStart","vQ","vDash","vQuiz"].forEach(id=>$("#"+id).hidden=id!==v);$("#toDash").hidden=!(v==="vQ"&&S.created);$("#vtabs").hidden=!(v==="vDash"||v==="vQuiz");$$(".vtab").forEach(b=>b.setAttribute("aria-selected",b.dataset.view===v?"true":"false"));if(v==="vQuiz")mountLearn();window.scrollTo({top:0})}
 
 /* ===== 質問画面 ===== */
 let qi=0, single=false, onlyOpen=false, multiTmp=[];
@@ -501,7 +515,7 @@ function mountLearn(){
   learnUI=window.KotakuLearn.mount(el,{state:S.learn,save:st=>{S.learn=st;save()},onDone:(id,all)=>{if(all.length>=window.KotakuLearn.sessions){S.sdone[0]=true;S.done.flow=true}save();renderDash()}});
 }
 function renderDash(){
-  mountLearn();
+  {const n=Object.keys((S.learn&&S.learn.done)||{}).length;const tot=(window.KotakuLearn&&window.KotakuLearn.sessions)||6;$("#quizProg").textContent=`クリア ${n} / ${tot}回`+(S.learn&&S.learn.cur?"　途中から再開できます":"");}
   const {sched,cur,t,studyMonths}=phaseInfo();
   const qs=Q.filter(q=>q.modes.includes(S.mode||"quick"));
   const skipped=qs.filter(q=>S.ans[q.id]==null);
@@ -526,11 +540,12 @@ function renderDash(){
   const firstOpen=STUDY.findIndex((s,i)=>!(S.sdone[i]));
   $("#studyInfo").textContent=`${wpt>=1?`${wpt}週で1テーマ`:"1週で2テーマ"}・全12テーマ 約${studyMonths}か月`;
   $("#study").innerHTML=STUDY.map((s,i)=>{const dn=!!S.sdone[i];const w0=Math.floor(i*wpt)+1,w1=Math.ceil((i+1)*wpt);const wk=w0>=w1?`第${w0}週`:`第${w0}〜${w1}週`;const hot=s[3]&&worry.includes(s[3]);
-    return `<div class="srow${dn?" done":""}${i===firstOpen?" cur":""}"><button class="cb" type="button" data-study="${i}" aria-pressed="${dn}" aria-label="済みにする">✓</button><div class="wk">${wk}</div><div><div class="tt">${i===firstOpen?'<span class="chip now">いまここ</span>':""}${hot?'<span class="chip hot">気になる</span>':""}${esc(s[0])}</div><div class="mm">メモに残すこと：${esc(s[1])}${s[4]?"　→ 上の個タクQUIZ（6回）で学べます":""}</div></div></div>`}).join("");
+    return `<div class="srow${dn?" done":""}${i===firstOpen?" cur":""}"><button class="cb" type="button" data-study="${i}" aria-pressed="${dn}" aria-label="済みにする">✓</button><div class="wk">${wk}</div><div><div class="tt">${i===firstOpen?'<span class="chip now">いまここ</span>':""}${hot?'<span class="chip hot">気になる</span>':""}${esc(s[0])}</div><div class="mm">メモに残すこと：${esc(s[1])}${s[4]?"　→ 「個タクQUIZ」タブで学べます":""}</div></div></div>`}).join("");
   // sources
   $("#srcs").innerHTML=["top","r01","r03","r07","nta"].map(k=>`<li>${L(k)}</li>`).join("");
 }
 document.addEventListener("click",e=>{
+  const vw=e.target.closest("[data-view]"); if(vw){if(vw.dataset.view==="vDash")renderDash();show(vw.dataset.view);return}
   const a=e.target.closest("[data-ask]"); if(a){const id=a.dataset.ask;let qs=qList();let i=qs.findIndex(q=>q.id===id);if(i<0){S.mode="full";save();qs=qList();i=qs.findIndex(q=>q.id===id)}openQ(i,true);return}
   const tk=e.target.closest("[data-task]"); if(tk){const k=tk.dataset.task;const x=tasks().find(t=>t.k===k);const curv=S.done[k]??(x&&x.pre);S.done[k]=!curv;save();renderDash();return}
   const st=e.target.closest("[data-study]"); if(st){const i=st.dataset.study;S.sdone[i]?delete S.sdone[i]:S.sdone[i]=true;save();renderDash();return}
