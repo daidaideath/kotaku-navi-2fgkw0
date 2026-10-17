@@ -71,6 +71,55 @@ button,input,select{font:inherit;color:inherit}
 .quizcall b{display:block}
 .quizcall small{color:var(--on-navy-soft)}
 .quizcall .sp{flex:1}
+/* v04 レイアウト */
+.cond{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:10px 12px;margin-bottom:16px}
+.cond .lb{font-size:12px;font-weight:900;color:var(--ink-soft);letter-spacing:.06em;margin-right:2px}
+.cchip{appearance:none;cursor:pointer;border:1.5px solid var(--rule);background:var(--sheet-2);border-radius:10px;padding:4px 10px;text-align:left;line-height:1.3;font-size:14px;font-weight:700}
+.cchip small{display:block;font-size:10.5px;font-weight:700;color:var(--ink-soft)}
+.cchip:hover{border-color:var(--blue)}
+.cchip.skip{background:var(--gold-soft);border:1.5px dashed var(--gold);color:var(--warn)}
+.cond .sp{flex:1}
+.steps2{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:14px;position:relative;z-index:1}
+.steps2 div{background:rgba(255,255,255,.1);border-radius:9px;padding:7px 8px;min-height:64px;color:var(--on-navy-soft);font-size:11px;line-height:1.35}
+.steps2 b{display:block;font-family:var(--f-disp);font-weight:400;font-size:13px;color:var(--on-navy)}
+.steps2 span{display:block;font-weight:700;font-size:12px;color:var(--on-navy);margin:1px 0 3px}
+.steps2 div.on{background:var(--gold);color:var(--gold-ink)}.steps2 div.on b,.steps2 div.on span{color:var(--gold-ink)}
+.steps2 div.past{background:rgba(76,211,138,.2)}
+@media (max-width:620px){.steps2{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.now .note2{font-size:12px;color:var(--on-navy-soft);margin-top:10px;position:relative;z-index:1}
+.meter2{padding:10px 0;border-bottom:1px dashed var(--rule)}
+.meter2:last-of-type{border-bottom:0}
+.meter2 .h{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.meter2 .k{font-size:13px;font-weight:700;color:var(--ink-soft)}
+.meter2 .v{font-family:var(--f-disp);font-size:24px;line-height:1}
+.meter2 .v small{font-family:var(--f-body);font-size:13px;color:var(--ink-soft);font-weight:700;margin-left:2px}
+.meter2 .bar{height:8px;border-radius:4px;background:var(--rule-soft);overflow:hidden;margin-top:6px}
+.meter2 .bar i{display:block;height:100%;background:var(--blue)}
+.meter2.q .bar i{background:var(--gold)}
+.meter2.ok .bar i{background:var(--ok)}
+.todo3{list-style:none;margin:0;padding:0}
+.todo3 li{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:start;padding:9px 0;border-bottom:1px solid var(--rule-soft)}
+.todo3 li:last-child{border-bottom:0}
+.todo3 .t{font-weight:700;line-height:1.45;font-size:15px}
+.todo3 li.done .t{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:1px}
+.todo3 .d{grid-column:2/-1;font-size:13px;color:var(--ink-soft);background:var(--sheet-2);border-radius:8px;padding:8px 10px}
+.todo3 .d a{font-weight:700}
+.more{appearance:none;border:0;background:none;color:var(--blue);font-weight:700;font-size:12px;cursor:pointer;white-space:nowrap;padding:4px 2px}
+.slist{list-style:none;margin:0;padding:0}
+.slist li{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--rule-soft);font-size:14px}
+.slist li:last-child{border-bottom:0}
+.slist li.cur{background:var(--gold-soft);border-radius:8px;padding-inline:8px;margin-inline:-8px;border-bottom-color:transparent}
+.slist li.done .tt{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:1px}
+.slist .tt{font-weight:700;line-height:1.45}
+.slist .wk{font-size:12px;color:var(--ink-soft);font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.allthemes>summary{cursor:pointer;font-weight:700;font-size:13px;color:var(--blue);margin-top:8px;list-style:none}
+.allthemes>summary::-webkit-details-marker{display:none}
+.mini-guide{display:flex;flex-wrap:wrap;gap:6px 16px;padding:2px 16px 14px;font-size:13px;color:var(--ink-soft)}
+.mini-guide b{color:var(--ink)}
+.bottombar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:18px}
+.bottombar .sp{flex:1}
+.srcbox2{margin-top:16px;background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:10px 16px}
+.srcbox2>summary{cursor:pointer;font-weight:700;font-size:14px}
 main{padding-block:22px 48px}
 
 /* ---- start ---- */
@@ -126,8 +175,8 @@ main{padding-block:22px 48px}
 
 /* ---- dashboard ---- */
 .grid{display:grid;gap:16px;grid-template-columns:repeat(12,minmax(0,1fr))}
-.c12{grid-column:span 12}.c7{grid-column:span 7}.c5{grid-column:span 5}.c6{grid-column:span 6}
-@media (max-width:900px){.c7,.c5,.c6{grid-column:span 12}}
+.c12{grid-column:span 12}.c7{grid-column:span 7}.c5{grid-column:span 5}.c6{grid-column:span 6}.c8{grid-column:span 8}.c4{grid-column:span 4}
+@media (max-width:900px){.c7,.c5,.c6,.c8,.c4{grid-column:span 12}}
 .card{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:18px;min-width:0}
 .card h2{font-size:16px;margin:0 0 12px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .card h2 .tag{font-family:var(--f-disp);font-weight:400;font-size:12px;background:var(--navy);color:var(--gold);padding:2px 9px;border-radius:6px;letter-spacing:.08em}
@@ -283,50 +332,32 @@ main{padding-block:22px 48px}
 
   <section id="vDash" hidden>
     <div class="confirm" id="resetBox" hidden><span>回答とチェックをすべて消して、最初からやり直しますか？</span><span style="flex:1"></span><button class="btn btn-sm btn-line" type="button" id="resetNo">やめる</button><button class="btn btn-sm" style="background:var(--ng);color:#fff" type="button" id="resetYes">消してやり直す</button></div>
-    <details class="guide noprint" id="guide" open>
-      <summary><span class="tag">HOW TO</span>使い方<span class="small muted" style="font-weight:500">押すとどうなるか</span><span class="tg"></span></summary>
-      <ul class="howto">
-        <li><span class="hk ok">✓</span><span><b>「いまやること」の□を押す</b>済みになり、右上の「○ / ○ 済み」が増えます。もう一度押すと戻ります。</span></li>
-        <li><span class="hk ok">✓</span><span><b>「学習」の□を押す</b>上の「個タクQUIZ」タブで6回をクリアすると最初のテーマには自動で付きます。押すとそのテーマが済みになり、「いまここ」が次のテーマへ移ります。12テーマすべて済むと、段階が「2. 復習」へ進みます（開業まで1年以上あるとき）。</span></li>
-        <li><span class="hk">直</span><span><b>「あなたの回答」のカードを押す</b>その1問だけ答え直せます。やること・時期の目安・学習の週数がすぐ作り直されます。</span></li>
-        <li><span class="hk y">？</span><span><b>黄色い点線のカード</b>「あとで答える」にした質問です。答えるとボードに反映されます。</span></li>
-      </ul>
-      <div class="gfoot">押した内容はこの端末に自動で保存されます（ほかの端末とは共有されません）。いちばん下の「印刷・PDFにする」で、チェックの状態ごと印刷できます。</div>
+    <details class="guide noprint" id="guide">
+      <summary><span class="tag">HOW TO</span>使い方<span class="tg"></span></summary>
+      <div class="mini-guide"><span><b>□</b>→ 済みにする</span><span><b>上の条件</b>→ 押すと答え直し</span><span><b>黄色い点線</b>→ あとで答える質問</span><span><b>詳しく</b>→ 説明と出典</span></div>
+      <div class="gfoot">答えはこの端末にだけ自動保存されます。</div>
     </details>
-    <div class="later-box noprint" id="laterBox" hidden></div>
+    <div class="cond" id="cond"></div>
     <div class="grid">
-      <div class="card now c7" id="nowCard"></div>
-      <div class="card c5">
-        <h2><span class="tag">YOU</span>あなたの回答<span class="sp"></span><span class="small muted">押すと直せます</span></h2>
-        <div class="prof" id="prof"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px" class="noprint">
-          <button class="btn btn-line btn-sm" type="button" id="goFull" hidden>もっと細かく答える</button>
-          <button class="btn btn-ghost btn-sm" type="button" id="reset">最初からやり直す</button>
-        </div>
-      </div>
+      <div class="card now c8" id="nowCard"></div>
+      <div class="card c4" id="progCard"></div>
       <div class="card c7">
-        <h2><span class="tag">TODO</span>いまやること<span class="sp"></span><span class="small muted" id="todoCount"></span></h2>
-        <ul class="todo" id="todo"></ul>
+        <h2><span class="tag">TODO</span>いまやること</h2>
+        <ul class="todo3" id="todo"></ul>
       </div>
       <div class="card c5">
-        <h2><span class="tag">STEP</span>準備の順番と時期の目安</h2>
-        <ol class="sch" id="sch"></ol>
-        <p class="small muted" style="margin:10px 0 0">時期は回答から逆算した作業の目安です。制度上の期限や、申請できる日ではありません。</p>
-      </div>
-      <div class="card c12">
         <h2><span class="tag">STUDY</span>学習<span class="sp"></span><span class="small muted" id="studyInfo"></span></h2>
-        <div class="quizcall noprint"><span class="q">Q</span><div><b>個タクQUIZ：開業までの流れ（全6回・1回10分）</b><small id="quizProg"></small></div><span class="sp"></span><button class="btn btn-gold btn-sm" type="button" data-view="vQuiz">クイズを開く</button></div>
-        <div class="study" id="study"></div>
-      </div>
-      <div class="card c12">
-        <h2><span class="tag">SOURCE</span>確かめるときの公式資料</h2>
-        <ul class="srcs" id="srcs"></ul>
+        <ul class="slist" id="study"></ul>
+        <details class="allthemes" id="allThemes"><summary>全12テーマを見る</summary><ul class="slist" id="studyAll" style="margin-top:6px"></ul></details>
       </div>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px" class="noprint">
+    <details class="srcbox2"><summary>確かめるときの公式資料</summary><ul class="srcs" id="srcs" style="margin-top:6px"></ul></details>
+    <div class="bottombar noprint">
       <button class="btn btn-gold" type="button" id="print">印刷・PDFにする</button>
+      <span class="sp"></span>
+      <button class="btn btn-ghost btn-sm" type="button" id="reset">最初からやり直す</button>
     </div>
-    <p class="foot">このページは準備の順番を整理するための目安です。年齢・経歴・資金などの条件を満たすかは、公式資料と証明書類で確認してください。答えはこの端末のブラウザーの中だけに保存され、どこにも送信されません。資料の内容は2026/10時点で確認したものです。</p>
+    <p class="foot">準備の順番の目安です。条件を満たすかは公式資料と証明書類で確認してください。資料は2026/10時点で確認。</p>
   </section>
 </main>
 
@@ -487,7 +518,7 @@ function tasks(){
   const a=S.ans, done=Array.isArray(a.done)?a.done:[], worry=Array.isArray(a.worry)?a.worry:[];
   const T=[];
   const add=(k,t,d,th,hot,pre)=>T.push({k,t,d,th,hot:!!hot,pre:!!pre});
-  add("flow","開業までの流れをつかむ","下の「個タクQUIZ」から1回10分で。新規許可と譲渡譲受の違い、受験と申請の順番が分かります。","全体像",false,done.includes("flow"));
+  add("flow","開業までの流れをつかむ","「個タクQUIZ」タブから1回10分で。新規許可と譲渡譲受の違い、受験と申請の順番が分かります。","全体像",false,done.includes("flow"));
   if(a.route==="undecided"||a.route==="unknown"||!a.route) add("route","新規許可か譲渡譲受か、どちらで目指すか考える","まず違いを知ってから。急いで決めなくて大丈夫です。","経路");
   if(a.route==="new") add("exam","法令試験の申込時期を知っておく",`申込は原則年3回（4/1〜5/31→7月、8/1〜9/30→11月、12/1〜1/31→3月の試験）。実際の日程は個別の公示で確認します。合格証には有効期限があります。出典：${L("r03")}（PDF7〜8ページ）`,"試験",worry.includes("exam"));
   if(a.route==="transfer") add("transfer","譲渡譲受の条件を確かめる",`ゆずり受ける人にも基準があります。譲渡する人が75歳以上80歳未満の場合、ゆずり受ける人は60歳以下という条件もあります。出典：${L("r01")}`,"経路");
@@ -514,47 +545,56 @@ function mountLearn(){
   if(!window.KotakuLearn){el.innerHTML=`<p class="small muted">学習クイズを読み込めませんでした。ページを開き直してください。</p>`;return}
   learnUI=window.KotakuLearn.mount(el,{state:S.learn,save:st=>{S.learn=st;save()},onDone:(id,all)=>{if(all.length>=window.KotakuLearn.sessions){S.sdone[0]=true;S.done.flow=true}save();renderDash()}});
 }
+const PS=["基礎学習","復習・制度","経歴の整理","受験・申請準備","証明書・申請","開業準備"];
+const QK={route:"経路",target:"開業時期",age:"申請時の年齢",study:"勉強時間",region:"区域",exp:"経験",done:"済み",worry:"気になる"};
+const openD={};
+function chipVal(q,v){
+  if(Array.isArray(v)) return v.length?(q.id==="done"?`${v.length}件`:ANS_LABEL(q,v).split("、")[0].replace(/（.*$/,"")+(v.length>1?` ほか${v.length-1}`:"")):"なし";
+  return ANS_LABEL(q,v).replace(/（.*$/,"");
+}
 function renderDash(){
-  {const n=Object.keys((S.learn&&S.learn.done)||{}).length;const tot=(window.KotakuLearn&&window.KotakuLearn.sessions)||6;$("#quizProg").textContent=`クリア ${n} / ${tot}回`+(S.learn&&S.learn.cur?"　途中から再開できます":"");}
   const {sched,cur,t,studyMonths}=phaseInfo();
   const qs=Q.filter(q=>q.modes.includes(S.mode||"quick"));
-  const skipped=qs.filter(q=>S.ans[q.id]==null);
-  // later box
-  $("#laterBox").hidden=!skipped.length;
-  if(skipped.length) $("#laterBox").innerHTML=`<span><b>あとで答える質問が${skipped.length}つ</b>あります：${skipped.map(q=>esc(q.t.replace(/[？?]$/,""))).join("／")}</span><span class="sp"></span><button class="btn btn-gold btn-sm" type="button" data-ask="${skipped[0].id}">いま答える</button>`;
+  // conditions
+  $("#cond").innerHTML=`<span class="lb">あなたの条件</span>`+qs.map(q=>{const v=S.ans[q.id];const sk=v==null;return `<button class="cchip${sk?" skip":""}" type="button" data-ask="${q.id}"><small>${esc(QK[q.id])}</small>${sk?"あとで答える":esc(chipVal(q,v))}</button>`}).join("")+`<span class="sp"></span>${S.mode!=="full"?'<button class="btn btn-line btn-sm noprint" type="button" id="goFull">もっと細かく答える</button>':""}`;
   // now
-  $("#nowCard").innerHTML=`<span class="lbl">NOW</span><div class="phase">${cur+1}. ${esc(PH[cur].n)}</div>
-   <div class="sub">${t?(t.exact?`開業の希望 ${ym(t.d)}`:`開業の希望 ${esc(ANS_LABEL(Q[1],S.ans.target))}（${ym(t.d)}ごろとして仮置き）`):"開業の時期は未定。時期を決めると、各段階の時期が出ます。"}</div>
-   <div class="steps">${PH.map((p,i)=>`<div class="${i===cur?"on":i<cur?"past":""}"><b>${i+1}</b>${esc(p.n)}</div>`).join("")}</div>`;
-  // profile
-  $("#prof").innerHTML=qs.map(q=>{const v=S.ans[q.id];const sk=v==null;return `<button class="pf${sk?" skip":""}" type="button" data-ask="${q.id}"><div class="k">${esc(q.t.replace(/[？?]$/,""))}<i>${sk?"答える":"直す"}</i></div><div class="v">${sk?"あとで答える":esc(ANS_LABEL(q,v))}</div></button>`}).join("");
-  $("#goFull").hidden=S.mode==="full";
-  // todo
-  const ts=tasks();
-  $("#todo").innerHTML=ts.map(x=>{const dn=S.done[x.k]??x.pre;return `<li class="${dn?"done":""}"><button class="cb" type="button" data-task="${x.k}" aria-pressed="${!!dn}" aria-label="済みにする">✓</button><div><div class="t">${x.hot?'<span class="chip hot">気になる</span>':""}<span class="chip th">${esc(x.th)}</span>${esc(x.t)}</div><div class="d">${x.d}</div></div></li>`}).join("");
-  $("#todoCount").textContent=`${ts.filter(x=>S.done[x.k]??x.pre).length} / ${ts.length} 済み`;
-  // schedule
-  $("#sch").innerHTML=sched.map((p,i)=>`<li class="${i===cur?"on":i<cur?"past":""}"><span class="n">${i+1}</span><div><b>${esc(p.n)}</b><div class="w">${esc(p.w)}</div><p>${esc(p.d)}</p></div></li>`).join("");
+  const tl=t?(t.exact?`開業の希望 ${ym(t.d)}`:`開業の希望 ${esc(ANS_LABEL(Q[1],S.ans.target))}（${ym(t.d)}ごろで仮置き）`):"開業の時期は未定";
+  $("#nowCard").innerHTML=`<span class="lbl">NOW</span><div class="phase">${cur+1}. ${esc(PH[cur].n)}</div><div class="sub">${tl}</div>
+   <div class="steps2">${sched.map((p,i)=>`<div class="${i===cur?"on":i<cur?"past":""}"><b>${i+1}</b><span>${esc(PS[i])}</span>${esc(p.w.replace("（期間は公式資料で確認）","（期間未確認）"))}</div>`).join("")}</div>
+   <div class="note2">時期は回答から逆算した作業の目安で、制度上の期限ではありません。</div>`;
+  // tasks
+  const ts=tasks(); const tdone=ts.filter(x=>S.done[x.k]??x.pre).length;
+  $("#todo").innerHTML=ts.map(x=>{const dn=S.done[x.k]??x.pre; const op=!!openD[x.k];return `<li class="${dn?"done":""}"><button class="cb" type="button" data-task="${x.k}" aria-pressed="${!!dn}" aria-label="済みにする">✓</button><div class="t">${x.hot?'<span class="chip hot">気になる</span>':""}<span class="chip th">${esc(x.th)}</span>${esc(x.t)}</div><button class="more" type="button" data-more="${x.k}" aria-expanded="${op}">${op?"閉じる":"詳しく"}</button>${op?`<div class="d">${x.d}</div>`:""}</li>`}).join("");
+  // progress
+  const sN=Object.keys(S.sdone).length; const qN=Object.keys((S.learn&&S.learn.done)||{}).length; const qT=(window.KotakuLearn&&window.KotakuLearn.sessions)||6;
+  const m=(cls,k,v,tot,extra)=>`<div class="meter2 ${cls}"><div class="h"><span class="k">${k}</span><span class="v">${v}<small>/ ${tot}</small></span></div><div class="bar"><i style="width:${tot?Math.round(v/tot*100):0}%"></i></div>${extra||""}</div>`;
+  $("#progCard").innerHTML=`<h2><span class="tag">PROGRESS</span>進み具合</h2>`
+   +m("ok","いまやること",tdone,ts.length)
+   +m("","学習テーマ",sN,12)
+   +m("q","個タクQUIZ",qN,qT,`<div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:10px"><span class="small muted">${S.learn&&S.learn.cur?"途中から再開できます":"1回10分"}</span><button class="btn btn-gold btn-sm noprint" type="button" data-view="vQuiz">クイズを開く</button></div>`);
   // study
-  const wpt=weeksPerTheme(); const worry=Array.isArray(S.ans.worry)?S.ans.worry:[]; const doneA=Array.isArray(S.ans.done)?S.ans.done:[];
+  const wpt=weeksPerTheme(); const worry=Array.isArray(S.ans.worry)?S.ans.worry:[];
   const firstOpen=STUDY.findIndex((s,i)=>!(S.sdone[i]));
-  $("#studyInfo").textContent=`${wpt>=1?`${wpt}週で1テーマ`:"1週で2テーマ"}・全12テーマ 約${studyMonths}か月`;
-  $("#study").innerHTML=STUDY.map((s,i)=>{const dn=!!S.sdone[i];const w0=Math.floor(i*wpt)+1,w1=Math.ceil((i+1)*wpt);const wk=w0>=w1?`第${w0}週`:`第${w0}〜${w1}週`;const hot=s[3]&&worry.includes(s[3]);
-    return `<div class="srow${dn?" done":""}${i===firstOpen?" cur":""}"><button class="cb" type="button" data-study="${i}" aria-pressed="${dn}" aria-label="済みにする">✓</button><div class="wk">${wk}</div><div><div class="tt">${i===firstOpen?'<span class="chip now">いまここ</span>':""}${hot?'<span class="chip hot">気になる</span>':""}${esc(s[0])}</div><div class="mm">メモに残すこと：${esc(s[1])}${s[4]?"　→ 「個タクQUIZ」タブで学べます":""}</div></div></div>`}).join("");
-  // sources
+  $("#studyInfo").textContent=`${wpt>=1?`${wpt}週で1テーマ`:"1週で2テーマ"}・約${studyMonths}か月`;
+  const srow=i=>{const s=STUDY[i];const dn=!!S.sdone[i];const w0=Math.floor(i*wpt)+1,w1=Math.ceil((i+1)*wpt);const wk=w0>=w1?`第${w0}週`:`第${w0}〜${w1}週`;const hot=s[3]&&worry.includes(s[3]);
+    return `<li class="${dn?"done":""}${i===firstOpen?" cur":""}"><button class="cb" type="button" data-study="${i}" aria-pressed="${dn}" aria-label="済みにする">✓</button><span class="tt">${hot?'<span class="chip hot">気になる</span>':""}${esc(s[0])}${s[4]&&!dn?' <span class="chip now">クイズあり</span>':""}</span><span class="wk">${wk}</span></li>`};
+  const start=firstOpen<0?9:Math.min(firstOpen,9);
+  $("#study").innerHTML=[0,1,2].map(k=>start+k).filter(i=>i<12).map(srow).join("");
+  $("#studyAll").innerHTML=STUDY.map((_,i)=>srow(i)).join("");
   $("#srcs").innerHTML=["top","r01","r03","r07","nta"].map(k=>`<li>${L(k)}</li>`).join("");
+  const gf=$("#goFull"); if(gf) gf.onclick=()=>{S.mode="full";save();const qs2=qList();const i=qs2.findIndex(q=>S.ans[q.id]==null&&!S.skip[q.id]);openQ(i<0?0:i,false,true)};
 }
 document.addEventListener("click",e=>{
   const vw=e.target.closest("[data-view]"); if(vw){if(vw.dataset.view==="vDash")renderDash();show(vw.dataset.view);return}
   const a=e.target.closest("[data-ask]"); if(a){const id=a.dataset.ask;let qs=qList();let i=qs.findIndex(q=>q.id===id);if(i<0){S.mode="full";save();qs=qList();i=qs.findIndex(q=>q.id===id)}openQ(i,true);return}
+  const mo=e.target.closest("[data-more]"); if(mo){const k=mo.dataset.more;openD[k]=!openD[k];renderDash();return}
   const tk=e.target.closest("[data-task]"); if(tk){const k=tk.dataset.task;const x=tasks().find(t=>t.k===k);const curv=S.done[k]??(x&&x.pre);S.done[k]=!curv;save();renderDash();return}
   const st=e.target.closest("[data-study]"); if(st){const i=st.dataset.study;S.sdone[i]?delete S.sdone[i]:S.sdone[i]=true;save();renderDash();return}
 });
-$("#goFull").addEventListener("click",()=>{S.mode="full";save();const qs=qList();const i=qs.findIndex(q=>S.ans[q.id]==null&&!S.skip[q.id]);openQ(i<0?0:i,false,true)});
 $("#reset").addEventListener("click",()=>{$("#resetBox").hidden=false;window.scrollTo({top:0})});
 $("#resetNo").addEventListener("click",()=>{$("#resetBox").hidden=true});
 $("#resetYes").addEventListener("click",()=>{S={mode:null,ans:{},skip:{},done:{},sdone:{},created:null,learn:{}};try{localStorage.removeItem(KEY)}catch(e){}learnUI=null;$("#resetBox").hidden=true;show("vStart")});
-{const g=$("#guide");if(S.guideClosed)g.open=false;g.addEventListener("toggle",()=>{S.guideClosed=!g.open;save()})}
+{const g=$("#guide");if(S.guideOpen)g.open=true;g.addEventListener("toggle",()=>{S.guideOpen=g.open;save()})}
 $("#print").addEventListener("click",()=>{try{window.print()}catch(e){}});
 
 /* ===== 起動 ===== */
