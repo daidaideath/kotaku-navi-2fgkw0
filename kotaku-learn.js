@@ -19,6 +19,31 @@ const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-d
 .klq table{ min-width:0; }
 .klq .cmp{ display:block; overflow-x:auto; }
 .klq [hidden]{ display:none !important; }
+.klq .deck{ margin-top:8px; }
+.klq .deck-prog{ font-weight:700; font-size:.9rem; margin-bottom:8px; }
+.klq .fcard{ border-radius:18px; overflow:hidden; box-shadow:0 0 0 4px var(--studio); background:var(--sheet); }
+.klq .fcard .fq{ background:radial-gradient(120% 140% at 50% 0%, #2F3BB0 0%, #1B2272 70%); color:#fff; font-weight:700; font-size:1.15rem; line-height:1.7; padding:18px 16px 20px; border-bottom:5px solid var(--gold); display:flex; gap:12px; align-items:flex-start; }
+.klq .fcard.done-all .fq{ justify-content:center; font-family:var(--round); font-size:1.5rem; border-bottom:0; }
+.klq .fcard .fa{ padding:16px; font-weight:700; font-size:1.1rem; line-height:1.7; display:flex; gap:12px; align-items:flex-start; background:var(--ok-bg); }
+.klq .fcard .src{ margin:0; padding:8px 16px 12px; border-top:0; background:var(--ok-bg); }
+.klq .ftag{ flex:none; font-family:var(--round); font-weight:800; width:2em; height:2em; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; background:var(--gold); color:var(--gold-ink); font-size:1rem; }
+.klq .ftag.a{ background:var(--ok); color:#fff; }
+.klq .btn-ok{ background:var(--ok); color:#fff; border-color:var(--ok); font-weight:800; }
+.klq .btn-again{ border-color:var(--ng); color:var(--ng); background:var(--sheet); }
+.klq .ox{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.klq .oxb{ min-height:84px; border-radius:16px; border:3px solid var(--rule); background:var(--sheet); font-family:var(--round); font-weight:800; font-size:2.6rem; cursor:pointer; line-height:1; }
+.klq .oxb.o{ color:var(--ok); } .klq .oxb.x{ color:var(--ng); }
+.klq .oxb:hover:not([disabled]){ border-color:var(--studio); }
+.klq .oxb.is-right{ border-color:var(--ok); background:var(--ok-bg); }
+.klq .oxb.is-wrong{ border-color:var(--ng); background:var(--ng-bg); }
+.klq .oxb[disabled]{ cursor:default; }
+.klq .stop.tai{ background:linear-gradient(160deg,#7041E0,#3B1F8F); box-shadow:0 4px 0 #24125E; }
+.klq .stop.tai.done{ background:linear-gradient(160deg,#FFD866,var(--gold)); color:var(--gold-ink); box-shadow:0 4px 0 var(--gold-deep); }
+.klq .sub-acts{ margin-top:10px; }
+.klq .sub-acts .btn{ min-height:44px; font-size:.95rem; }
+.klq .kdiary{ margin-top:26px; }
+.klq .kdiary>summary{ cursor:pointer; font-family:var(--round); font-weight:800; font-size:1.1rem; margin-bottom:10px; }
+.klq .stage-no{ font-size:1.1rem; }
 .klq .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 /* テロップ文字（番組の字幕の縁取り） */
 .klq .telop{
@@ -292,7 +317,7 @@ const STATIONS = [
   { id:"ready", name:"開業準備", weeks:"第21〜22週", desc:"許可から営業開始までにすること" },
   { id:"after", name:"開業後の経営", weeks:"第23〜24週", desc:"記帳・収支の管理と、24週の振り返り" }
 ];
-const STEP_NAMES = ["開幕","予想","解説","確認","終幕"];
+const STEP_NAMES = ["開幕","読む","覚える","解く","終幕"];
 
 /* ---------- ステージ1「開業までの流れ」6回 ---------- */
 const SESSIONS = [
@@ -596,8 +621,74 @@ const SESSIONS = [
 ];
 
 
-/* ---------- 保存はボード側に任せる ---------- */
-const fresh = () => ({ done:{}, cur:null, ans:{}, diary:[], last:null, prevLast:null });
+/* ---------- 12テーマ（学習計画v02の順。試験対策6・開業準備6） ---------- */
+const TRACKS = { exam:"試験対策", prep:"開業準備" };
+const THEMES = [
+  { n:1,  track:"prep", name:"開業の全体像", desc:"いつ、何を準備するかの地図を持つ", open:true },
+  { n:2,  track:"exam", name:"道路運送法の入口", desc:"許可・認可・届出の区別" },
+  { n:3,  track:"exam", name:"運輸規則と日々の運行", desc:"記録・点呼など、独立後に自分が担う管理" },
+  { n:4,  track:"exam", name:"運送の引受け・拒否", desc:"接客に関係する法令の読み方" },
+  { n:5,  track:"prep", name:"開業資金と毎月の費用", desc:"開業時の費用・営業中の費用・家計を分ける" },
+  { n:6,  track:"prep", name:"営業所・車庫", desc:"物件を見る前の確認の順番" },
+  { n:7,  track:"exam", name:"車両法・点検整備・事故報告", desc:"車の購入費以外に必要な管理" },
+  { n:8,  track:"exam", name:"タクシー業務適正化特別措置法", desc:"乗り場・乗車禁止地区と地域のルール" },
+  { n:9,  track:"exam", name:"運賃・料金・運送約款", desc:"記憶だけで判断しないための確認先" },
+  { n:10, track:"prep", name:"申請資料と証明書", desc:"取る時期と、早めに所在を確かめる資料" },
+  { n:11, track:"prep", name:"許可後の営業開始準備", desc:"車・保険・決済・記録管理の流れ" },
+  { n:12, track:"prep", name:"開業後の記帳・収支", desc:"経営者として管理すること" }
+];
+/* テーマごとの回。ステージ1の6回はClaude版v01の出題をそのまま使う */
+const THEME_SESSIONS = { 1: SESSIONS.map(s => s.id) };
+SESSIONS.forEach(s => { s.theme = 1; });
+
+/* ---------- 覚えるカード（各回2〜3枚。根拠は案件フォルダの公式原本で2026/10/22に本文確認） ---------- */
+const CARDS = {
+  1:[
+    { id:"c1-1", q:"新規許可で開業するまでの4段階の順番は？", a:"①事前試験に合格 → ②許可を申請 → ③審査を経て許可 → ④営業開始", src:["R03","R02"] },
+    { id:"c1-2", q:"許可を受けてから、事業を始めるまでの期限は？", a:"許可等の日から4か月以内", src:["R01"] },
+    { id:"c1-3", q:"事前試験の受験の条件は、いつの時点で見られる？", a:"受験を申し込む日の時点", src:["R03"] }
+  ],
+  2:[
+    { id:"c2-1", q:"特別区・武三の新規許可の申請受付（原則）は？", a:"毎年度 5月・9月・1月の各1か月。参入枠に達すると、それ以降の期間は受け付けない", src:["R10"] },
+    { id:"c2-2", q:"譲渡譲受の申請受付は？", a:"通年", src:["R01"] },
+    { id:"c2-3", q:"譲渡する人が75歳以上80歳未満のとき、譲り受ける人の条件は？", a:"60歳以下", src:["R01"] }
+  ],
+  3:[
+    { id:"c3-1", q:"合格証の有効期限は？", a:"発行日から2年を経過する日と、65歳に達する日の前日の、早いほう", src:["R03"] },
+    { id:"c3-2", q:"事前試験の申込期間と実施月（原則）は？", a:"4/1〜5/31 → 7月、8/1〜9/30 → 11月、12/1〜1/31 → 3月", src:["R03"] },
+    { id:"c3-3", q:"試験の形と合格基準（特定指定地域以外）は？", a:"○×方式と語群選択方式。40問・36点以上・50分（特定指定地域は45問・41点以上・60分）", src:["R03"] }
+  ],
+  4:[
+    { id:"c4-1", q:"40歳以上65歳未満：運転を職業とした期間の条件は？", a:"申請日以前25年間のうち10年以上", src:["R01"] },
+    { id:"c4-2", q:"40歳以上65歳未満：この区域でのタクシー経験の条件は？", a:"申請する営業区域で、申請日以前3年以内に2年以上", src:["R01"] },
+    { id:"c4-3", q:"タクシー・バスなど以外の車（トラック等）を運転した期間の数え方は？", a:"50％に換算する（例：4年なら2年）", src:["R01"] }
+  ],
+  5:[
+    { id:"c5-1", q:"自己資金の条件は？", a:"所要資金の100％以上を、自己名義の預貯金等で、申請日以降いつも確保", src:["R01"] },
+    { id:"c5-2", q:"所要資金のうち、設備資金と運転資金は？", a:"設備資金80万円以上（例外あり）、運転資金80万円以上。これに車庫の資金と保険料1年分を足す", src:["R01"] },
+    { id:"c5-3", q:"車庫の距離の条件は？", a:"営業区域の中で、営業所から直線2km以内", src:["R01"] }
+  ],
+  6:[
+    { id:"c6-1", q:"運転記録証明書は、いつ発行されたものが必要？", a:"申請日前3週間以内（過去5年間の記録を証明するもの）", src:["R07"] },
+    { id:"c6-2", q:"戸籍抄本・住民票・運転適性診断票は？", a:"申請日前3か月以降に発行されたもの", src:["R07"] },
+    { id:"c6-3", q:"その他の挙証資料（原則）は？", a:"申請日前4か月以降に発行されたもの（運転免許・通帳・契約書などは例外）", src:["R07"] }
+  ]
+};
+
+/* ---------- 対策（テーマの最後に○×で確かめる。kind：試験／申請） ---------- */
+const TAISAKU = {
+  1:[
+    { kind:"申請", q:"法令試験の合格証があれば、個人タクシーの営業を始められる。", ans:false, why:"合格証は試験に合格した証明で、営業の許可ではありません。申請して許可を受け、その後に営業を始めます。", src:["R01","R03"] },
+    { kind:"試験", q:"新規許可は、事前試験に合格してから申請する。", ans:true, why:"2026年4月1日以降に受け付ける申請では、申請後に受ける試験の対象は譲渡譲受と相続だけです。新規許可は事前試験の合格者として申請します。", src:["R03","R02"] },
+    { kind:"試験", q:"合格証は、一度もらえば何年後の申請でも使える。", ans:false, why:"発行日から2年を経過する日か、65歳に達する日の前日の早いほうまでです。受験の時期は申請の予定から逆算します。", src:["R03"] },
+    { kind:"申請", q:"タクシー会社に在籍していた期間は、休職中も含めてそのまま運転経歴になる。", ans:false, why:"見られるのは「自動車の運転を専ら職業とした期間」です。在職証明書には休職期間や月当たりの勤務日数も書きます。", src:["R01","R07"] },
+    { kind:"申請", q:"家族名義の預金も、自己資金として示せる。", ans:false, why:"自己名義の預貯金等で、所要資金の100％以上を申請日以降いつも確保していることが条件です。", src:["R01","R07"] },
+    { kind:"申請", q:"住民票は、今のうちに取っておけば申請に使える。", ans:false, why:"住民票は申請日前3か月以降の発行が必要です。証明書の多くは申請日から逆算して取ります。", src:["R07"] }
+  ]
+};
+
+/* ---------- 保存はアプリ側に任せる ---------- */
+const fresh = () => ({ done:{}, cur:null, ans:{}, cards:{}, tai:{}, diary:[], last:null, prevLast:null });
 let S = fresh(), OPT = {}, root = null, $app = null, booted = false;
 function save(){ try{ OPT.save && OPT.save(JSON.parse(JSON.stringify(S))); }catch(e){} }
 
@@ -611,6 +702,8 @@ function srcLine(ids, extra){
   const parts = ids.map(id => `<a href="${SRC[id].u}" target="_blank" rel="noopener">${esc(SRC[id].n)}</a>`);
   return `<div class="src">根拠：${parts.join("／")}${extra?`（${esc(extra)}）`:""}。確認日 ${CHECKED}。会話は教材用の創作です。</div>`;
 }
+const CARD_CHECKED = "2026/10/22";
+function srcShort(ids, date){ return `<div class="src">根拠：${ids.map(id=>`<a href="${SRC[id].u}" target="_blank" rel="noopener">${esc(SRC[id].n)}</a>`).join("／")}。確認日 ${date||CARD_CHECKED}。</div>`; }
 function today(){ const d=new Date(); return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,"0")}/${String(d.getDate()).padStart(2,"0")}`; }
 function toast(msg){ const t=$(".toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast._t); toast._t=setTimeout(()=>t.hidden=true,2200); }
 function setLamp(mode){
@@ -633,16 +726,38 @@ function focusTop(){
   $app.focus({preventScroll:true});
 }
 function homeBtn(show){ $(".homebtn").hidden=!show; }
+const themeOf = n => THEMES.find(t=>t.n===n);
+const sessionsOf = n => (THEME_SESSIONS[n]||[]).map(id=>SESSIONS.find(s=>s.id===id)).filter(Boolean);
+const cardsOfTheme = n => sessionsOf(n).flatMap(s=>CARDS[s.id]||[]);
+
+/* ---------- 進み具合（アプリ側からも使う） ---------- */
+function progressOf(state){
+  const st = Object.assign(fresh(), state||{});
+  const out = {};
+  THEMES.forEach(t => {
+    const ss = sessionsOf(t.n), cs = cardsOfTheme(t.n), tq = TAISAKU[t.n]||[];
+    const qids = ss.flatMap(s=>[`s${s.id}p`,`s${s.id}c`]);
+    const tried = qids.filter(q=>st.ans[q]);
+    out[t.n] = {
+      track:t.track, name:t.name, ready:!!t.open && ss.length>0,
+      sessions:ss.length, sessionsDone:ss.filter(s=>st.done[s.id]).length,
+      cards:cs.length, cardsKnown:cs.filter(c=>st.cards[c.id]&&st.cards[c.id].k).length,
+      qTried:tried.length, qFirstOk:tried.filter(q=>st.ans[q].first===true).length,
+      tai:tq.length, taiBest:(st.tai[t.n]&&st.tai[t.n].best)||0
+    };
+  });
+  return out;
+}
 
 /* ---------- ホーム ---------- */
-function nextSession(){ return SESSIONS.find(s => !S.done[s.id]); }
+function nextSession(){ for(const t of THEMES){ if(!t.open) continue; const s=sessionsOf(t.n).find(x=>!S.done[x.id]); if(s) return s; } return null; }
 function greeting(){
   const doneCount = Object.keys(S.done).length;
   const gapDays = S.prevLast ? Math.floor((Date.now() - S.prevLast)/86400000) : null;
-  if(!S.prevLast && doneCount===0 && !S.cur) return ["t","はじめまして。司会と解説の先生です。ここでは1回10分、予想問題と確認問題を1問ずつ進みます。一度に全部覚えなくて大丈夫。今日は地図を眺めるだけでも十分です。"];
-  if(gapDays!==null && gapDays>=7) return ["c",`おかえりなさい！　前回から${gapDays}日。間があいても大丈夫、取り戻す必要もないよ。おさらい2問で思い出してから進んでもいいね。`];
+  if(!S.prevLast && doneCount===0 && !S.cur) return ["t","はじめまして。司会と解説の先生です。1回10分で「読む→覚える→解く」を進めます。一度に全部覚えなくて大丈夫です。"];
+  if(gapDays!==null && gapDays>=7) return ["c",`おかえりなさい！　前回から${gapDays}日。間があいても大丈夫。カードの復習から始めてもいいね。`];
   if(S.cur){ const s=SESSIONS.find(x=>x.id===S.cur.id); return ["c",`おかえり！　第${s.id}回「${s.short}」の「${STEP_NAMES[S.cur.step]}」から続きができるよ。`]; }
-  if(doneCount===SESSIONS.length) return ["k","ステージ1をクリアしたね。次のステージ「試験」は準備中。おさらい2問で、覚えたことを確かめてみよう。"];
+  if(!nextSession()) return ["k","公開中の回はすべてクリアしたね。カードの復習と「対策」で仕上げよう。次のテーマは準備中です。"];
   if(doneCount>0) return ["r","次の回、オレも気になってたんだ。今日はここまででも、また今度一緒に進んでもいいよ。"];
   return ["t","今日も10分だけ、1回分に挑戦しましょう。"];
 }
@@ -650,63 +765,54 @@ function renderHome(){
   setLamp("vacant"); setMeter("個タクQUIZ　ステージ表", null); homeBtn(false);
   const ns = nextSession();
   const [gsp, gtx] = greeting();
-  const doneN = Object.keys(S.done).length;
   const rp = reviewPool().length;
+  const allCards = THEMES.filter(t=>t.open).flatMap(t=>cardsOfTheme(t.n));
+  const known = allCards.filter(c=>S.cards[c.id]&&S.cards[c.id].k).length;
   let startHtml;
   if(S.cur){
     const s = SESSIONS.find(x=>x.id===S.cur.id);
     startHtml = `<div class="next-label">続きから</div><div class="next-title">第${s.id}回　${esc(s.title)}</div><div class="note">「${STEP_NAMES[S.cur.step]}」から再開します</div>
-    <div class="btn-row"><button class="btn btn-primary" data-act="resume">続きを始める</button><button class="btn btn-ghost" data-act="review" ${rp?"":"disabled"}>おさらい2問（約3分）</button></div>`;
+    <div class="btn-row"><button class="btn btn-primary" data-act="resume">続きを始める</button></div>`;
   } else if(ns){
-    startHtml = `<div class="next-label">次の10分</div><div class="next-title">第${ns.id}回　${esc(ns.title)}</div><div class="note">オープニング・予想問題・解説・確認問題・エンディングの5コーナーで、約10分</div>
-    <div class="btn-row"><button class="btn btn-primary" data-act="start" data-id="${ns.id}">挑戦する</button><button class="btn btn-ghost" data-act="review" ${rp?"":"disabled"}>おさらい2問（約3分）</button></div>${rp?"":'<p class="note" style="margin:8px 0 0">おさらい2問は、1回挑戦すると使えます。</p>'}`;
+    startHtml = `<div class="next-label">次の10分</div><div class="next-title">第${ns.id}回　${esc(ns.title)}</div><div class="note">読む → 覚える → 解く の順で、約10分</div>
+    <div class="btn-row"><button class="btn btn-primary" data-act="start" data-id="${ns.id}">挑戦する</button></div>`;
   } else {
-    startHtml = `<div class="next-label">ステージ1クリア</div><div class="next-title">次のステージ「試験（法令）」は準備中です</div>
-    <div class="btn-row"><button class="btn btn-primary" data-act="review">おさらい2問（約3分）</button></div>`;
+    startHtml = `<div class="next-label">公開中の回はクリア</div><div class="next-title">次のテーマは準備中です</div><div class="note">カードの復習と対策で仕上げましょう</div>`;
   }
-  const stopsHtml = SESSIONS.map(s => {
-    const cls = S.done[s.id] ? "done" : (S.cur && S.cur.id===s.id) || (!S.cur && ns && ns.id===s.id) ? "now" : "";
-    return `<button class="stop ${cls}" data-act="start" data-id="${s.id}"><small>第${s.id}回</small>${esc(s.short)}</button>`;
-  }).join("");
-  const routeHtml = STATIONS.map((st,i) => {
-    const isDone = st.open && doneN===SESSIONS.length;
-    const cls = isDone ? "open done" : st.open ? "open" : "locked";
-    return `<li class="stage ${cls}"><span class="stage-no" aria-label="ステージ${i+1}">${i+1}</span><div class="stage-main">
-      <h3>${esc(st.name)}<span class="weeks">${st.weeks}</span></h3>
-      <p>${esc(st.desc)}</p>
-      ${st.open ? `<div class="stops">${stopsHtml}</div>` : `<span class="soon">準備中</span>`}
-    </div></li>`;
-  }).join("");
+  const sub = `<div class="btn-row sub-acts"><button class="btn btn-ghost" data-act="cards" ${allCards.length?"":"disabled"}>カードを復習（覚えた ${known}/${allCards.length}）</button><button class="btn btn-ghost" data-act="review" ${rp?"":"disabled"}>おさらい2問</button></div>`;
+  const themeRow = t => {
+    const ss = sessionsOf(t.n);
+    if(!t.open || !ss.length) return `<li class="stage locked"><span class="stage-no">${t.n}</span><div class="stage-main"><h3>${esc(t.name)}</h3><p>${esc(t.desc)}</p><span class="soon">準備中</span></div></li>`;
+    const doneN = ss.filter(s=>S.done[s.id]).length;
+    const stops = ss.map(s => { const cls = S.done[s.id] ? "done" : (S.cur && S.cur.id===s.id) || (!S.cur && ns && ns.id===s.id) ? "now" : ""; return `<button class="stop ${cls}" data-act="start" data-id="${s.id}"><small>第${s.id}回</small>${esc(s.short)}</button>`; }).join("");
+    const tq = TAISAKU[t.n]||[]; const best = S.tai[t.n] ? S.tai[t.n].best : null;
+    const tai = tq.length ? `<button class="stop tai${best===tq.length?" done":""}" data-act="tai" data-t="${t.n}"><small>まとめ</small>対策 ○×${tq.length}問${best!=null?`（最高 ${best}）`:""}</button>` : "";
+    return `<li class="stage open${doneN===ss.length?" done":""}"><span class="stage-no">${t.n}</span><div class="stage-main"><h3>${esc(t.name)}<span class="weeks">${doneN}/${ss.length}回</span></h3><p>${esc(t.desc)}</p><div class="stops">${stops}${tai}</div></div></li>`;
+  };
+  const trackHtml = k => `<h2 class="sec-title">${TRACKS[k]}<small>${THEMES.filter(t=>t.track===k).length}テーマ</small></h2><ol class="stages">${THEMES.filter(t=>t.track===k).map(themeRow).join("")}</ol>`;
   const diaryRows = S.diary.slice().reverse().map(d => `<tr><td class="d">${esc(d.date)}</td><td>${esc(d.label)}</td><td>${d.note?esc(d.note):'<span class="note">（記入なし）</span>'}</td></tr>`).join("");
   $app.innerHTML = `
   <section class="khero"><div class="telop hero-t">個タクQUIZ</div>
-  <span class="sub">1回10分・特別区・武三</span>
-  <div class="cast">${["t","r","c","k"].map(sp=>`<figure><img src="${IMG[sp]}" alt="${esc(CAST[sp].alt)}"><figcaption>${CAST[sp].name}</figcaption></figure>`).join("")}</div>
-  <p>週3回なら2週間で1ステージ。24週で開業までの7ステージを一巡します。クリアした回は、学習計画の丸にも自動で付きます。</p></section>
+  <span class="sub">1回10分・読む → 覚える → 解く</span>
+  <div class="cast">${["t","r","c","k"].map(sp=>`<figure><img src="${IMG[sp]}" alt="${esc(CAST[sp].alt)}"><figcaption>${CAST[sp].name}</figcaption></figure>`).join("")}</div></section>
   <div class="hello">${face(gsp)}<div class="bubble">${esc(gtx)}</div></div>
-  <div class="start-box">${startHtml}</div>
-  <h2 class="sec-title">ステージ表<small>どの回からでも挑戦できます</small></h2>
-  <ol class="stages">${routeHtml}</ol>
-  <h2 class="sec-title">挑戦の記録<small>エンディングで書いた「ひとこと」が残ります</small></h2>
-  <div class="nippo">
-    <div class="nippo-head"><span>記録 ${S.diary.length}件</span>${S.diary.length?'<button class="icon-btn" data-act="copy">文字でコピー</button>':""}</div>
-    ${S.diary.length ? `<div style="overflow-x:auto"><table><thead><tr><th>日付</th><th>回</th><th>ひとこと</th></tr></thead><tbody>${diaryRows}</tbody></table></div>` : `<div class="kempty">まだ記録はありません。最初の10分が終わると、ここに1行目が書かれます。</div>`}
-  </div>
+  <div class="start-box">${startHtml}${sub}</div>
+  ${trackHtml("prep")}${trackHtml("exam")}
+  <details class="kdiary"><summary>挑戦の記録（${S.diary.length}件）</summary>
+  <div class="nippo">${S.diary.length ? `<div class="nippo-head"><span>エンディングの「ひとこと」</span><button class="icon-btn" data-act="copy">文字でコピー</button></div><div style="overflow-x:auto"><table><thead><tr><th>日付</th><th>回</th><th>ひとこと</th></tr></thead><tbody>${diaryRows}</tbody></table></div>` : `<div class="kempty">まだ記録はありません。</div>`}</div></details>
   ${footer()}`;
   focusTop();
 }
 function footer(){
-  return `<div class="kfoot">
-  <p>関東運輸局の公示などを${CHECKED}に確認して作った共通教材です。個人の受験資格や申請できる日を判定するものではありません。受験・申請の前には最新の公示で確かめてください。登場する4人の会話は教材用の創作です。</p>
-  <div class="btn-row"><button class="btn btn-ghost" data-act="sources">根拠資料の一覧</button></div>
-  </div>`;
+  return `<div class="kfoot"><p>関東運輸局の公示などをもとに作った非公式の共通教材です。個人の受験資格や申請できる日を判定するものではありません。会話は教材用の創作です。</p>
+  <div class="btn-row"><button class="btn btn-ghost" data-act="sources">根拠資料の一覧</button></div></div>`;
 }
 
-/* ---------- 回（セッション） ---------- */
+/* ---------- 回（セッション）：開幕→読む→覚える→解く→終幕 ---------- */
 let run = null;
 function startSession(id, step){
   const s = SESSIONS.find(x=>x.id===id);
-  run = { s, step: step||0, solved:{} };
+  run = { s, step: step||0, solved:{}, deck:null };
   S.cur = { id, step: run.step }; save();
   setLamp("hired"); homeBtn(true);
   renderStep();
@@ -721,26 +827,67 @@ function navButtons(opts){
 function renderStep(){
   const s = run.s, st = run.step;
   setMeter(`第${s.id}回　${s.title}`, st);
-  const corner = ["オープニング","予想問題","解説コーナー","確認問題","エンディング"][st];
+  const corner = ["オープニング","読む","覚える","解く","エンディング"][st];
   let h = `<span class="corner">第${s.id}回・${corner}</span>`;
   if(st===0){
-    h += `<h2 class="screen-title">${esc(s.title)}</h2><p class="goal"><b>今日のテーマ</b>${esc(s.goal)}</p>${talk(s.ride)}${navButtons({nextLabel:"予想問題へ"})}`;
+    h += `<h2 class="screen-title">${esc(s.title)}</h2><p class="goal"><b>今日のテーマ</b>${esc(s.goal)}</p>${talk(s.ride)}${navButtons({nextLabel:"読む"})}`;
   } else if(st===1){
-    h += `<h2 class="screen-title">まず予想</h2><p class="lead">外れても大丈夫。予想してから答えを見ると、記憶に残りやすくなります。</p>${quizHtml(s.predict,"p")}${navButtons({lock:!run.solved.p})}`;
-  } else if(st===2){
     const g = s.guide;
-    h += `<h2 class="screen-title">先生の解説</h2><div class="kguide"><h3>${esc(g.title)}</h3>${g.html}${srcLine(g.src, g.srcNote)}</div>${navButtons({nextLabel:"確認問題へ"})}`;
+    h += `<h2 class="screen-title">先生の解説</h2><div class="kguide"><h3>${esc(g.title)}</h3>${g.html}${srcLine(g.src, g.srcNote)}</div>${navButtons({nextLabel:"覚える"})}`;
+  } else if(st===2){
+    if(!run.deck) run.deck = { q:(CARDS[s.id]||[]).map(c=>c.id), flipped:false };
+    h += `<h2 class="screen-title">覚えるカード</h2><p class="lead">表を見て答えを思い浮かべてから、めくります。覚えていなければ「もう一度」。</p><div class="deck"></div>${navButtons({nextLabel:"解く"})}`;
   } else if(st===3){
-    h += `<h2 class="screen-title">場面で確かめよう</h2><p class="lead">いま読んだことを、場面に当てはめてみましょう。</p>${quizHtml(s.check,"c")}${navButtons({lock:!run.solved.c})}`;
+    h += `<h2 class="screen-title">解いてみよう</h2><p class="lead">読んだこと・覚えたことを、問題と場面で確かめます。</p>${quizHtml(s.predict,"p")}<div class="q2wrap"${run.solved.p?"":" hidden"}>${quizHtml(s.check,"c")}</div>${navButtons({lock:!(run.solved.p&&run.solved.c)})}`;
   } else {
     h += alightHtml(s);
   }
   $app.innerHTML = h;
+  if(st===2) renderDeck();
   setLamp(st===4 ? "arrive" : "hired");
   focusTop();
 }
 
-/* 問題の描画 */
+/* ---------- 覚えるカード ---------- */
+function cardById(id){ for(const k in CARDS){ const c=CARDS[k].find(x=>x.id===id); if(c) return c; } return null; }
+function renderDeck(){
+  const box = $(".deck"); if(!box) return;
+  const d = (run && run.deck) || cardRun;
+  const total = d.all || (CARDS[run && run.s ? run.s.id : 0]||[]).length || d.q.length;
+  if(!d.q.length){
+    box.innerHTML = `<div class="fcard done-all"><div class="fq">全部覚えた！</div></div><div class="talk">${line("c","ばっちり！　あとは問題で確かめよう。忘れたころにカードの復習をすると、ぐっと残るよ。",true)}</div>`;
+    return;
+  }
+  const c = cardById(d.q[0]);
+  const knownN = total - d.q.length;
+  box.innerHTML = `<div class="deck-prog">あと ${d.q.length}枚　<span class="note">（覚えた ${knownN}/${total}）</span></div>
+  <div class="fcard${d.flipped?" flipped":""}"><div class="fq"><span class="ftag">Q</span>${esc(c.q)}</div>${d.flipped?`<div class="fa"><span class="ftag a">A</span>${esc(c.a)}</div>${srcShort(c.src)}`:""}</div>
+  <div class="btn-row">${d.flipped?`<button class="btn btn-ok" data-act="know">○ 覚えた</button><button class="btn btn-again" data-act="again">もう一度</button>`:`<button class="btn btn-primary" data-act="flip">めくる</button>`}</div>`;
+}
+function onCard(act){
+  const d = (run && run.deck) || cardRun; if(!d || !d.q.length) return;
+  if(act==="flip"){ d.flipped = true; return renderDeck(); }
+  const id = d.q.shift();
+  if(act==="know"){ S.cards[id] = { k:true, t:Date.now() }; }
+  else { S.cards[id] = { k:false, t:Date.now() }; d.q.push(id); }
+  d.flipped = false; save(); renderDeck();
+  try{ OPT.onChange && OPT.onChange(); }catch(e){}
+}
+/* カードだけの復習（ホームから） */
+let cardRun = null;
+function startCards(){
+  const all = THEMES.filter(t=>t.open).flatMap(t=>cardsOfTheme(t.n));
+  if(!all.length) return;
+  const weak = all.filter(c=>!(S.cards[c.id]&&S.cards[c.id].k)).map(c=>c.id);
+  const rest = all.filter(c=>!weak.includes(c.id)).map(c=>c.id).sort(()=>Math.random()-.5);
+  const q = weak.concat(rest).slice(0, Math.max(5, weak.length));
+  cardRun = { q, flipped:false, all:q.length }; run = null; reviewRun = null;
+  setLamp("hired"); homeBtn(true); setMeter("カードの復習", null);
+  $app.innerHTML = `<span class="corner">カードの復習</span><h2 class="screen-title">思い出してみよう</h2><p class="lead">まだ覚えていないカードから出ます。</p><div class="deck"></div><div class="btn-row"><button class="btn btn-primary" data-act="home">ステージ表に戻る</button></div>`;
+  renderDeck(); focusTop();
+}
+
+/* ---------- 問題 ---------- */
 function quizHtml(q, slot){
   const tag = slot==="p" ? "予想問題" : slot==="c" ? "確認問題" : "おさらい";
   const qn = slot==="c" ? "Q2" : "Q1";
@@ -792,7 +939,6 @@ function record(qid, ok){
 function qOf(slot){ return slot==="p" ? run.s.predict : run.s.check; }
 function qid(slot){ return `s${run.s.id}${slot}`; }
 function enableNext(){ const nb = $(".nextbtn"); if(nb) nb.disabled = false; }
-
 function onPick(btn){
   const slot = btn.dataset.slot, i = +btn.dataset.i;
   const box = btn.closest(".qbox"); const q = reviewRun ? reviewRun.q : qOf(slot);
@@ -805,7 +951,10 @@ function onPick(btn){
 }
 function afterAnswer(slot){
   if(reviewRun){ enableNext(); return; }
-  run.solved[slot] = true; enableNext();
+  run.solved[slot] = true;
+  if(slot==="p"){ const w=$(".q2wrap"); if(w) w.hidden=false; }
+  if(run.solved.p && run.solved.c) enableNext();
+  try{ OPT.onChange && OPT.onChange(); }catch(e){}
 }
 function onRetry(btn){
   const box = btn.closest(".qbox");
@@ -853,7 +1002,7 @@ function onSortPick(btn){
   }
 }
 
-/* エンディング */
+/* ---------- エンディング ---------- */
 function alightHtml(s){
   const a = s.alight;
   const fin = a.finale ? `<div class="finale">${["t","r","k","c"].map(sp=>`<figure><img src="${IMG[sp]}" alt="${esc(CAST[sp].alt)}"><figcaption>${CAST[sp].name}</figcaption></figure>`).join("")}</div>` : "";
@@ -863,8 +1012,8 @@ function alightHtml(s){
   <textarea id="klq-memo" class="alight-input" maxlength="120" placeholder="例：${esc(a.examples[0])}"></textarea>
   <div class="chips">${a.examples.map(e=>`<button class="chip-btn" data-act="usechip">${esc(e)}</button>`).join("")}</div>
   ${fin}
-  <h2 class="sec-title">${a.finale?"ステージ1、クリア":"次回予告"}</h2>
-  ${talk(a.next)}
+  <h2 class="sec-title">${a.finale?"テーマ1、クリア":"次回予告"}</h2>
+  ${talk(a.finale?a.next.concat([["t","最後に「対策」の○×で、まぎらわしいところを確かめておきましょう。"]]):a.next)}
   <div class="btn-row"><button class="btn btn-ghost" data-act="back">戻る</button><button class="btn btn-primary" data-act="finish">記録して終える</button></div>`;
 }
 function finishSession(){
@@ -875,13 +1024,54 @@ function finishSession(){
   save(); run = null;
   try{ OPT.onDone && OPT.onDone(s.id, Object.keys(S.done).map(Number)); }catch(e){}
   setLamp("arrive");
-  const allDone = Object.keys(S.done).length === SESSIONS.length;
+  const ss = sessionsOf(s.theme); const allDone = ss.every(x=>S.done[x.id]);
   setMeter("おつかれさまでした", null); homeBtn(false);
-  $app.innerHTML = `<div class="clear-stage"><span class="telop big pop">${allDone?"ステージ1 クリア！":`第${s.id}回 クリア！`}</span>
-    <p>${allDone ? "「開業までの流れ」の6回をすべてクリアしました。" : "今日の10分はここまで。学習計画の丸にも印が付きました。"}</p></div>
-    <div class="hello" style="margin-top:16px">${face("c")}<div class="bubble">${allDone ? "2週間分の6回、クリア！　全部覚えていなくても大丈夫。記録を見返せば、いつでも思い出せるよ。" : "今日の10分、クリア！　この調子で、無理なくいこう。"}</div></div>
-    <div class="btn-row"><button class="btn btn-primary" data-act="home">ステージ表に戻る</button></div>`;
+  const hasTai = (TAISAKU[s.theme]||[]).length;
+  $app.innerHTML = `<div class="clear-stage"><span class="telop big pop">${allDone?`テーマ${s.theme} クリア！`:`第${s.id}回 クリア！`}</span>
+    <p>${allDone ? `「${esc(themeOf(s.theme).name)}」の${ss.length}回をすべてクリアしました。` : "今日の10分はここまで。学習計画にも印が付きました。"}</p></div>
+    <div class="hello" style="margin-top:16px">${face("c")}<div class="bubble">${allDone ? "全部の回、クリア！　最後に「対策」の○×で仕上げると安心だよ。" : "今日の10分、クリア！　この調子で、無理なくいこう。"}</div></div>
+    <div class="btn-row">${allDone&&hasTai?`<button class="btn btn-primary" data-act="tai" data-t="${s.theme}">対策 ○×に進む</button>`:""}<button class="btn ${allDone&&hasTai?"btn-ghost":"btn-primary"}" data-act="home">ステージ表に戻る</button></div>`;
   focusTop();
+}
+
+/* ---------- 対策（○×） ---------- */
+let taiRun = null;
+function startTai(n){
+  const list = TAISAKU[n]||[]; if(!list.length) return;
+  taiRun = { n, list, i:0, ok:0, answered:false }; run=null; reviewRun=null; cardRun=null;
+  setLamp("hired"); homeBtn(true); renderTai();
+}
+function renderTai(){
+  const r = taiRun, it = r.list[r.i];
+  setMeter(`対策　${r.i+1}／${r.list.length}`, null);
+  const intro = r.i===0 ? `<div class="hello">${face("k")}<div class="bubble">まぎらわしいところを○×で確かめよう。試験のひっかけ、申請で落としやすいところだよ。</div></div>` : "";
+  $app.innerHTML = `<span class="corner">対策・テーマ${r.n}「${esc(themeOf(r.n).name)}」</span><h2 class="screen-title">○か×か</h2>${intro}
+  <div class="qbox"><div class="qhead"><span class="qnum telop">Q${r.i+1}</span><span>${esc(it.kind)}の対策</span></div><p class="qtext">${esc(it.q)}</p>
+  <div class="qbody"><div class="ox" role="group" aria-label="○か×"><button class="oxb o" data-act="ox" data-v="1">○</button><button class="oxb x" data-act="ox" data-v="0">×</button></div><div class="fbwrap" aria-live="polite"></div></div></div>
+  <div class="btn-row"><button class="btn btn-primary nextbtn" data-act="taiNext" disabled>${r.i+1<r.list.length?"次の問題へ":"結果を見る"}</button></div>`;
+  focusTop();
+}
+function onOx(btn){
+  const r = taiRun; if(r.answered) return; r.answered = true;
+  const it = r.list[r.i]; const pick = btn.dataset.v==="1"; const ok = pick===it.ans;
+  if(ok) r.ok++;
+  root.querySelectorAll(".oxb").forEach(b=>{ b.disabled=true; const v=b.dataset.v==="1"; if(v===it.ans) b.classList.add("is-right"); else if(b===btn) b.classList.add("is-wrong"); });
+  const fake = { type:"tf", why:it.why, react: ok?"c":"k", ok:"そのとおり！　ここは本番でも迷いやすいところだよ。", ng:`正しくは「${it.ans?"○":"×"}」。言葉の違いに気づけたら、もう大丈夫。`, src:null };
+  $(".fbwrap").innerHTML = fbHtml(ok, fake, "") .replace('<div class="btn-row" style="margin-top:12px"><button class="btn" data-act="retry">もう一度選ぶ</button></div>','') + srcShort(it.src);
+  enableNext();
+}
+function taiNext(){
+  const r = taiRun; r.i++; r.answered=false;
+  if(r.i < r.list.length) return renderTai();
+  const prev = S.tai[r.n] ? S.tai[r.n].best : 0;
+  S.tai[r.n] = { best: Math.max(prev, r.ok), last: r.ok, total: r.list.length, t: Date.now() }; save();
+  try{ OPT.onChange && OPT.onChange(); }catch(e){}
+  setLamp("arrive"); setMeter("対策の結果", null); homeBtn(false);
+  const all = r.ok===r.list.length;
+  $app.innerHTML = `<div class="clear-stage"><span class="telop big pop">${r.ok} / ${r.list.length}</span><p>${all?"全問正解。まぎらわしいところも押さえられました。":"間違えたところは、もう一度読んでおくと安心です。"}</p></div>
+  <div class="hello" style="margin-top:16px">${face(all?"c":"t")}<div class="bubble">${all?"完璧！　この感覚を忘れないうちに、カードの復習もどうぞ。":"大丈夫、間違えた問題こそ覚えやすいんです。解説をもう一度読んで、また挑戦しましょう。"}</div></div>
+  <div class="btn-row"><button class="btn btn-primary" data-act="tai" data-t="${r.n}">もう一度</button><button class="btn btn-ghost" data-act="home">ステージ表に戻る</button></div>`;
+  taiRun = null; focusTop();
 }
 
 /* ---------- おさらい2問 ---------- */
@@ -898,16 +1088,16 @@ function startReview(){
   const missed = pool.filter(p => S.ans[p.id] && S.ans[p.id].first===false);
   const rest = pool.filter(p => !missed.includes(p));
   const shuffle = a => a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
-  reviewRun = { list:shuffle(missed).concat(shuffle(rest)).slice(0,2), n:0 };
+  reviewRun = { list:shuffle(missed).concat(shuffle(rest)).slice(0,2), n:0 }; run=null; cardRun=null;
   setLamp("hired"); homeBtn(true);
   renderReview();
 }
 function renderReview(){
   const r = reviewRun; const item = r.list[r.n]; r.q = item.q; r.id = item.id;
   setMeter(`おさらい　${r.n+1}／${r.list.length}`, null);
-  const intro = r.n===0 ? `<div class="hello">${face("k")}<div class="bubble">前に見た問題から${r.list.length}問だけ。思い出せたら十分、間違えたらもう一度見直すチャンスだよ。</div></div>` : "";
-  $app.innerHTML = `<span class="corner">おさらい2問（約3分）・第${item.s.id}回から</span><h2 class="screen-title">思い出してみよう</h2>${intro}${quizHtml(item.q,"r")}
-  <div class="btn-row"><button class="btn btn-primary nextbtn" data-act="rnext" disabled>${r.n+1<r.list.length?"次の問題へ":"復習を終える"}</button></div>`;
+  const intro = r.n===0 ? `<div class="hello">${face("k")}<div class="bubble">前に解いた問題から${r.list.length}問だけ。思い出せたら十分、間違えたらもう一度見直すチャンスだよ。</div></div>` : "";
+  $app.innerHTML = `<span class="corner">おさらい2問・第${item.s.id}回から</span><h2 class="screen-title">思い出してみよう</h2>${intro}${quizHtml(item.q,"r")}
+  <div class="btn-row"><button class="btn btn-primary nextbtn" data-act="rnext" disabled>${r.n+1<r.list.length?"次の問題へ":"おさらいを終える"}</button></div>`;
   focusTop();
 }
 function nextReview(){
@@ -924,9 +1114,9 @@ function nextReview(){
 function renderSources(){
   setLamp("vacant"); setMeter("根拠資料の一覧", null); homeBtn(false);
   $app.innerHTML = `<h2 class="screen-title">根拠資料の一覧</h2>
-  <p class="lead">教材の説明と問題の正答は、次の公式資料に基づいています。確認日はすべて${CHECKED}。資料は改正されることがあるため、受験・申請の前には最新版を確認してください。</p>
+  <p class="lead">説明・カード・問題の正答は、次の公式資料に基づいています（解説と問題は${CHECKED}、カードと対策は${CARD_CHECKED}に確認）。資料は改正されることがあるため、受験・申請の前には最新版を確認してください。</p>
   <div class="kpanel"><ol class="srclist">${Object.values(SRC).map(x=>`<li><a href="${x.u}" target="_blank" rel="noopener">${esc(x.n)}</a><br><span class="note">${esc(x.d)}</span></li>`).join("")}</ol></div>
-  <div class="kpanel"><h3>この教材で扱わないこと</h3><p>個人の受験資格・申請できる日・資金額の判定、具体的な試験日程、2029年4月以降の新規許可の扱い。問題はすべてオリジナルの理解確認問題で、試験の過去問ではありません。</p></div>
+  <div class="kpanel"><h3>この教材で扱わないこと</h3><p>個人の受験資格・申請できる日・資金額の判定、具体的な試験日程、2029年4月以降の新規許可の扱い。問題はすべてオリジナルで、試験の過去問ではありません。</p></div>
   <div class="btn-row"><button class="btn btn-primary" data-act="home">ステージ表に戻る</button></div>`;
   focusTop();
 }
@@ -937,8 +1127,8 @@ function onClick(e){
   const b = e.target.closest("[data-act]"); if(!b || !root.contains(b)) return;
   const act = b.dataset.act;
   switch(act){
-    case "start": reviewRun=null; startSession(+b.dataset.id, 0); break;
-    case "resume": reviewRun=null; startSession(S.cur.id, S.cur.step); break;
+    case "start": reviewRun=null; cardRun=null; taiRun=null; startSession(+b.dataset.id, 0); break;
+    case "resume": reviewRun=null; cardRun=null; taiRun=null; startSession(S.cur.id, S.cur.step); break;
     case "next": if(run) goStep(run.step+1); break;
     case "back": if(run && run.step>0) goStep(run.step-1); break;
     case "pick": onPick(b); break;
@@ -946,15 +1136,20 @@ function onClick(e){
     case "orderpick": onOrderPick(b); break;
     case "orderreset": onOrderReset(b); break;
     case "sortpick": onSortPick(b); break;
+    case "flip": case "know": case "again": onCard(act); break;
+    case "cards": startCards(); break;
+    case "tai": startTai(+b.dataset.t); break;
+    case "ox": onOx(b); break;
+    case "taiNext": taiNext(); break;
     case "usechip": { const m=$("#klq-memo"); m.value=b.textContent; m.focus(); break; }
     case "finish": finishSession(); break;
     case "review": startReview(); break;
     case "rnext": nextReview(); break;
-    case "home": run=null; reviewRun=null; renderHome(); break;
+    case "home": run=null; reviewRun=null; cardRun=null; taiRun=null; renderHome(); break;
     case "sources": renderSources(); break;
     case "pause":
       if(run){ S.cur = { id:run.s.id, step:run.step }; save(); toast("続きはステージ表から再開できます"); }
-      run=null; reviewRun=null; renderHome(); break;
+      run=null; reviewRun=null; cardRun=null; taiRun=null; renderHome(); break;
     case "copy": {
       const t = diaryText();
       try{ navigator.clipboard.writeText(t).then(()=>toast("記録をコピーしました"), ()=>toast("コピーできませんでした")); }catch(err){ toast("コピーできませんでした"); }
@@ -980,15 +1175,14 @@ function mount(el, opts){
   booted = true;
   return {
     update(state){
-      if(run || reviewRun) return;
+      if(run || reviewRun || cardRun || taiRun) return;
       const next = Object.assign(fresh(), state || {});
-      if(JSON.stringify(next.done)===JSON.stringify(S.done) && JSON.stringify(next.cur)===JSON.stringify(S.cur) && next.diary.length===S.diary.length) return;
+      if(JSON.stringify([next.done,next.cur,next.cards,next.tai,next.diary.length])===JSON.stringify([S.done,S.cur,S.cards,S.tai,S.diary.length])) return;
       S = next; const b = booted; booted = false; renderHome(); booted = b;
     },
-    sessions: SESSIONS.length,
-    stageName: STATIONS[0].name
+    home(){ if(!(run||reviewRun||cardRun||taiRun)) { const b=booted; booted=false; renderHome(); booted=b; } }
   };
 }
-window.KotakuLearn = { mount, version: "2026-10-16_v01", sessions: SESSIONS.length };
+window.KotakuLearn = { mount, version: "2026-10-22_v02", sessions: SESSIONS.length, themes: THEMES, tracks: TRACKS, progress: progressOf, themeSessions: THEME_SESSIONS };
 
 })();
