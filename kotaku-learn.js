@@ -4,7 +4,7 @@
 (function(){
 "use strict";
 const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-deep:#C98F00; --a:#2459E0; --b:#B35F00; --c:#7041E0; --big:#3B1F8F;
-  --font:var(--f-body,"BIZ UDPGothic","Hiragino Sans","Meiryo",sans-serif); --round:var(--f-disp,"Hiragino Maru Gothic ProN","Meiryo",sans-serif);
+  --font:var(--f-body,"BIZ UDPGothic","Hiragino Sans","Meiryo",sans-serif); --round:var(--f-body,"Hiragino Sans","Meiryo",sans-serif); --disp:var(--f-disp,"Hiragino Maru Gothic ProN","Meiryo",sans-serif);
   font-family:var(--font); font-size:16px; line-height:1.8; color:var(--ink); }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .klq{ --big:var(--gold); } }
 :root[data-theme="dark"] .klq{ --big:var(--gold); }
@@ -285,6 +285,15 @@ const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-d
 .klq .srclist li{ margin:8px 0; line-height:1.6; }
 .klq .toast{ position:sticky; bottom:90px; margin:10px auto 0; width:max-content; max-width:100%; display:block; background:var(--studio); color:#fff; padding:10px 16px; border-radius:999px; font-size:.9rem; z-index:9; }
 @media (prefers-reduced-motion: reduce){ .klq *{ animation:none !important; transition:none !important; } }
+
+/* v03：太すぎて読みにくい文字を直す（見出しは本文の書体の太字、番組風の大きな字だけ表示用の書体） */
+.klq .telop{ font-family:var(--disp); font-weight:400; font-synthesis:none; letter-spacing:.03em;
+  text-shadow:2px 0 0 var(--studio),-2px 0 0 var(--studio),0 2px 0 var(--studio),0 -2px 0 var(--studio),0 4px 0 var(--gold-deep); }
+.klq .khero .hero-t{ font-size:2rem; text-shadow:3px 0 0 var(--studio),-3px 0 0 var(--studio),0 3px 0 var(--studio),0 -3px 0 var(--studio),0 6px 0 var(--gold-deep); }
+.klq .qnum{ text-shadow:none; color:var(--gold); }
+.klq .lamp{ font-weight:700; letter-spacing:.04em; }
+.klq .screen-title,.klq .fb-title,.klq .kguide h3,.klq .start-box .next-title,.klq .sec-title{ font-weight:700; }
+.klq .lch .no,.klq .isec span,.klq .lch .pr b,.klq .ftag,.klq .oxb{ font-family:var(--disp); font-weight:400; font-synthesis:none; }
 .klq.klearn{ font-size:15px; }
 .klq .kapp2{ display:flex; flex-direction:column; gap:14px; }
 .klq .kapp2.item{ display:block; background:var(--sheet); border:1px solid var(--rule); border-radius:16px; padding:16px 18px; }
