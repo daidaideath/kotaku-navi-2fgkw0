@@ -10,6 +10,8 @@
 <title>個タク準備ナビ</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="kotaku-learn.js"></script>
 <style>
 
@@ -461,35 +463,127 @@ html[data-size="large"] .top,html[data-size="large"] main,html[data-size="large"
 
 [hidden]{display:none !important}
 .nx li{grid-template-columns:88px 1fr auto}
+/* ===== v06：5つのメニュー・本人用と共有用で同じ画面 ===== */
+.seg2{display:inline-flex;border:2px solid var(--navy);border-radius:999px;overflow:hidden;margin-bottom:14px;max-width:100%}
+.seg2 button{appearance:none;border:0;background:var(--sheet);color:var(--ink);font-weight:800;padding:8px 16px;cursor:pointer;white-space:nowrap;font-size:14px}
+.seg2 button+button{border-left:2px solid var(--navy)}
+.seg2 button[aria-pressed="true"]{background:var(--navy);color:var(--on-navy)}
+@media (max-width:420px){.seg2 button{padding:8px 11px;font-size:13px}}
+.home{display:grid;gap:16px;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);align-items:start}
+.home .span{grid-column:1/-1}
+@media (max-width:899px){.home{grid-template-columns:1fr}}
+.next1{background:var(--navy);color:var(--on-navy);border-radius:var(--r);padding:20px;position:relative;overflow:hidden}
+.next1::after{content:"";position:absolute;right:-60px;top:-70px;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(255,200,61,.22),transparent 65%)}
+.next1 .l{font-family:var(--f-disp);font-size:12px;letter-spacing:.12em;color:var(--gold-ink);background:var(--gold);display:inline-block;padding:2px 10px;border-radius:6px}
+.next1 .t{font-size:clamp(20px,2.6vw,26px);font-weight:900;line-height:1.35;margin:10px 0 4px;position:relative;z-index:1}
+.next1 .s{color:var(--on-navy-soft);font-size:14px;position:relative;z-index:1}
+.next1 .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;position:relative;z-index:1}
+.next1 .btn-line{color:var(--on-navy);border-color:rgba(255,255,255,.4)}
+.next1 .btn-line:hover{color:var(--gold);border-color:var(--gold)}
+.p4{list-style:none;margin:0;padding:0}
+.p4 li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:4px 12px;padding:10px 0;border-bottom:1px dashed var(--rule)}
+.p4 li:last-child{border-bottom:0}
+.p4 .no{grid-row:span 2;font-family:var(--f-disp);width:34px;height:34px;border-radius:9px;background:var(--navy);color:var(--gold);display:grid;place-items:center;font-size:16px}
+.p4 .hd{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-weight:800;font-size:14.5px}
+.p4 .hd span{font-weight:700;font-size:12.5px;color:var(--ink-soft);white-space:nowrap;font-variant-numeric:tabular-nums}
+.p4 .bar1{height:8px;border-radius:4px;background:var(--rule-soft);overflow:hidden;align-self:center}
+.p4 .bar1 i{display:block;height:100%;background:var(--blue)}
+.p4 .sub{grid-column:2;font-size:12px;color:var(--ink-soft)}
+.when1 .ph{font-weight:900;font-size:17px}
+.when1 .pw{font-size:13px;color:var(--blue);font-weight:700}
+.when1 .dots6{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:12px 0 6px}
+.when1 .dots6 i{height:8px;border-radius:4px;background:var(--rule-soft)}
+.when1 .dots6 i.on{background:var(--gold)}
+.when1 .dots6 i.past{background:var(--blue-soft)}
+.when1 .dl{font-size:11.5px;color:var(--ink-soft);display:grid;grid-template-columns:repeat(6,1fr);gap:4px;text-align:center;line-height:1.3}
+.card h2 a.more,.card h2 button.more{margin-left:auto;font-size:13px;font-weight:700;background:none;border:0;color:var(--blue);cursor:pointer;padding:0;text-decoration:underline}
+.install2{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--blue-soft);border:1.5px solid var(--blue);border-radius:var(--r);padding:10px 14px;font-size:14px}
+.install2 .sp{flex:1}
+/* やること・確認すること */
+.fchips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.fchip{border:1.5px solid var(--rule);background:var(--sheet);border-radius:99px;padding:5px 12px;font-weight:700;font-size:13px;cursor:pointer;color:var(--ink)}
+.fchip[aria-pressed="true"]{background:var(--navy);color:var(--on-navy);border-color:var(--navy)}
+.tl2{list-style:none;margin:0;padding:0}
+.trow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:start;background:var(--sheet);border:1px solid var(--rule);border-radius:10px;padding:9px 10px;margin-top:6px}
+.trow .tx{min-width:0}
+.trow .tt{font-weight:700;font-size:14.5px;line-height:1.5}
+.trow.done .tt{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:1px}
+.trow .tm{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px;font-size:12px;color:var(--ink-soft)}
+.cat0{font-family:var(--f-disp);font-weight:400;font-size:11px;border-radius:5px;padding:1px 7px;background:var(--navy);color:var(--on-navy);white-space:nowrap}
+.hot2{font-size:11px;font-weight:800;border-radius:5px;padding:1px 7px;background:var(--gold);color:var(--gold-ink);white-space:nowrap}
+.cb2{appearance:none;width:30px;height:30px;border-radius:8px;border:2px solid var(--rule);background:var(--sheet);cursor:pointer;display:grid;place-items:center;font-weight:900;color:transparent;font-size:16px;margin-top:1px}
+.cb2[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
+.trow .editor{grid-column:1/-1}
+.trow .det{grid-column:1/-1;font-size:13px;color:var(--ink-soft);background:var(--sheet-2);border-radius:8px;padding:8px 10px;line-height:1.6}
+.addrow{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+/* スケジュール */
+.vlist{list-style:none;margin:0;padding:0;position:relative}
+.vlist li{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:10px 0;position:relative}
+.vlist li::before{content:"";position:absolute;left:19px;top:44px;bottom:-6px;width:2px;background:var(--rule)}
+.vlist li:last-child::before{display:none}
+.vlist .n{font-family:var(--f-disp);width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:var(--sheet-2);font-size:17px;position:relative;z-index:1}
+.vlist li.cur .n{background:var(--gold);color:var(--gold-ink)}
+.vlist li.past .n{background:var(--blue-soft);color:var(--blue)}
+.vlist h4{margin:0;font-size:15px}
+.vlist .w{font-size:13px;color:var(--blue);font-weight:700}
+.vlist p{margin:2px 0 0;font-size:13px;color:var(--ink-soft)}
+.pcInfo{display:block}
+@media (max-width:699px){.pcOnly{display:none !important}}
+/* 過去問 */
+.kako-src{display:grid;gap:10px;grid-template-columns:repeat(2,minmax(0,1fr))}
+@media (max-width:699px){.kako-src{grid-template-columns:1fr}}
+.ksrc{border:1.5px solid var(--rule);border-radius:12px;padding:12px 14px;background:var(--sheet)}
+.ksrc h3{margin:0 0 4px;font-size:15px}
+.ksrc p{margin:0 0 8px;font-size:13px;color:var(--ink-soft)}
+.kform{display:grid;gap:10px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.kform .wide{grid-column:1/-1}.kform .half{grid-column:span 2}
+@media (max-width:699px){.kform{grid-template-columns:repeat(2,minmax(0,1fr))}.kform .half{grid-column:1/-1}}
+.mchips{display:flex;flex-wrap:wrap;gap:6px}
+.mchip{border:1.5px solid var(--rule);background:var(--sheet);border-radius:99px;padding:4px 10px;font-size:13px;font-weight:700;cursor:pointer;color:var(--ink)}
+.mchip[aria-pressed="true"]{background:var(--ng-bg);border-color:var(--ng);color:var(--ng)}
+.krow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:12px;align-items:center;border:1px solid var(--rule);border-radius:10px;padding:10px 12px;margin-top:6px;background:var(--sheet)}
+.krow .sc{font-family:var(--f-disp);font-size:20px;min-width:64px;text-align:center;line-height:1.1}
+.krow .sc small{display:block;font-family:var(--f-body);font-size:11px;color:var(--ink-soft);font-weight:700}
+.krow .kt{font-weight:800}
+.krow .km{font-size:12px;color:var(--ink-soft)}
+/* 設定 */
+.condl{list-style:none;margin:0;padding:0}
+.condl li{display:grid;grid-template-columns:minmax(0,9em) minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--rule);font-size:14px}
+.condl li:last-child{border-bottom:0}
+.condl .k{color:var(--ink-soft);font-weight:700;font-size:13px}
+.condl .v{font-weight:700}
+.condl .v.skip{color:var(--warn)}
+.foot2{margin-top:28px;font-size:12px;color:var(--ink-soft);border-top:1px solid var(--rule);padding-top:12px;display:flex;gap:10px;flex-wrap:wrap;align-items:baseline}
+.foot2 button{background:none;border:0;color:var(--blue);font-weight:700;cursor:pointer;padding:0;font-size:12px;text-decoration:underline}
+.backlink{background:none;border:0;color:var(--blue);font-weight:700;cursor:pointer;padding:0;margin-bottom:10px;font-size:14px}
+#learnMount,#quizMount{max-width:900px}
+@media print{.top,.tabs,.foot2,#banner{display:none !important}}
 </style>
 </head>
 <body>
 
 <header class="top">
   <div class="wrap">
-    <div class="logo"><div class="q" aria-hidden="true">Q</div><div><h1>個タク準備ナビ<span class="badge-me" id="meBadge" hidden>本人用</span></h1><small id="subTitle">個人タクシー開業を考えている人の準備ボード</small></div></div>
+    <div class="logo"><div class="q" aria-hidden="true">Q</div><div><h1>個タク準備ナビ<span class="badge-me" id="meBadge" hidden>本人用</span></h1><small id="subTitle">個人タクシー開業の準備と学習</small></div></div>
     <div class="sp"></div>
     <span class="sync" id="sync" hidden><i></i><span>読み込み中</span></span>
     <span class="today num" id="today"></span>
-    <button class="btn btn-gold btn-sm" type="button" data-go="share" id="shareBtn" hidden>共有用に出力</button>
+    <button class="btn btn-gold btn-sm" type="button" data-go="share" id="sheetBtn">相談シート</button>
   </div>
 </header>
 
 <nav class="tabs" aria-label="画面の切り替え" id="tabs" hidden>
   <div class="wrap" role="tablist">
-    <button class="tab" role="tab" data-tab="home" aria-selected="true"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>ホーム</button>
-    <button class="tab" role="tab" data-tab="quiz" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17h.01"/></svg>学ぶ</button>
-    <button class="tab" role="tab" data-tab="schedule" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>スケジュール</button>
-    <button class="tab" role="tab" data-tab="tasks" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>やること</button>
-    <button class="tab" role="tab" data-tab="study" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 8h6"/></svg>学習計画</button>
-    <button class="tab me-only" role="tab" data-tab="consult" aria-selected="false" hidden><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>相談</button>
+    <button class="tab" role="tab" data-tab="home" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>ホーム</button>
+    <button class="tab" role="tab" data-tab="learn" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5M9 8h6M9 12h4"/></svg>学ぶ</button>
+    <button class="tab" role="tab" data-tab="quiz" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17h.01"/></svg>問題</button>
+    <button class="tab" role="tab" data-tab="prep" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>準備</button>
     <button class="tab" role="tab" data-tab="settings" aria-selected="false"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>設定</button>
   </div>
 </nav>
 
 <main class="wrap">
   <div class="banner" id="banner" hidden></div>
-
   <!-- 開始（同僚の初回） -->
   <section class="view" id="v-start" hidden>
     <div class="hero2">
@@ -526,99 +620,87 @@ html[data-size="large"] .top,html[data-size="large"] main,html[data-size="large"
     </div>
   </section>
 
+
   <!-- ホーム -->
   <section class="view" id="v-home" hidden>
-    <div class="trust" id="trust"></div>
-    <div class="install" id="install" hidden><span><b>ホーム画面に追加</b>して使うと、記録が消えにくくなります。iPhoneはSafariの共有ボタン →「ホーム画面に追加」。</span><span class="sp"></span><button class="btn btn-line btn-sm" type="button" id="installClose">閉じる</button></div>
-    <div class="today10" id="today10"></div>
-    <div class="tracks" id="tracks"></div>
-    <div class="cond" id="cond"></div>
-    <div class="grid">
-      <div class="card now c8" id="nowCard"></div>
-      <div class="card c4"><h2><span class="tag">NEXT</span>次の節目</h2><ul class="plain nx" id="milestones"></ul></div>
-      <div class="card c12"><h2><span class="tag">TODO</span>いまやること<a class="more" href="#" data-go="tasks">すべて見る</a></h2><ul class="plain todo2" id="homeTodo"></ul></div>
+    <div class="install2" id="install" hidden style="margin-bottom:14px"><span><b>ホーム画面に追加</b>して使うと、記録が消えにくくなります。iPhoneはSafariの共有ボタン →「ホーム画面に追加」。</span><span class="sp"></span><button class="btn btn-line btn-sm" type="button" id="installClose">閉じる</button></div>
+    <div class="home">
+      <div class="next1 span" id="next1"></div>
+      <div class="card"><h2><span class="tag">PROGRESS</span>進み具合<button class="more" type="button" data-go="learn">学ぶへ</button></h2><ul class="p4" id="prog4"></ul><p class="small muted" id="progNote" style="margin:8px 0 0"></p></div>
+      <div class="card when1"><h2><span class="tag">NOW</span>いまの段階<button class="more" type="button" data-go="prep" data-sub="sched">スケジュール</button></h2><div id="when1"></div><h2 style="margin-top:16px"><span class="tag">NEXT</span>次の節目</h2><ul class="plain nx" id="milestones"></ul></div>
     </div>
-    <details class="guide" id="guide" style="margin-top:16px">
-      <summary><span class="tag">HOW TO</span>使い方<span class="tg"></span></summary>
-      <div class="mini-guide" id="guideBody"></div>
-    </details>
   </section>
 
   <!-- 学ぶ -->
-  <section class="view" id="v-quiz" hidden><div id="learnMount"></div></section>
+  <section class="view" id="v-learn" hidden><div id="learnMount"></div></section>
 
-  <!-- スケジュール -->
-  <section class="view" id="v-schedule" hidden>
-    <h3 class="sec"><span class="q">S</span>準備スケジュール（月単位）</h3>
-    <p class="lead">③〜⑥は申請の希望月からの逆算です（作業の目安。制度上の期限ではありません）。</p>
-    <div class="anchor">
-      <div class="field" style="width:190px"><label for="aApply">申請の希望月</label><input class="inp" type="month" id="aApply"></div>
-      <div class="field me-only" style="width:190px" hidden><label for="aExam">受験予定月（任意）</label><input class="inp" type="month" id="aExam"></div>
-      <button class="btn btn-line btn-sm" type="button" id="aClear">希望月を消す</button>
-    </div>
-    <div class="tl-scroll" id="tlScroll"><div class="tl" id="timeline"></div></div>
-    <div class="tl-foot"><span><span class="dia"></span>節目</span><span><span class="dia red"></span>制度の日付（公式資料）</span><span><span style="display:inline-block;width:2px;height:12px;background:var(--ng);margin-right:6px;vertical-align:-1px"></span>今日</span><span>横にスクロールできます</span></div>
-    <div class="card" style="margin-top:18px"><h2><span class="tag">PHASE</span>6つのフェーズ</h2><ol class="plain phases" id="phaseList"></ol>
-      <details class="srcbox"><summary>日付の根拠を見る</summary><ul class="plain ms small" id="srcList" style="margin-top:8px"></ul></details>
+  <!-- 問題 -->
+  <section class="view" id="v-quiz" hidden>
+    <div class="seg2" role="group" aria-label="問題の種類" id="quizSeg"><button type="button" data-qseg="quiz" aria-pressed="true">クイズ</button><button type="button" data-qseg="kako" aria-pressed="false">過去問</button></div>
+    <div id="quizMount"></div>
+    <div id="kakoView" hidden>
+      <h3 class="sec"><span class="q">K</span>過去問</h3>
+      <p class="lead">過去問の問題文はこのアプリに入れていません。配布元のPDFで解いて、結果をここに残します。</p>
+      <div class="kako-src" id="kakoSrc"></div>
+      <div class="card" style="margin-top:16px"><h2><span class="tag">ADD</span>解いた結果を残す</h2><div class="kform" id="kakoForm"></div></div>
+      <div class="card" style="margin-top:16px"><h2><span class="tag">LOG</span>記録</h2><p class="small muted" id="kakoSum" style="margin:-4px 0 6px"></p><div id="kakoList"></div></div>
     </div>
   </section>
 
-  <!-- やること -->
-  <section class="view" id="v-tasks" hidden>
-    <h3 class="sec"><span class="q">T</span>やること</h3>
-    <div id="tasksMe" class="me-only" hidden>
-      <div class="toolbar">
-        <select class="inp" id="fTheme" style="width:auto;min-height:36px;padding:4px 10px" aria-label="テーマで絞り込み"></select>
-        <div class="sp"></div>
-        <button class="btn btn-blue btn-sm" type="button" id="addTask">＋ タスクを追加</button>
+  <!-- 準備 -->
+  <section class="view" id="v-prep" hidden>
+    <div class="seg2" role="group" aria-label="準備の画面" id="prepSeg"><button type="button" data-pseg="tasks" aria-pressed="true">やること</button><button type="button" data-pseg="checks" aria-pressed="false">確認すること</button><button type="button" data-pseg="sched" aria-pressed="false">スケジュール</button></div>
+    <div id="pTasks">
+      <div class="fchips" id="tFilter"></div>
+      <div id="taskList"></div>
+      <div class="addrow"><button class="btn btn-blue btn-sm" type="button" id="addTask">＋ やることを追加</button></div>
+    </div>
+    <div id="pChecks" hidden>
+      <p class="lead">公式資料や証明資料で確かめたら、チェックを付けます。</p>
+      <div id="checkList"></div>
+      <div class="addrow"><button class="btn btn-blue btn-sm" type="button" id="addCheck">＋ 確認することを追加</button></div>
+    </div>
+    <div id="pSched" hidden>
+      <p class="lead">③〜⑥は申請の希望月からの逆算です（作業の目安。制度上の期限ではありません）。</p>
+      <div class="anchor">
+        <div class="field" style="width:190px"><label for="aApply">申請の希望月</label><input class="inp" type="month" id="aApply"></div>
+        <div class="field" style="width:190px"><label for="aExam">受験予定月（任意）</label><input class="inp" type="month" id="aExam"></div>
+        <button class="btn btn-line btn-sm" type="button" id="aClear">月を消す</button>
       </div>
-      <div class="list" id="taskList"></div>
-    </div>
-    <div id="tasksCo">
-      <div class="grid">
-        <div class="card c6"><h2><span class="tag">PREP</span>開業準備</h2><ul class="todo3" id="todoPrep"></ul></div>
-        <div class="card c6"><h2><span class="tag">EXAM</span>試験対策</h2><ul class="todo3" id="todoExam"></ul></div>
+      <div class="pcOnly"><div class="tl-scroll" id="tlScroll"><div class="tl" id="timeline"></div></div>
+      <div class="tl-foot"><span><span class="dia"></span>節目</span><span><span class="dia red"></span>制度の日付（公式資料）</span><span><span style="display:inline-block;width:2px;height:12px;background:var(--ng);margin-right:6px;vertical-align:-1px"></span>今日</span></div></div>
+      <div class="card" style="margin-top:16px"><h2><span class="tag">PHASE</span>6つの段階</h2><ol class="vlist" id="phaseList"></ol>
+        <details class="srcbox"><summary>日付の根拠を見る</summary><ul class="plain ms small" id="srcList" style="margin-top:8px"></ul></details>
       </div>
     </div>
   </section>
 
-  <!-- 学習計画 -->
-  <section class="view" id="v-study" hidden>
-    <h3 class="sec"><span class="q">L</span>学習計画（12テーマ）<span class="small muted" id="studyInfo" style="font-weight:500"></span></h3>
-    <p class="lead">「学ぶ」でクリアした回は自動で丸が付きます。教材がまだのテーマは、丸を押して済みにします。</p>
-    <div class="study" id="studyList"></div>
-    <div class="me-only" hidden>
-      <h3 class="sec" style="margin-top:28px"><span class="q">C</span>後で確認すること</h3>
-      <p class="lead">証明資料や公式資料で確かめたら「確認済」に。</p>
-      <div class="toolbar" style="margin-top:-6px"><div class="sp"></div><button class="btn btn-blue btn-sm" type="button" id="addCheck">＋ 確認事項を追加</button></div>
-      <div class="list" id="checkList"></div>
-    </div>
-  </section>
-
-  <!-- 相談（本人） -->
+  <!-- 相談メモ -->
   <section class="view" id="v-consult" hidden>
+    <button class="backlink" type="button" data-go="settings">← 設定</button>
     <h3 class="sec"><span class="q">?</span>先輩への相談メモ</h3>
-    <p class="lead">相談シートには質問だけが載ります（答えは載りません）。</p>
-    <div class="toolbar"><div class="sp"></div><button class="btn btn-blue btn-sm" type="button" id="addQ">＋ 質問を追加</button></div>
+    <p class="lead">相談シートには質問だけが載ります（聞いた答えは載りません）。</p>
+    <div class="toolbar"><button class="btn btn-gold btn-sm" type="button" data-go="share">相談シートを作る</button><div class="sp"></div><button class="btn btn-blue btn-sm" type="button" id="addQ">＋ 質問を追加</button></div>
     <div class="list" id="qList"></div>
   </section>
 
-  <!-- 相談シート（本人） -->
+  <!-- 相談シート -->
   <section class="view" id="v-share" hidden>
+    <button class="backlink" type="button" data-go="consult">← 相談メモ</button>
     <h3 class="sec"><span class="q">P</span>先輩に見せる相談シート</h3>
     <div class="share-wrap">
       <div class="card">
         <h2>載せる内容</h2>
         <div style="display:flex;flex-direction:column;gap:8px">
           <label class="chk"><input type="checkbox" id="sProfile" checked>区域・年齢区分</label>
-          <label class="chk"><input type="checkbox" id="sPhase" checked>現在のフェーズと学習の進み</label>
+          <label class="chk"><input type="checkbox" id="sPhase" checked>いまの段階と進み具合</label>
           <label class="chk"><input type="checkbox" id="sSched" checked>準備の順番と時期</label>
-          <label class="chk"><input type="checkbox" id="sTasks" checked>タスクの状況（共有可のみ）</label>
-          <label class="chk"><input type="checkbox" id="sChecks" checked>確認中のこと（共有可のみ）</label>
-          <label class="chk"><input type="checkbox" id="sQs" checked>相談したい質問（共有可のみ）</label>
+          <label class="chk"><input type="checkbox" id="sTasks" checked>やること（共有してよいものだけ）</label>
+          <label class="chk"><input type="checkbox" id="sChecks" checked>まだ確かめていないこと（同上）</label>
+          <label class="chk"><input type="checkbox" id="sQs" checked>相談したい質問（同上）</label>
         </div>
-        <h2 style="margin-top:18px">必ず外すもの</h2>
-        <ul class="plain excl muted"><li>呼び名・乗務開始日・資金・本人メモ</li><li><span class="lock">非共有</span> の項目</li><li>相談メモの「聞いた答え」</li></ul>
+        <h2 style="margin-top:18px">載せないもの</h2>
+        <ul class="plain excl muted"><li id="exclMe" hidden>呼び名・乗務開始日・資金・本人メモ</li><li><span class="lock">非共有</span> を付けた項目</li><li>相談メモの「聞いた答え」</li></ul>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px">
           <button class="btn btn-gold" type="button" id="dlPdf">PDFで保存</button>
           <button class="btn btn-line" type="button" id="dlPng">PNG画像で保存</button>
@@ -634,107 +716,89 @@ html[data-size="large"] .top,html[data-size="large"] main,html[data-size="large"
   <section class="view" id="v-settings" hidden>
     <h3 class="sec"><span class="q">⚙</span>設定</h3>
     <div class="grid">
+      <div class="card c6"><h2>あなたの条件<button class="more" type="button" id="reAsk">全部答え直す</button></h2><ul class="condl" id="condList"></ul></div>
       <div class="card c6">
-        <h2>表示</h2>
+        <h2>表示と学習</h2>
         <div class="field"><label>文字の大きさ</label><div class="seg-ctl" id="sizeCtl" role="group"><button type="button" data-size="normal">標準</button><button type="button" data-size="large">大きめ</button></div></div>
         <div class="field" style="margin-top:12px"><label for="sStart">学習の開始日（第1週の月曜）</label><input class="inp" type="date" id="sStart" style="max-width:220px"></div>
-        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-line btn-sm" type="button" id="reAsk">質問に答え直す</button></div>
+        <p class="small muted" style="margin:8px 0 0">学習の開始日と勉強時間から、「基礎学習」の段階の終わりを目安として出します。</p>
       </div>
+      <div class="card c6"><h2>先輩に相談</h2><p class="small" style="margin:0 0 10px">聞きたいことを書きためて、相談シート（PDF・画像・LINE用の文章）にできます。</p><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-blue btn-sm" type="button" data-go="consult">相談メモ <span id="qCountS"></span></button><button class="btn btn-gold btn-sm" type="button" data-go="share">相談シート</button></div></div>
       <div class="card c6">
-        <h2>更新情報</h2>
-        <ul class="upd-list" id="updList"></ul>
-        <p class="small muted" style="margin:10px 0 0">制度の内容は関東運輸局の公式資料（案件で保存した原本）で確認しています。資料が改正されたら直します。</p>
-      </div>
-      <!-- 同僚 -->
-      <div class="card c6 co-only">
         <h2>記録の控え</h2>
-        <p class="small" style="margin:0 0 8px">機種変更や記録が消えたときのために、控えのコードを残せます。コピーしてメモ帳やLINEの自分あてに貼っておきます。</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-blue btn-sm" type="button" id="bkCopy">控えのコードをコピー</button><button class="btn btn-line btn-sm" type="button" id="bkOpen">コードから戻す</button></div>
-        <div id="bkArea" hidden style="margin-top:10px"><textarea class="inp codebox" id="bkIn" placeholder="控えのコードを貼り付け"></textarea><div class="confirm" id="bkConfirm" hidden><span>今の記録を、このコードの内容に置き換えます。</span><span style="flex:1"></span><button class="btn btn-sm" style="background:var(--ng);color:#fff" type="button" id="bkDo">置き換える</button></div><button class="btn btn-line btn-sm" type="button" id="bkCheck" style="margin-top:8px">読み込む</button></div>
-        <div class="okmsg muted" id="bkMsg" role="status"></div>
+        <div class="me-only" hidden><p class="small" style="margin:0 0 8px">記録はclaude.aiに保存され、PC・iPad・iPhoneで同じ内容です。念のための控えをJSONで保存できます。</p><button class="btn btn-line btn-sm" type="button" id="exportJson">控えをJSONで保存</button></div>
+        <div class="co-only">
+          <p class="small" style="margin:0 0 8px"><b>記録はこの端末だけに保存されています。</b>機種変更や、しばらく開かなかったときに消えることがあります。控えのコードをコピーして、メモ帳やLINEの自分あてに貼っておきましょう。</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-blue btn-sm" type="button" id="bkCopy">控えのコードをコピー</button><button class="btn btn-line btn-sm" type="button" id="bkOpen">コードから戻す</button></div>
+          <div id="bkArea" hidden style="margin-top:10px"><textarea class="inp codebox" id="bkIn" placeholder="控えのコードを貼り付け"></textarea><div class="confirm" id="bkConfirm" hidden><span>今の記録を、このコードの内容に置き換えます。</span><span style="flex:1"></span><button class="btn btn-sm" style="background:var(--ng);color:#fff" type="button" id="bkDo">置き換える</button></div><button class="btn btn-line btn-sm" type="button" id="bkCheck" style="margin-top:8px">読み込む</button></div>
+          <div class="okmsg muted" id="bkMsg" role="status"></div>
+        </div>
       </div>
-      <div class="card c6 co-only">
-        <h2>感想を送る</h2>
-        <p class="small" style="margin:0 0 8px">紹介してくれた人に、LINEなどで送ってください。下のボタンで質問つきの文章をコピーできます。</p>
-        <button class="btn btn-gold btn-sm" type="button" id="fbCopy">感想用の文章をコピー</button>
-        <div class="okmsg muted" id="fbMsg" role="status"></div>
-        <div style="margin-top:14px;border-top:1px dashed var(--rule);padding-top:12px"><button class="btn btn-ghost btn-sm" type="button" id="reset">記録をすべて消して最初から</button><div class="confirm" id="resetBox" hidden><span>回答とチェックと学習の記録をすべて消します。</span><span style="flex:1"></span><button class="btn btn-sm btn-line" type="button" id="resetNo">やめる</button><button class="btn btn-sm" style="background:var(--ng);color:#fff" type="button" id="resetYes">消す</button></div></div>
-      </div>
-      <!-- 本人 -->
       <div class="card c12 me-only" hidden>
-        <h2>本人情報 <span class="lock">共有用出力に出ません</span></h2>
+        <h2>本人情報 <span class="lock">相談シートに出ません</span></h2>
         <div style="display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))">
           <div class="field"><label for="pNick">呼び名</label><input class="inp" id="pNick"></div>
-          <div class="field"><label for="pRegion">区域（相談シートに載せる場合あり）</label><input class="inp" id="pRegion"></div>
-          <div class="field"><label for="pAge">年齢区分（相談シートに載せる場合あり）</label><input class="inp" id="pAge"></div>
           <div class="field"><label for="pStartD">乗務開始日（本人申告・証明資料で未確認）</label><input class="inp" id="pStartD"></div>
           <div class="field" style="grid-column:1/-1"><label for="pFunds">自己資金のメモ</label><input class="inp" id="pFunds"></div>
           <div class="field" style="grid-column:1/-1"><label for="pMemo">本人メモ</label><textarea class="inp" id="pMemo"></textarea></div>
         </div>
-        <p class="small muted" style="margin:10px 0 0">番号類（免許証番号・口座番号など）は入れません。内容はclaude.aiに保存され、PC・iPad・iPhoneで同じです。</p>
-        <div style="margin-top:10px"><button class="btn btn-line btn-sm" type="button" id="exportJson">控えをJSONで保存</button></div>
+        <p class="small muted" style="margin:10px 0 0">番号類（免許証番号・口座番号など）は入れません。</p>
+      </div>
+      <div class="card c6"><h2>更新情報</h2><ul class="upd-list" id="updList"></ul></div>
+      <div class="card c6 co-only">
+        <h2>感想を送る</h2>
+        <p class="small" style="margin:0 0 8px">紹介してくれた人に、LINEなどで送ってください。質問つきの文章をコピーできます。</p>
+        <button class="btn btn-gold btn-sm" type="button" id="fbCopy">感想用の文章をコピー</button>
+        <div class="okmsg muted" id="fbMsg" role="status"></div>
+        <div style="margin-top:14px;border-top:1px dashed var(--rule);padding-top:12px"><button class="btn btn-ghost btn-sm" type="button" id="reset">記録をすべて消して最初から</button><div class="confirm" id="resetBox" hidden><span>回答・やること・学習・過去問の記録をすべて消します。</span><span style="flex:1"></span><button class="btn btn-sm btn-line" type="button" id="resetNo">やめる</button><button class="btn btn-sm" style="background:var(--ng);color:#fff" type="button" id="resetYes">消す</button></div></div>
       </div>
     </div>
   </section>
 
-  <p class="foot-note">個人が作った非公式の学習ツールです。制度の日付と条件は関東運輸局の公式資料で確認したものだけを載せています。開業・受験・申請ができるかの判定はしません。</p>
+  <div class="foot2"><span>個人が作った非公式の学習ツールです。開業・受験・申請ができるかの判定はしません。制度の内容は関東運輸局の公式資料で確認（<span id="ckDate"></span>）。</span><button type="button" data-go="settings">更新 <span id="updDate"></span></button></div>
 </main>
 <div class="cap" id="cap" aria-hidden="true"></div>
 <script>
 (()=>{
 "use strict";
 /* ============================================================
-   個タク準備ナビ v05（1つのアプリ・2つの置き場所）
-   本人モード：claude.ai上で開き、保存領域（db）が使えるとき
-   同僚モード：それ以外（GitHub Pagesなど）。記録はこの端末だけ
+   個タク準備ナビ v06（2026/10/22）
+   メニュー：ホーム／学ぶ／問題（クイズ・過去問）／準備（やること・確認すること・スケジュール）／設定
+   本人用と共有用は同じ画面。違うのは「本人情報の欄」と「保存先」だけ
+   ・本人用：claude.ai上で保存領域（db）が使えるとき。PC・iPad・iPhoneで同期
+   ・共有用：それ以外（GitHub Pagesなど）。記録はその端末だけ
    このファイルに個人情報は入れない
    ============================================================ */
-const APP_VER="2026-10-22 v05";
 const UPDATES=[
- {d:"2026/10/22",t:"本人用と同僚用を1つのアプリにまとめました。学習に「読む・覚える・対策」を追加し、進み具合を「試験対策」と「開業準備」に分けました。"},
- {d:"2026/10/17",t:"クイズを専用の画面にし、ボードの表示を整理しました。"},
+ {d:"2026/10/22",t:"メニューを5つに整理しました。「学ぶ」は4つの分類から好きな項目を読む形に、問題は「クイズ」と「過去問」に分けました。相談メモと相談シートを誰でも使えるようにしました。"},
+ {d:"2026/10/22",t:"学習に「覚えるカード」と○×問題を追加しました。"},
+ {d:"2026/10/17",t:"クイズを専用の画面にし、表示を整理しました。"},
  {d:"2026/10/16",t:"公開しました。"}
 ];
 const CHECKED="2026/10/22";
-
-/* ===== 共通の中身（公開してよいもの） ===== */
 const SRC={
  r01:{n:"関東運輸局「個人タクシー事業の許可及び譲渡譲受認可申請事案の審査基準」",u:"https://wwwtb.mlit.go.jp/kanto/content/000107995.pdf"},
  r03:{n:"関東運輸局「法令試験の実施要領」",u:"https://wwwtb.mlit.go.jp/kanto/content/000227879.pdf"},
  r07:{n:"関東運輸局「許可申請の記入要領」",u:"https://wwwtb.mlit.go.jp/kanto/content/000284963.pdf"},
  r10:{n:"関東運輸局「準特定地域の個人タクシー特例公示」",u:"https://wwwtb.mlit.go.jp/kanto/content/000263437.pdf"},
  top:{n:"関東運輸局「タクシー事業を始めるには」",u:"https://wwwtb.mlit.go.jp/kanto/jidou_koutu/tabi2/taxi_jigyoukaisi/index.htm"},
- nta:{n:"国税庁「個人で事業を行っている方の記帳・帳簿等の保存について」",u:"https://www.nta.go.jp/taxes/shiraberu/shinkoku/kojin_jigyo/index.htm"}
+ nta:{n:"国税庁「個人で事業を行っている方の記帳・帳簿等の保存について」",u:"https://www.nta.go.jp/taxes/shiraberu/shinkoku/kojin_jigyo/index.htm"},
+ nik:{n:"日個連東京都営業協同組合「過去の運輸局試験問題」",u:"https://nikkoren.jp/download_test/"},
+ toh:{n:"東北運輸局「法令試験の問題例」",u:"https://wwwtb.mlit.go.jp/tohoku/00001_00430.html"}
 };
 const L=k=>`<a href="${SRC[k].u}" target="_blank" rel="noopener">${esc(SRC[k].n)}</a>`;
-/* 12テーマ（学習計画v02の順）。track：exam=試験対策 / prep=開業準備 */
-const STUDY=[
- {t:"開業の全体像（新規許可と譲渡譲受、受験・申請・営業開始の関係）",m:"新規許可と譲渡譲受の違い、今やること・後でやること",tr:"prep",quiz:true},
- {t:"道路運送法の入口、許可・認可・届出の区別",m:"三つの用語を自分の言葉で説明",tr:"exam"},
- {t:"運輸規則と日々の運行・記録の関係",m:"会社がしている管理のうち独立後に自分が担うこと",tr:"exam"},
- {t:"運送の引受け・拒否、接客に関係する法令の読み方",m:"現場の事例と、根拠を確認すべき条文",tr:"exam"},
- {t:"開業資金・毎月の費用・生活費の区別",m:"開業時の費用、営業中の費用、家計の三分類（金額は後で）",tr:"prep"},
- {t:"営業所・車庫の条件と確認方法",m:"物件候補を見る前の確認事項",tr:"prep"},
- {t:"車両法、点検・整備・事故報告の位置づけ",m:"車の購入費以外に必要となる管理",tr:"exam"},
- {t:"タクシー業務適正化特別措置法、乗り場・乗車禁止地区",m:"地域のルールを確認する方法",tr:"exam"},
- {t:"運賃・料金・運送約款",m:"料金や取扱いを記憶だけで判断しないための確認先",tr:"exam"},
- {t:"申請資料の種類、証明書の取得時期、相談の順序",m:"申請日の確定後に取る資料と、早めに所在を確認する資料",tr:"prep"},
- {t:"許可・認可後の営業開始準備",m:"車・保険・決済・記録管理等の手順の見取り図",tr:"prep"},
- {t:"開業後の記帳・収支管理、全体の復習",m:"分かったこと三つ、未確認事項三つ、次に深めるテーマ一つ",tr:"prep"}
-];
-const TRK={exam:"試験対策",prep:"開業準備"};
+const CATN=["全体像","開業準備","試験","経営"];
 const PH=[
- {n:"基礎学習（一巡）",s:"基礎学習",d:"12テーマを一巡。試験の基礎と、お金・営業所・申請の考え方を知る"},
- {n:"復習・制度ウォッチ",s:"復習・制度",d:"法令の少量復習。公式資料の更新を時々確認"},
+ {n:"基礎学習（一巡）",s:"基礎学習",d:"「学ぶ」の項目をひと通り読む。試験の基礎と、お金・営業所・申請の考え方を知る"},
+ {n:"復習・制度ウォッチ",s:"復習・制度",d:"クイズで少しずつ復習。公式資料の更新を時々確認"},
  {n:"経歴・証明書類の整理",s:"経歴の整理",d:"職歴・勤務日数・区域などを証明書類で確かめ、最新の条件と照らし合わせる"},
- {n:"受験・申請の準備",s:"受験・申請準備",d:"法令の本格的な問題演習、団体等への相談、見積・書類一覧の確認"},
+ {n:"受験・申請の準備",s:"受験・申請準備",d:"過去問での本格的な演習、団体等への相談、見積・書類一覧の確認"},
  {n:"証明書の取得・申請",s:"証明書・申請",d:"有効期限のある証明書・診断を申請日に合わせてそろえる"},
  {n:"許可・認可後〜営業開始",s:"開業準備",d:"登録・保険・機器・決済・帳簿・各届出。期間は公式資料で確認"}
 ];
-/* 質問 */
 const Q=[
  {id:"route",modes:["quick","full"],t:"どの方法で開業したいですか？",k:"経路",h:"新しく許可を受ける方法と、今の事業者から事業をゆずり受ける方法があります。",
-  o:[["new","新規許可","新しく許可を受ける"],["transfer","譲渡譲受","個人タクシー事業をゆずり受ける"],["undecided","まだ決めていない",""],["unknown","違いがよく分からない","学習の最初のテーマで扱います"]]},
+  o:[["new","新規許可","新しく許可を受ける"],["transfer","譲渡譲受","個人タクシー事業をゆずり受ける"],["undecided","まだ決めていない",""],["unknown","違いがよく分からない","「学ぶ」の最初の項目で扱います"]]},
  {id:"target",modes:["quick","full"],t:"いつごろ申請したいですか？",k:"申請の時期",h:"開業は申請・許可のあとです。だいたいで大丈夫。あとで直せます。",
   o:[["y1","1年以内",""],["y3","1〜3年後",""],["y5","3〜5年後",""],["y6","5年以上先",""],["none","まだ決めていない",""]],monthOpt:true},
  {id:"age",modes:["quick","full"],t:"申請するころの年齢は？",k:"申請時の年齢",h:"審査基準の年齢区分（35歳未満／35〜39歳／40〜64歳）に合わせた区切りです。区分ごとに経歴の条件が違います。",
@@ -747,13 +811,38 @@ const Q=[
   o:[["e1","5年未満",""],["e2","5〜10年",""],["e3","10年以上",""]]},
  {id:"done",modes:["full"],multi:true,t:"もう済んでいることは？",k:"済み",h:"当てはまるものを全部選んで「次へ」。なければそのまま「次へ」。",
   o:[["flow","開業までの流れをだいたい知っている",""],["law","法令の勉強を始めた",""],["money","開業資金の目安を考えた",""],["garage","営業所（自宅）・車庫の条件を調べた",""],["career","職歴を証明する書類の取り方を知っている",""],["senpai","先輩に相談したことがある",""]]},
- {id:"worry",modes:["full"],multi:true,t:"気になっていることは？",k:"気になる",h:"選んだものは、やること・学習で目印を付けて先に出します。",
+ {id:"worry",modes:["full"],multi:true,t:"気になっていることは？",k:"気になる",h:"選んだものは、やることで目印を付けて先に出します。",
   o:[["money","お金（開業資金・生活費）",""],["garage","営業所・車庫・車両",""],["exam","法令試験",""],["docs","書類・証明",""],["biz","開業後の経営・帳簿",""]]}
 ];
-const STATUS=["todo","doing","wait","done"], ST_LABEL={todo:"未着手",doing:"進行中",wait:"待ち",done:"完了"};
-const CK_STATUS=["todo","doing","done"], CK_LABEL={todo:"未確認",doing:"確認中",done:"確認済"};
-const THEMES={"00":"プロジェクト管理","01":"公式制度・申請要件","02":"本人情報・証明資料","03":"適格性・申請可能時期","04":"試験","05":"営業所・車庫・車両","06":"資金・事業計画","07":"申請実務","08":"開業準備","09":"開業後の経営"};
-const TS={"00":"管理","01":"制度","02":"本人資料","03":"適格性","04":"試験","05":"営業所・車庫","06":"資金","07":"申請","08":"開業準備","09":"経営"};
+/* やることのひな形（回答に合わせて最初に入る。あとで自由に直せる） */
+const TT=[
+ {k:"qualify",cat:2,first:true,t:"受験の申込資格を確かめる",d:()=>`事前試験は、申し込む日の時点で第二種運転免許があること、65歳未満であること、運転経歴の条件を満たすことが受験の条件です。経歴の条件は年齢区分ごとに違います（審査基準の別表２）。出典：${L("r03")}・${L("r01")}`},
+ {k:"flow",cat:0,pre:"flow",t:"開業までの流れをつかむ",d:()=>"「学ぶ」の分類0（全体像）の項目を読みます。新規許可と譲渡譲受の違い、受験と申請の順番が分かります。"},
+ {k:"route",cat:0,when:a=>!a.route||a.route==="undecided"||a.route==="unknown",t:"新規許可か譲渡譲受か、どちらで目指すか考える",d:()=>"まず違いを知ってから。急いで決めなくて大丈夫です。"},
+ {k:"exam",cat:2,when:a=>a.route==="new",hot:"exam",t:"法令試験の申込時期を知っておく",d:()=>`申込は原則年3回（4/1〜5/31→7月、8/1〜9/30→11月、12/1〜1/31→3月の試験）。実際の日程は個別の公示で確認します。合格証には有効期限があります。出典：${L("r03")}（PDF7〜8ページ）`},
+ {k:"transfer",cat:1,when:a=>a.route==="transfer",t:"譲渡譲受の条件を確かめる",d:()=>`ゆずり受ける人にも審査基準があります。譲渡する人が75歳以上80歳未満の場合、ゆずり受ける人は60歳以下という条件もあります。出典：${L("r01")}`},
+ {k:"age65",cat:1,first:true,when:a=>a.age==="a4",t:"年齢の条件を最初に確認する",d:()=>`審査基準では申請日現在で65歳未満が条件です。出典：${L("r01")}（PDF6ページ）`},
+ {k:"law",cat:2,pre:"law",hot:"exam",t:"法令の基礎を少しずつ",d:()=>"道路運送法・運輸規則・車両法・タクシー業務適正化特別措置法・運賃と約款。「学ぶ」の分類2で順に追加します。"},
+ {k:"kako",cat:2,hot:"exam",t:"過去問を1回分解いてみる",d:()=>`「問題」→「過去問」から配布元のPDFを開けます。点数と間違えた分野を記録しておくと、本格的な演習のときに役立ちます。出典：${L("nik")}`},
+ {k:"money",cat:1,pre:"money",hot:"money",t:"お金を三つに分けて考える",d:()=>`開業時の費用・営業中の費用・生活費。審査基準では設備資金80万円以上・運転資金80万円以上などを合計した所要資金の100%以上の自己資金が必要とされています。出典：${L("r01")}（PDF7〜8ページ）`},
+ {k:"garage",cat:1,pre:"garage",hot:"garage",t:"営業所（自宅）と車庫の条件を知る",d:()=>`住居と営業所が同じであること、車庫は営業所から直線2km以内で1年以上使えることなどの条件があります。出典：${L("r01")}（PDF8ページ）`},
+ {k:"career",cat:1,pre:"career",hot:"docs",t:"職歴を証明する書類の取り方を調べる",d:()=>"在職期間・勤務日数・区域などを後で証明します。転職や退職のときは記録をなくさないように。"},
+ {k:"certs",cat:1,hot:"docs",when:a=>{const T=targetM(a);return T&&mIdx(T.m)-mIdx(toM(TODAY))<=12},t:"証明書の取得時期を申請日から逆算する",d:()=>`発行から申請まで3か月以内、3週間以内などの条件がある書類があります。出典：${L("r07")}（PDF6〜9ページ）`},
+ {k:"senpai",cat:0,pre:"senpai",t:"先輩に聞きたいことを書き出す",d:()=>"「設定」→「相談メモ」に書きためると、相談シートにできます。お金の相場（車両など）も先輩に聞くのが確実です。"},
+ {k:"biz",cat:3,hot:"biz",when:a=>Array.isArray(a.worry)&&a.worry.includes("biz"),t:"開業後の記帳の入口を見ておく",d:()=>`収入・経費の記録と書類の保存。出典：${L("nta")}`},
+ {k:"official",cat:0,t:"公式の案内ページを一度見ておく",d:()=>`最新の資料はここに載ります。${L("top")}`}
+];
+/* 確認することのひな形 */
+const CT=[
+ {k:"c-exam",cat:2,t:"次の法令試験の公示（日程・申込方法）"},
+ {k:"c-45",cat:2,t:"自分の営業区域の試験が40問か45問か"},
+ {k:"c-window",cat:0,t:"新規許可の受付期間と、その年度の参入枠の状況"},
+ {k:"c-2029",cat:0,t:"2029年4月以降の新規許可の扱い（特例公示の廃止規定のあと）"},
+ {k:"c-career",cat:1,t:"自分の経歴が条件に合うか（職歴・勤務日数を証明書類で）",share:false},
+ {k:"c-place",cat:1,t:"住まいと車庫の条件（距離・使える期間）"}
+];
+const KAI=["令和8年7月","令和8年3月","令和7年11月","令和7年7月","令和7年3月","令和6年11月","令和6年7月","令和6年3月","令和5年11月","令和5年7月","令和5年3月","令和4年11月","令和4年7月","令和4年3月"];
+const MISS=["道路運送法","運輸規則","運送の引受け","車両法","タクシー業務適正化特別措置法","運賃・約款","その他"];
 
 /* ===== 便利関数 ===== */
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
@@ -768,49 +857,53 @@ const addM=(o,n)=>{const t=o.y*12+o.m+n;return{y:Math.floor(t/12),m:((t%12)+12)%
 const mIdx=o=>o.y*12+o.m;
 const addDays=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x};
 const toM=d=>({y:d.getFullYear(),m:d.getMonth()});
-const WD="日月火水木金土";
-const mondayOf=d=>{const x=new Date(d);x.setHours(0,0,0,0);const w=(x.getDay()+6)%7;return addDays(x,-w)};
 const ymd=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const ym=d=>ymd(d).slice(0,7);
+const mondayOf=d=>{const x=new Date(d);x.setHours(0,0,0,0);return addDays(x,-((x.getDay()+6)%7))};
+const WD="日月火水木金土";
+const KL=()=>window.KotakuLearn;
 
 /* ===== 状態 ===== */
-let ME=false;            // 本人モード
-let db=null, downloads=null, loaded=false;
+let ME=false, db=null, downloads=null, loaded=false;
 const D={
  answers:{mode:null,ans:{},skip:{},created:null},
  settings:{studyStart:"",examMonth:""},
- study:{done:{}}, learn:{}, tdone:{},
- tasks:{items:[]}, checks:{items:[]}, consult:{items:[]},
- profile:{nickname:"",region:"",ageClass:"",startDate:"",funds:"",memo:""}
+ learn:{}, tasks:{items:[],auto:{}}, checks:{items:[],auto:{}}, consult:{items:[]}, kakomon:{items:[]},
+ profile:{nickname:"",startDate:"",funds:"",memo:""}
 };
-const ME_DOCS=["answers","settings","study","learn","tasks","checks","consult","profile"];
-const LKEY="kotaku-navi-v2";
+/* 本人用の保存先（文書名）。旧版の文書（tasks・checks・learn・study）は消さずに残す */
+const DOC={answers:"answers",settings:"settings",learn:"learn3",tasks:"tasks2",checks:"checks2",consult:"consult",kakomon:"kakomon",profile:"profile"};
+const LKEY="kotaku-navi-v3";
 const lsGet=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const lsSet=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-
-/* 保存：本人＝dbの文書ごと、同僚＝端末に1かたまり */
-const timers={}, writing={}, again={};
-function save(doc){
-  if(ME&&db){clearTimeout(timers[doc]);timers[doc]=setTimeout(()=>flush(doc),600);return}
-  lsSet(LKEY,JSON.stringify({answers:D.answers,settings:D.settings,study:D.study,learn:D.learn,tdone:D.tdone}));
+const CO_KEYS=["answers","settings","learn","tasks","checks","consult","kakomon"];
+const timers={},writing={},again={};
+function save(k){
+  if(ME&&db){ if(!k) return; clearTimeout(timers[k]); timers[k]=setTimeout(()=>flush(k),600); return }
+  const o={}; CO_KEYS.forEach(x=>o[x]=D[x]); lsSet(LKEY,JSON.stringify(o));
 }
-async function flush(doc){
-  if(writing[doc]){again[doc]=true;return}
-  writing[doc]=true;
-  try{await db.doc("kotaku/"+doc).set(JSON.parse(JSON.stringify(D[doc])));setSync("ok","同期済み")}
-  catch(e){ if(e&&e.code==="unavailable"){setTimeout(()=>flush(doc),1200+Math.random()*800)} else {setSync("warn","保存できませんでした");banner("保存できませんでした（"+esc(e&&e.code||"error")+"）。ページを開き直してください。")} }
-  writing[doc]=false; if(again[doc]){again[doc]=false;flush(doc)}
+async function flush(k){
+  if(writing[k]){again[k]=true;return}
+  writing[k]=true;
+  try{await db.doc("kotaku/"+DOC[k]).set(JSON.parse(JSON.stringify(D[k])));setSync("ok","同期済み")}
+  catch(e){ if(e&&e.code==="unavailable") setTimeout(()=>flush(k),1200+Math.random()*800); else {setSync("warn","保存できませんでした");banner("保存できませんでした（"+esc(e&&e.code||"error")+"）。ページを開き直してください。")} }
+  writing[k]=false; if(again[k]){again[k]=false;flush(k)}
 }
 function setSync(c,t){const el=$("#sync");el.hidden=false;el.className="sync "+c;el.querySelector("span").textContent=t}
 function banner(h){const b=$("#banner");b.innerHTML=h;b.hidden=false}
 function loadLocal(){
   try{
     const v=lsGet(LKEY);
-    if(v){const o=JSON.parse(v);["answers","settings","study","learn","tdone"].forEach(k=>{if(o[k])D[k]=Object.assign(D[k]||{},o[k])});return}
-    const v1=lsGet("kotaku-navi-v1");   // 旧版（2026/10/16〜）からの引き継ぎ
-    if(v1){const o=JSON.parse(v1);
-      D.answers={mode:o.mode||null,ans:o.ans||{},skip:o.skip||{},created:o.created||null};
-      D.tdone=o.done||{}; D.learn=o.learn||{};
-      Object.keys(o.sdone||{}).forEach(i=>{D.study.done[+i+1]=[true,true,true,true,true,true]});
+    if(v){const o=JSON.parse(v);CO_KEYS.forEach(k=>{if(o[k])D[k]=Object.assign(D[k],o[k])});return}
+    // 旧版（v2：2026/10/22、v1：2026/10/16〜）からの引き継ぎ
+    let old=null; const v2=lsGet("kotaku-navi-v2"), v1=lsGet("kotaku-navi-v1");
+    if(v2) old=JSON.parse(v2);
+    else if(v1){const o=JSON.parse(v1); old={answers:{mode:o.mode||null,ans:o.ans||{},skip:o.skip||{},created:o.created||null},learn:o.learn||{},tdone:o.done||{},settings:{}}}
+    if(old){
+      if(old.answers) D.answers=Object.assign(D.answers,old.answers);
+      if(old.settings) D.settings=Object.assign(D.settings,old.settings);
+      D.learn=KL()?KL().migrate(old.learn||{}):{};
+      if(D.answers.created){ syncAuto(); const td=old.tdone||{}; D.tasks.items.forEach(t=>{if(t.key&&td[t.key]===true)t.status="done";if(t.key&&td[t.key]===false)t.status="todo"}); seedChecks(); }
       save();
     }
   }catch(e){}
@@ -819,79 +912,63 @@ function loadLocal(){
 /* ===== 計算 ===== */
 const ans=()=>D.answers.ans||{};
 function wpt(){return {s30:2,s60:1,s120:0.5,s0:2}[ans().study]||2}
-function studyStart(){
-  const s=pd(D.settings.studyStart); if(s) return s;
-  const c=D.answers.created?pd(D.answers.created):null;
-  return mondayOf(c||TODAY);
-}
-function targetM(){
-  const v=ans().target; if(!v) return null;
+function studyStart(){const s=pd(D.settings.studyStart);if(s)return s;const c=pd(D.answers.created);return mondayOf(c||TODAY)}
+function targetM(a){
+  a=a||ans(); const v=a.target; if(!v) return null;
   if(/^\d{4}-\d{2}$/.test(v)) return {m:pm(v),exact:true};
-  const base=D.answers.created?pd(D.answers.created):TODAY;
-  const add={y1:9,y3:24,y5:48,y6:72}[v]; return add?{m:addM(toM(base||TODAY),add),exact:false}:null;
+  const base=pd(D.answers.created)||TODAY; const add={y1:9,y3:24,y5:48,y6:72}[v];
+  return add?{m:addM(toM(base),add),exact:false}:null;
 }
 function phases(){
   const st=studyStart(), W=Math.round(12*wpt()); const end=addDays(st,W*7-1), mid=addDays(st,Math.round(W/2)*7);
-  const s1=toM(st), e1=toM(end); const T=targetM(); const ap=T&&T.m;
+  const e1=toM(end); const T=targetM(); const ap=T&&T.m;
   const P=PH.map((p,i)=>({...p,k:"p"+(i+1)}));
-  P[0].from=s1;P[0].to=e1;P[0].when=`${fmtD(st)}〜${fmtD(end)}`;
-  P[1].from=addM(e1,1);P[1].to=ap?addM(ap,-13):null;P[1].when=ap?(mIdx(addM(ap,-13))>=mIdx(addM(e1,1))?`${fmtM(addM(e1,1))}〜${fmtM(addM(ap,-13))}`:"（期間なし）"):`${fmtM(addM(e1,1))}〜（希望月が決まるまで）`;
-  const rel=[["希望月の12〜6か月前",-12,-7],["希望月の6〜3か月前",-6,-4],["希望月の3か月前〜",-3,0],["許可・認可の後（期間未確認）",1,4]];
-  rel.forEach(([r,a,b],j)=>{const p=P[j+2];p.rel=r;if(ap){p.from=addM(ap,a);p.to=addM(ap,b);p.when=j===3?`${fmtM(p.from)}〜（期間未確認）`:`${fmtM(p.from)}〜${fmtM(p.to)}`}else p.when=r});
-  const tm=toM(TODAY); let cur=TODAY>end?1:0;
-  if(ap){const mu=mIdx(ap)-mIdx(tm); if(mu<0)cur=5; else if(mu<=3)cur=4; else if(mu<=6)cur=3; else if(mu<=12)cur=2;}
-  return {P,cur,st,end,mid,T,W};
+  P[0].from=toM(st);P[0].to=e1;P[0].when=`${fmtD(st)}〜${fmtD(end)}`;
+  P[1].from=addM(e1,1);P[1].to=ap?addM(ap,-13):null;
+  P[1].when=ap?(mIdx(addM(ap,-13))>=mIdx(addM(e1,1))?`${fmtM(addM(e1,1))}〜${fmtM(addM(ap,-13))}`:"（期間なし）"):`${fmtM(addM(e1,1))}〜（希望月が決まるまで）`;
+  [["希望月の12〜6か月前",-12,-7],["希望月の6〜3か月前",-6,-4],["希望月の3か月前〜",-3,0],["許可・認可の後（期間未確認）",1,4]].forEach(([r,a,b],j)=>{const p=P[j+2];p.rel=r;if(ap){p.from=addM(ap,a);p.to=addM(ap,b);p.when=j===3?`${fmtM(p.from)}〜（期間未確認）`:`${fmtM(p.from)}〜${fmtM(p.to)}`}else p.when=r});
+  let cur=TODAY>end?1:0;
+  if(ap){const mu=mIdx(ap)-mIdx(toM(TODAY)); if(mu<0)cur=5; else if(mu<=3)cur=4; else if(mu<=6)cur=3; else if(mu<=12)cur=2;}
+  return {P,cur,st,end,mid,T};
 }
-function studyWeek(){const d=Math.floor((TODAY-studyStart())/864e5);return d<0?0:Math.floor(d/7)+1}
-function curThemeIndex(){const w=studyWeek(),p=wpt();if(w<1)return 0;const i=Math.floor((w-1)/p);return i>11?null:i}
-function themeDone(i){const d=D.study.done[i+1]||[];return d.filter(Boolean).length>=6}
-function lp(){return window.KotakuLearn?window.KotakuLearn.progress(D.learn):{}}
+const isPast=p=>p.to&&mIdx(p.to)<mIdx(toM(TODAY));
 
-/* ===== 同僚用：回答から作るやること ===== */
-function coTasks(){
-  const a=ans(), done=Array.isArray(a.done)?a.done:[], worry=Array.isArray(a.worry)?a.worry:[];
-  const T=[]; const add=(k,tr,t,d,th,hot,pre,first)=>T.push({k,tr,t,d,th,hot:!!hot,pre:!!pre,first:!!first});
-  add("qualify","exam","受験の申込資格を確かめる",`事前試験は、申し込む日の時点で第二種運転免許があること、65歳未満であること、運転経歴の条件を満たすことが受験の条件です。経歴の条件は年齢区分ごとに違います（審査基準の別表２）。出典：${L("r03")}・${L("r01")}`,"資格",false,false,true);
-  add("flow","prep","開業までの流れをつかむ","「学ぶ」のテーマ1（全6回・1回10分）で。新規許可と譲渡譲受の違い、受験と申請の順番が分かります。","全体像",false,done.includes("flow"));
-  if(a.route==="undecided"||a.route==="unknown"||!a.route) add("route","prep","新規許可か譲渡譲受か、どちらで目指すか考える","まず違いを知ってから。急いで決めなくて大丈夫です。","経路");
-  if(a.route==="new") add("exam","exam","法令試験の申込時期を知っておく",`申込は原則年3回（4/1〜5/31→7月、8/1〜9/30→11月、12/1〜1/31→3月の試験）。実際の日程は個別の公示で確認します。合格証には有効期限があります。出典：${L("r03")}（PDF7〜8ページ）`,"試験",worry.includes("exam"));
-  if(a.route==="transfer") add("transfer","prep","譲渡譲受の条件を確かめる",`ゆずり受ける人にも審査基準があります。譲渡する人が75歳以上80歳未満の場合、ゆずり受ける人は60歳以下という条件もあります。出典：${L("r01")}`,"経路");
-  if(a.age==="a4") add("age65","prep","年齢の条件を最初に確認する",`審査基準では申請日現在で65歳未満が条件です。出典：${L("r01")}（PDF6ページ）`,"条件",true);
-  add("law","exam","法令の基礎を少しずつ","道路運送法・運輸規則・車両法・タクシー業務適正化特別措置法・運賃と約款。学習計画の順で。","試験",worry.includes("exam"),done.includes("law"));
-  add("money","prep","お金を三つに分けて考える",`開業時の費用・営業中の費用・生活費。審査基準では設備資金80万円以上・運転資金80万円以上などを合計した所要資金の100%以上の自己資金が必要とされています。出典：${L("r01")}（PDF7〜8ページ）`,"資金",worry.includes("money"),done.includes("money"));
-  add("garage","prep","営業所（自宅）と車庫の条件を知る",`住居と営業所が同じであること、車庫は営業所から直線2km以内で1年以上使えることなどの条件があります。出典：${L("r01")}（PDF8ページ）`,"営業所",worry.includes("garage"),done.includes("garage"));
-  add("career","prep","職歴を証明する書類の取り方を調べる","在職期間・勤務日数・区域などを後で証明します。転職や退職のときは記録をなくさないように。","書類",worry.includes("docs"),done.includes("career"));
-  const T2=targetM(); if(T2&&mIdx(T2.m)-mIdx(toM(TODAY))<=12) add("certs","prep","証明書の取得時期を申請日から逆算する",`発行から申請まで3か月以内、3週間以内などの条件がある書類があります。出典：${L("r07")}（PDF6〜9ページ）`,"書類",true);
-  add("senpai","prep","先輩に聞きたいことを書き出す","どちらの経路を選んだか、早めにやればよかったことなど。お金の相場（車両など）も先輩に聞くのが確実です。","相談",false,done.includes("senpai"));
-  if(worry.includes("biz")) add("biz","prep","開業後の記帳の入口を見ておく",`収入・経費の記録と書類の保存。出典：${L("nta")}`,"経営",true);
-  add("official","prep","公式の案内ページを一度見ておく",`最新の資料はここに載ります。${L("top")}`,"確認");
-  return T.sort((x,y)=>(x.pre-y.pre)||(y.first-x.first)||(y.hot-x.hot));
+/* ===== やること・確認することのひな形を入れる ===== */
+function syncAuto(){
+  const a=ans(), done=Array.isArray(a.done)?a.done:[]; D.tasks.auto=D.tasks.auto||{}; let n=0;
+  TT.forEach(x=>{ if(D.tasks.auto[x.k]) return; if(x.when&&!x.when(a)) return;
+    D.tasks.items.push({id:uid(),key:x.k,t:x.t,cat:x.cat,status:x.pre&&done.includes(x.pre)?"done":"todo",month:"",note:"",share:true}); D.tasks.auto[x.k]="added"; n++; });
+  if(n) save("tasks");
 }
-const coDone=x=>D.tdone[x.k]??x.pre;
-/* 本人用：タスクの試験／準備の振り分け */
-const meTr=t=>t.theme==="04"?"exam":"prep";
+function seedChecks(){
+  D.checks.auto=D.checks.auto||{}; let n=0;
+  CT.forEach(x=>{ if(D.checks.auto[x.k]) return; D.checks.items.push({id:uid(),key:x.k,t:x.t,cat:x.cat,status:"todo",note:"",share:x.share!==false}); D.checks.auto[x.k]="added"; n++; });
+  if(n) save("checks");
+}
+const tplOf=t=>t.key?TT.find(x=>x.k===t.key):null;
+const hotOf=t=>{const x=tplOf(t);if(!x)return "";const w=ans().worry;if(x.first)return "最初に";return x.hot&&Array.isArray(w)&&w.includes(x.hot)?"気になる":""};
 
 /* ===== 画面切替 ===== */
-let curTab="home";
-function go(tab){
-  if(tab==="consult"||tab==="share") if(!ME) tab="home";
-  curTab=tab;
-  $$(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===tab?"true":"false"));
+let curTab="home", qSeg="quiz", pSeg="tasks";
+const TAB_OF={consult:"settings",share:"settings"};
+function go(tab,sub){
+  curTab=tab; if(tab==="quiz"&&sub) qSeg=sub; if(tab==="prep"&&sub) pSeg=sub;
+  const t=TAB_OF[tab]||tab;
+  $$(".tab").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t?"true":"false"));
   $$(".view").forEach(v=>v.hidden=v.id!=="v-"+tab);
-  $("#tabs").hidden=false;
-  renderView(tab); window.scrollTo({top:0});
+  $("#tabs").hidden=false; renderView(tab); window.scrollTo({top:0});
 }
-function showOnly(id){ $$(".view").forEach(v=>v.hidden=v.id!==id); $("#tabs").hidden=(id==="v-start"||id==="v-q"); window.scrollTo({top:0}); }
-function renderView(t){({home:renderHome,quiz:mountLearn,schedule:renderSchedule,tasks:renderTasks,study:renderStudy,consult:renderConsult,share:renderShare,settings:renderSettings})[t]()}
-function renderAll(){ if(!$("#v-start").hidden||!$("#v-q").hidden) return; renderView(curTab) }
+function showOnly(id){$$(".view").forEach(v=>v.hidden=v.id!==id);$("#tabs").hidden=(id==="v-start"||id==="v-q");window.scrollTo({top:0})}
+function renderView(t){({home:renderHome,learn:renderLearnTab,quiz:renderQuizTab,prep:renderPrep,consult:renderConsult,share:renderShare,settings:renderSettings})[t]()}
+function renderAll(){if(!$("#v-start").hidden||!$("#v-q").hidden)return;if(curTab==="learn"||curTab==="quiz")return;renderView(curTab)}
 
 /* ===== 質問 ===== */
 const qList=()=>Q.filter(q=>q.modes.includes(D.answers.mode||"quick"));
 const ansLabel=(q,v)=>{if(v==null)return "";if(Array.isArray(v))return v.length?v.map(x=>(q.o.find(o=>o[0]===x)||[,x])[1]).join("、"):"なし";if(q.id==="target"&&/^\d{4}-\d{2}$/.test(v))return v.replace("-","年")+"月ごろ";return (q.o.find(o=>o[0]===v)||[,v])[1]};
-let qi=0, single=false, onlyOpen=false, multiTmp=[];
+let qi=0,single=false,onlyOpen=false,multiTmp=[];
 function openQ(i,one,open){qi=i;single=!!one;onlyOpen=!!open;renderQ();showOnly("v-q")}
 function renderQ(){
-  const qs=qList(), q=qs[qi], cur=ans()[q.id];
+  const qs=qList(),q=qs[qi],cur=ans()[q.id];
   $("#qCount").textContent=single?"回答を直す":`${qi+1} / ${qs.length}`;
   $("#pdots").innerHTML=single?"":qs.map((x,i)=>`<i class="${i===qi?"cur":ans()[x.id]!=null?"on":D.answers.skip[x.id]?"skip":""}"></i>`).join("");
   $("#qNum").textContent="Q"+(Q.indexOf(q)+1); $("#qTag").textContent=q.multi?"いくつでも":"";
@@ -905,139 +982,207 @@ function renderQ(){
   $("#qNote").hidden=!note; $("#qNote").innerHTML=note;
 }
 function answer(id,v){D.answers.ans[id]=v;delete D.answers.skip[id];save("answers");advance()}
-function advance(){ if(single){finishQ();return} const qs=qList(); let n=qi+1; if(onlyOpen){while(n<qs.length&&ans()[qs[n].id]!=null)n++} if(n<qs.length){qi=n;renderQ();window.scrollTo({top:0})} else finishQ() }
-function finishQ(){ if(!D.answers.created){D.answers.created=ymd(TODAY)} if(!D.settings.studyStart){D.settings.studyStart=ymd(mondayOf(TODAY));save("settings")} save("answers"); go("home") }
+function advance(){if(single){finishQ();return}const qs=qList();let n=qi+1;if(onlyOpen){while(n<qs.length&&ans()[qs[n].id]!=null)n++}if(n<qs.length){qi=n;renderQ();window.scrollTo({top:0})}else finishQ()}
+function finishQ(){
+  if(!D.answers.created) D.answers.created=ymd(TODAY);
+  if(!D.settings.studyStart){D.settings.studyStart=ymd(mondayOf(TODAY));save("settings")}
+  save("answers"); syncAuto(); seedChecks(); go(curTab==="settings"?"settings":"home");
+}
 $("#qAns").addEventListener("click",e=>{
   const q=qList()[qi];
   if(e.target.closest("#qMonthOk")){const m=$("#qMonth").value;if(m)answer(q.id,m);return}
-  const b=e.target.closest(".ans"); if(!b) return;
+  const b=e.target.closest(".ans");if(!b)return;
   if(q.multi){const v=b.dataset.v,i=multiTmp.indexOf(v);i>=0?multiTmp.splice(i,1):multiTmp.push(v);b.setAttribute("aria-pressed",i<0)}
   else{$$("#qAns .ans").forEach(x=>x.setAttribute("aria-pressed",x===b));setTimeout(()=>answer(q.id,b.dataset.v),160)}
 });
 $("#qNext").addEventListener("click",()=>{const q=qList()[qi];answer(q.id,multiTmp.slice())});
 $("#qLater").addEventListener("click",()=>{const q=qList()[qi];if(single)delete D.answers.ans[q.id];if(ans()[q.id]==null)D.answers.skip[q.id]=true;save("answers");advance()});
-$("#qBack").addEventListener("click",()=>{if(single||qi===0){D.answers.created?go("home"):showOnly("v-start")}else{qi--;renderQ()}});
+$("#qBack").addEventListener("click",()=>{if(single||qi===0){D.answers.created?go(curTab||"home"):showOnly("v-start")}else{qi--;renderQ()}});
 $$("[data-mode]").forEach(b=>b.addEventListener("click",()=>{D.answers.mode=b.dataset.mode;save("answers");openQ(0)}));
 
 /* ===== ホーム ===== */
-const tagTheme=t=>`<span class="th">${esc(t)}</span>`;
-const stChip=s=>`<span class="chip st-${s}">${s==="done"?"✓ ":""}${ST_LABEL[s]}</span>`;
-const ckChip=s=>`<span class="chip st-${s==="todo"?"todo":s==="doing"?"doing":"done"}">${s==="done"?"✓ ":""}${CK_LABEL[s]}</span>`;
-function nextMonthly(){let d=new Date(TODAY.getFullYear(),TODAY.getMonth(),2);if(d<TODAY)d=new Date(TODAY.getFullYear(),TODAY.getMonth()+1,2);return d}
-function trackData(tr){
-  const idx=STUDY.map((s,i)=>i).filter(i=>STUDY[i].tr===tr);
-  const prog=lp(); const themes=window.KotakuLearn?window.KotakuLearn.themes:[];
-  const done=idx.filter(themeDone).length;
-  let cards=0,known=0,tried=0,first=0,ready=0;
-  themes.filter(t=>t.track===tr).forEach(t=>{const p=prog[t.n];if(!p)return;cards+=p.cards;known+=p.cardsKnown;tried+=p.qTried;first+=p.qFirstOk;if(p.ready)ready++});
-  let tasks;
-  if(ME) { const ts=D.tasks.items.filter(t=>meTr(t)===tr); tasks={n:ts.length,d:ts.filter(t=>t.status==="done").length,next:ts.filter(t=>t.status==="doing")[0]||ts.filter(t=>t.status==="todo").sort((a,b)=>(a.month||"9999").localeCompare(b.month||"9999"))[0]}; }
-  else { const ts=coTasks().filter(t=>t.tr===tr); tasks={n:ts.length,d:ts.filter(coDone).length,next:ts.find(t=>!coDone(t))}; }
-  const nextTheme=idx.find(i=>!themeDone(i));
-  return {idx,done,cards,known,tried,first,ready,tasks,nextTheme};
-}
-function renderHome(){
-  const {P,cur,end,mid,T}=phases(); const w=studyWeek();
-  // 信頼の一行
-  $("#trust").innerHTML=`<span><b>個人が作った非公式の学習ツール</b>です。開業できるかの判定ではありません。制度の内容は関東運輸局の公式資料で確認（${CHECKED}）。</span><button class="upd" type="button" data-go="settings">更新 ${UPDATES[0].d}</button>`;
-  // ホーム画面に追加（同僚・iPhoneで未追加のとき）
-  const standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone;
-  $("#install").hidden=ME||standalone||lsGet("kotaku-navi:installClosed")==="1";
-  // 今日の10分
-  const lsS=D.learn||{}; const KL=window.KotakuLearn;
-  let nextTitle="個タクQUIZ", nextSub="1回10分・読む → 覚える → 解く";
-  if(lsS.cur){nextTitle="続きから再開";nextSub=`第${lsS.cur.id}回の途中から`}
-  else if(KL){const ids=(KL.themeSessions[1]||[]);const nx=ids.find(id=>!(lsS.done||{})[id]);nextTitle=nx?`テーマ1・第${nx}回`:"公開中の回はクリア";nextSub=nx?"開業の全体像　1回10分":"カードの復習と対策で仕上げましょう"}
-  const ti=curThemeIndex();
-  $("#today10").innerHTML=`<span class="q">Q</span><div style="position:relative;z-index:1"><div class="l">今日の10分</div><div class="t">${esc(nextTitle)}</div><div class="s">${esc(nextSub)}${ti!==null&&w>=1?`　｜　学習計画 第${w}週：${esc(STUDY[ti].t.replace(/（.*$/,""))}`:""}</div></div><div class="acts"><button class="btn btn-gold" type="button" data-go="quiz">学ぶ</button></div>`;
-  // 2本のメーター
-  const tr=k=>{const x=trackData(k); const pct=Math.round(x.done/6*100);
-    const learnLine=x.ready?`<span>カード <b>${x.known}/${x.cards}</b></span><span>1回目正解 <b>${x.tried?Math.round(x.first/x.tried*100)+"%":"—"}</b></span>`:`<span>教材は順に追加予定</span>`;
-    const nx=x.tasks.next?(ME?x.tasks.next.t:x.tasks.next.t):(x.nextTheme!=null?STUDY[x.nextTheme].t.replace(/（.*$/,""):"—");
-    let extra="";
-    if(k==="exam"){const ph4=P[3], r=ans().route; const rn=r==="transfer"?"譲渡譲受は、申請の後に試験を受けます。":r==="new"?"新規許可は、申請の前に事前試験の合格が必要です（合格証には有効期限あり）。":"新規許可は申請の前、譲渡譲受は申請の後に試験を受けます。"; extra=`<div class="note3">${T?`本格的な問題演習の目安：${esc(ph4.when)}。`:"申請の時期を決めると、演習の目安が出ます。"}${rn}</div>`}
-    return `<div class="track ${k}"><div class="hd"><span class="tk">${k==="exam"?"EXAM":"PREP"}</span><b>${TRK[k]}</b></div>
-      <div class="big2">${x.done}<small>/ 6テーマ</small></div><div class="barx"><i style="width:${pct}%"></i></div>
-      <div class="stats">${learnLine}<span>やること <b>${x.tasks.d}/${x.tasks.n}</b></span>${ME&&k==="prep"?`<span>未確認 <b>${D.checks.items.filter(c=>c.status!=="done").length}</b></span>`:""}</div>
-      <div class="nx2"><span class="k">次</span><span class="v">${esc(nx)}</span></div>${extra}</div>`};
-  $("#tracks").innerHTML=tr("prep")+tr("exam");
-  // 条件
-  const qs=Q.filter(q=>q.modes.includes(D.answers.mode||"quick")||ans()[q.id]!=null);
-  const cv=(q,v)=>{if(Array.isArray(v))return v.length?(q.id==="done"?`${v.length}件`:ansLabel(q,v).split("、")[0].replace(/（.*$/,"")+(v.length>1?` ほか${v.length-1}`:"")):"なし";return ansLabel(q,v).replace(/（.*$/,"")};
-  $("#cond").innerHTML=`<span class="lb">${ME?"条件":"あなたの条件"}</span>`+qs.map(q=>{const v=ans()[q.id];const sk=v==null;return `<button class="cchip${sk?" skip":""}" type="button" data-ask="${q.id}"><small>${esc(q.k)}</small>${sk?"あとで答える":esc(cv(q,v))}</button>`}).join("")+`<span class="sp"></span>${D.answers.mode!=="full"?'<button class="btn btn-line btn-sm" type="button" id="goFull">もっと細かく答える</button>':""}`;
-  // 現在地
-  const tl=T?(T.exact?`申請の希望 ${fmtM(T.m)}`:`申請の希望 ${esc(ansLabel(Q[1],ans().target))}（${fmtM(T.m)}ごろで仮置き）`):"申請の時期は未定";
-  $("#nowCard").innerHTML=`<span class="lbl">NOW</span><div class="phase">${cur+1}. ${esc(PH[cur].n)}</div><div class="sub">${tl}</div>
-   <div class="steps2">${P.map((p,i)=>`<div class="${i===cur?"on":p.to&&mIdx(p.to)<mIdx(toM(TODAY))?"past":""}"><b>${i+1}</b><span>${esc(p.s)}</span>${esc((p.when||"").replace("（期間未確認）","").replace("（希望月が決まるまで）",""))}</div>`).join("")}</div>
-   <div class="note2">時期は作業の目安で、制度上の期限ではありません。</div>`;
-  // 節目
-  const items=[];
-  if(ME) items.push({d:nextMonthly(),t:"公式資料の月次確認（自動）"});
+function nextMilestones(){
+  const {mid,end,T}=phases(); const items=[];
   if(mid>=TODAY) items.push({d:mid,t:"学習の中間点検"});
-  if(end>=TODAY) items.push({d:end,t:"12テーマ一巡・見直し"});
-  const ex=pm(D.settings.examMonth); if(ME&&ex) items.push({d:new Date(ex.y,ex.m,1),t:"受験予定月",mon:true});
+  if(end>=TODAY) items.push({d:end,t:"基礎学習の一巡・見直し"});
+  const ex=pm(D.settings.examMonth); if(ex) items.push({d:new Date(ex.y,ex.m,1),t:"受験予定月",mon:true});
   if(T) items.push({d:new Date(T.m.y,T.m.m,1),t:"申請の希望月",mon:true});
   items.push({d:new Date(2028,0,1),t:"2029年以降の制度を見直す（目安）",yr:true});
   items.push({d:new Date(2029,2,31),t:"特例公示の廃止規定",red:true});
-  items.sort((a,b)=>a.d-b.d);
-  $("#milestones").innerHTML=items.slice(0,5).map(i=>{const days=Math.round((i.d-TODAY)/864e5);
-    const dl=i.yr?"2028年":i.mon?fmtM(toM(i.d)):(i.d.getFullYear()!==TODAY.getFullYear()?fmtD(i.d):fmtD(i.d).slice(5));
-    const left=i.yr?"年内":days>=0&&days<400?`あと${days}日`:"";
-    return `<li><span class="d">${dl}</span><span>${i.red?'<span class="lock" style="margin-right:4px">制度</span>':""}${esc(i.t)}</span><span class="left">${left}</span></li>`}).join("");
-  // いまやること
-  if(ME){
-    const open=D.tasks.items.filter(t=>t.status==="doing").concat(D.tasks.items.filter(t=>t.status==="todo"&&(t.phase==="p1"||t.phase==="p"+(cur+1))).sort((a,b)=>(a.month||"9999").localeCompare(b.month||"9999")));
-    $("#homeTodo").innerHTML=open.length?open.slice(0,6).map(t=>`<li><span class="tg2${meTr(t)==="exam"?" exam":""}">${TRK[meTr(t)].slice(0,2)}</span><span class="t">${esc(t.t)}${t.month?`<span class="m">${esc(t.month.replace("-","/"))}</span>`:""}</span><button class="stbtn" type="button" data-cycle="${t.id}" aria-label="状態を切り替え">${stChip(t.status)}</button></li>`).join(""):`<li><div class="empty" style="grid-column:1/-1">${loaded?"進行中のタスクはありません。":"読み込んでいます…"}</div></li>`;
+  return items.filter(i=>i.d>=TODAY||i.mon).sort((a,b)=>a.d-b.d);
+}
+function msHtml(items){return items.map(i=>{const days=Math.round((i.d-TODAY)/864e5);
+  const dl=i.yr?"2028年":i.mon?fmtM(toM(i.d)):(i.d.getFullYear()!==TODAY.getFullYear()?fmtD(i.d):fmtD(i.d).slice(5));
+  const left=i.yr?"年内":days>=0&&days<400?`あと${days}日`:"";
+  return `<li><span class="d">${dl}</span><span>${i.red?'<span class="lock" style="margin-right:4px">制度</span>':""}${esc(i.t)}</span><span class="left">${left}</span></li>`}).join("")}
+function openTasks(){return D.tasks.items.filter(t=>t.status==="todo")}
+function renderHome(){
+  const standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone;
+  $("#install").hidden=ME||standalone||lsGet("kotaku-navi:installClosed")==="1";
+  const P=KL()?KL().progress(D.learn):null;
+  // 次にやること（1つだけ）
+  const nowM=ym(TODAY);
+  const due=openTasks().filter(t=>t.month&&t.month<nowM).sort((a,b)=>a.month.localeCompare(b.month))[0];
+  const thisM=openTasks().filter(t=>t.month===nowM).length;
+  const tmBtn=thisM?`<button class="btn btn-line btn-sm" type="button" data-go="prep" data-sub="tasks">今月のやること ${thisM}件</button>`:"";
+  let h;
+  if(due){
+    h=`<span class="l">次にやること</span><div class="t">${esc(due.t)}</div><div class="s">やること・目安 ${esc(due.month.replace("-","/"))}（過ぎています）</div><div class="acts"><button class="btn btn-gold" type="button" data-go="prep" data-sub="tasks">やることを開く</button>${P&&P.next?`<button class="btn btn-line btn-sm" type="button" data-learnitem="${P.next.id}">学ぶの続き</button>`:""}</div>`;
+  } else if(P&&P.next){
+    const it=KL().ITEMS.find(x=>x.id===P.next.id);
+    h=`<span class="l">次にやること</span><div class="t">${esc(it.title)}</div><div class="s">学ぶ・${esc(CATN[it.cat])}　${P.next.resume?"続きから":"次に読む項目"}</div><div class="acts"><button class="btn btn-gold" type="button" data-learnitem="${it.id}">読む</button>${P.total.miss?`<button class="btn btn-line btn-sm" type="button" data-go="quiz" data-sub="quiz">間違えた問題 ${P.total.miss}問</button>`:""}${tmBtn}</div>`;
+  } else if(P&&P.total.miss){
+    h=`<span class="l">次にやること</span><div class="t">間違えた問題を解き直す（${P.total.miss}問）</div><div class="s">問題・クイズ</div><div class="acts"><button class="btn btn-gold" type="button" data-go="quiz" data-sub="quiz">クイズを開く</button></div>`;
   } else {
-    const ts=coTasks().filter(t=>!coDone(t)).slice(0,5);
-    $("#homeTodo").innerHTML=ts.length?ts.map(x=>`<li><span class="tg2${x.tr==="exam"?" exam":""}">${TRK[x.tr].slice(0,2)}</span><span class="t">${x.first?'<span class="tg2 hot">最初に</span>':x.hot?'<span class="tg2 hot">気になる</span>':""}${esc(x.t)}</span><button class="cb" type="button" data-cotask="${x.k}" aria-pressed="false" aria-label="済みにする">✓</button></li>`).join(""):`<li><div class="empty" style="grid-column:1/-1">いまのやることは全部済みです。</div></li>`;
+    h=`<span class="l">次にやること</span><div class="t">${openTasks().length?esc(openTasks()[0].t):"クイズと過去問で仕上げる"}</div><div class="s">公開中の項目はひと通り読みました。新しい項目は順に追加します</div><div class="acts"><button class="btn btn-gold" type="button" data-go="prep" data-sub="tasks">やることを開く</button><button class="btn btn-line btn-sm" type="button" data-go="quiz" data-sub="kako">過去問</button></div>`;
   }
-  // 使い方
-  $("#guideBody").innerHTML=ME
-   ?`<span><b>ラベル</b>→ 状態が変わる</span><span><b>丸</b>→ その回が済み</span><span><b>鉛筆</b>→ 編集・共有するか</span><span><b>条件</b>→ 押すと答え直し</span><span><b>共有用に出力</b>→ 相談シート</span>`
-   :`<span><b>□</b>→ 済みにする</span><span><b>条件</b>→ 押すと答え直し</span><span><b>黄色い点線</b>→ あとで答える質問</span><span><b>学ぶ</b>→ 読む・覚える・解く</span>`;
-  const gf=$("#goFull"); if(gf) gf.onclick=()=>{D.answers.mode="full";save("answers");const q2=qList();const i=q2.findIndex(q=>ans()[q.id]==null&&!D.answers.skip[q.id]);openQ(i<0?0:i,false,true)};
+  $("#next1").innerHTML=h;
+  // 進み具合（4分類）
+  if(P){
+    $("#prog4").innerHTML=P.cats.map(c=>{const ts=D.tasks.items.filter(t=>+t.cat===c.n);const td=ts.filter(t=>t.status==="done").length;const pct=c.ready?Math.round(c.read/c.ready*100):0;
+      return `<li><span class="no">${c.n}</span><div class="hd">${esc(c.short)}<span>読んだ ${c.read}/${c.ready}${c.items>c.ready?`（準備中 ${c.items-c.ready}）`:""}</span></div><div class="bar1"><i style="width:${pct}%"></i></div><div class="sub">カード ${c.known}/${c.cards}・クイズ ${c.tried}/${c.qs}・やること ${td}/${ts.length}</div></li>`}).join("");
+    const kk=D.kakomon.items.length;
+    $("#progNote").textContent=`過去問の記録 ${kk}件`+(kk?`（最新 ${esc(D.kakomon.items.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""))[0].kai)}）`:"");
+  }
+  // いまの段階
+  const {P:Ph,cur,T}=phases();
+  $("#when1").innerHTML=`<div class="ph">${cur+1}. ${esc(PH[cur].n)}</div><div class="pw">${esc(Ph[cur].when)}</div>
+   <div class="dots6">${Ph.map((p,i)=>`<i class="${i===cur?"on":isPast(p)?"past":""}"></i>`).join("")}</div>
+   <div class="dl">${Ph.map(p=>`<span>${esc(p.s)}</span>`).join("")}</div>
+   <p class="small muted" style="margin:8px 0 0">${T?(T.exact?`申請の希望 ${fmtM(T.m)}`:`申請の希望 ${esc(ansLabel(Q[1],ans().target))}（${fmtM(T.m)}ごろで仮置き）`):"申請の時期は未定"}。時期は作業の目安で、制度上の期限ではありません。</p>`;
+  $("#milestones").innerHTML=msHtml(nextMilestones().slice(0,3));
 }
 
-/* ===== 学ぶ（個タクQUIZ） ===== */
-let learnUI=null;
-function mountLearn(){
-  if(learnUI){learnUI.home&&0;return}
-  const el=$("#learnMount");
-  if(!window.KotakuLearn){el.innerHTML=`<div class="empty">学習の教材を読み込めませんでした。ページを開き直してください。</div>`;return}
-  learnUI=window.KotakuLearn.mount(el,{
-    state:D.learn,
-    save:st=>{D.learn=st;save("learn")},
-    onDone:(id)=>{const map=(window.KotakuLearn.themeSessions||{}); for(const n in map){const j=map[n].indexOf(id); if(j>=0){const a=(D.study.done[n]||[false,false,false,false,false,false]).slice();a[j]=true;D.study.done[n]=a;save("study")}}}
-  });
+/* ===== 学ぶ・問題 ===== */
+let learnReady=false;
+function ensureLearn(){
+  if(learnReady||!KL()) return !!KL();
+  KL().init({state:D.learn,save:st=>{D.learn=st;save("learn")},onChange:()=>{},onGoQuiz:s=>{go("quiz","quiz");KL().quizFor(s)}});
+  KL().mountLearn($("#learnMount")); KL().mountQuiz($("#quizMount")); learnReady=true; return true;
 }
+function renderLearnTab(){ if(!ensureLearn()) $("#learnMount").innerHTML=`<div class="empty">教材を読み込めませんでした。ページを開き直してください。</div>`; }
+function renderQuizTab(){
+  ensureLearn();
+  $$("#quizSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.qseg===qSeg?"true":"false"));
+  $("#quizMount").hidden=qSeg!=="quiz"; $("#kakoView").hidden=qSeg!=="kako";
+  if(qSeg==="kako") renderKako();
+}
+$("#quizSeg").addEventListener("click",e=>{const b=e.target.closest("[data-qseg]");if(!b)return;qSeg=b.dataset.qseg;renderQuizTab()});
 
-/* ===== スケジュール ===== */
+/* ===== 過去問 ===== */
+let kEdit=null, kMiss=[];
+function renderKako(){
+  $("#kakoSrc").innerHTML=`<div class="ksrc"><h3>関東（特別区・武三など）</h3><p>日個連東京都営業協同組合が、運輸局の過去の試験問題をPDFで公開しています（令和4年3月〜令和8年7月の回。地域ごとに分かれ、ない回もあります）。模範解答は運輸局の公式ではなく、同組合の判断です。令和3年以前の問題は、法改正で正解が変わるものが多いとして取り下げられています。</p><a class="btn btn-blue btn-sm" href="${SRC.nik.u}" target="_blank" rel="noopener">配布元を開く</a></div>
+  <div class="ksrc"><h3>練習用（東北運輸局）</h3><p>東北運輸局が、個人タクシーの法令試験の問題例（過去問5回分、問題と解答）を公開しています。営業区域が違うため、地域の問題は関東と異なります。</p><a class="btn btn-line btn-sm" href="${SRC.toh.u}" target="_blank" rel="noopener">配布元を開く</a></div>
+  <p class="small muted" style="grid-column:1/-1;margin:0">配布元の内容は${CHECKED}に確認しました。問題の利用条件は各配布元で確かめてください。合否の基準は年度や区域で違うことがあるため、このアプリでは合否を判定しません。</p>`;
+  const it=kEdit?D.kakomon.items.find(x=>x.id===kEdit):null;
+  kMiss=it?(it.miss||[]).slice():kMiss;
+  $("#kakoForm").innerHTML=`
+   <div class="field half"><label for="kKai">どの回</label><select class="inp" id="kKai"><optgroup label="関東（日個連の配布）">${KAI.map(k=>`<option${it&&it.kai===k?" selected":""}>${k}</option>`).join("")}</optgroup><optgroup label="東北運輸局の問題例">${["①","②","③","④","⑤"].map(n=>`<option${it&&it.kai==="東北"+n?" selected":""}>東北${n}</option>`).join("")}</optgroup><option${it&&it.kai==="その他"?" selected":""}>その他</option></select></div>
+   <div class="field half"><label for="kDate">解いた日</label><input class="inp" type="date" id="kDate" value="${esc(it?it.date:ymd(TODAY))}"></div>
+   <div class="field"><label for="kScore">正解数</label><input class="inp" type="number" min="0" max="99" inputmode="numeric" id="kScore" value="${esc(it?it.score:"")}"></div>
+   <div class="field"><label for="kTotal">問題数</label><input class="inp" type="number" min="1" max="99" inputmode="numeric" id="kTotal" value="${esc(it?it.total:"")}" placeholder="例：40"></div>
+   <div class="field wide"><label>間違えた分野（いくつでも）</label><div class="mchips" id="kMiss">${MISS.map(m=>`<button type="button" class="mchip" data-miss="${esc(m)}" aria-pressed="${kMiss.includes(m)}">${esc(m)}</button>`).join("")}</div></div>
+   <div class="field wide"><label for="kMemo">メモ（迷った言葉・見直すところ）</label><textarea class="inp" id="kMemo">${esc(it?it.memo:"")}</textarea></div>
+   <div class="wide" style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-blue btn-sm" type="button" id="kSave">${it?"直して保存":"記録する"}</button>${it?`<button class="btn btn-line btn-sm" type="button" id="kCancel">やめる</button><span style="flex:1"></span><button class="btn btn-line btn-sm" type="button" id="kDel" style="color:var(--ng)">削除する</button>`:""}<span class="okmsg muted" id="kMsg" role="status" style="margin:0"></span></div>`;
+  const items=D.kakomon.items.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const cnt={}; items.forEach(x=>(x.miss||[]).forEach(m=>cnt[m]=(cnt[m]||0)+1));
+  const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,3).map(([m,n])=>`${m}（${n}回）`).join("、");
+  $("#kakoSum").textContent=items.length?`${items.length}件${top?`・よく間違える分野：${top}`:""}`:"";
+  $("#kakoList").innerHTML=items.length?items.map(x=>{const pct=x.total?Math.round(x.score/x.total*100):null;return `<div class="krow"><div class="sc">${x.score!==""&&x.score!=null?esc(x.score):"—"}${x.total?`<small>/ ${esc(x.total)}問${pct!=null?`・${pct}%`:""}</small>`:""}</div>
+   <div style="min-width:0"><div class="kt">${esc(x.kai)}</div><div class="km">${esc((x.date||"").replace(/-/g,"/"))}${(x.miss||[]).length?`・間違えた分野：${esc(x.miss.join("、"))}`:""}</div>${x.memo?`<div class="km" style="white-space:pre-wrap">${esc(x.memo)}</div>`:""}</div>
+   <button class="icbtn" type="button" data-kedit="${x.id}" aria-label="直す"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button></div>`}).join(""):`<div class="empty">まだ記録はありません。解いたら上で記録します。</div>`;
+}
+$("#kakoView").addEventListener("click",e=>{
+  const m=e.target.closest("[data-miss]"); if(m){const v=m.dataset.miss,i=kMiss.indexOf(v);i>=0?kMiss.splice(i,1):kMiss.push(v);m.setAttribute("aria-pressed",i<0);return}
+  if(e.target.closest("#kSave")){
+    const s=$("#kScore").value, t=$("#kTotal").value;
+    if(s!==""&&t!==""&&+s>+t){$("#kMsg").textContent="正解数が問題数より多くなっています。";return}
+    const rec={kai:$("#kKai").value,date:$("#kDate").value,score:s===""?"":+s,total:t===""?"":+t,miss:kMiss.slice(),memo:$("#kMemo").value};
+    if(kEdit){Object.assign(D.kakomon.items.find(x=>x.id===kEdit),rec)}else D.kakomon.items.push(Object.assign({id:uid()},rec));
+    kEdit=null;kMiss=[];save("kakomon");renderKako();$("#kMsg").textContent="記録しました。";return}
+  if(e.target.closest("#kCancel")){kEdit=null;kMiss=[];renderKako();return}
+  const dl=e.target.closest("#kDel"); if(dl){if(dl.dataset.armed){D.kakomon.items=D.kakomon.items.filter(x=>x.id!==kEdit);kEdit=null;kMiss=[];save("kakomon");renderKako()}else{dl.dataset.armed="1";dl.textContent="もう一度押すと削除"}return}
+  const ed=e.target.closest("[data-kedit]"); if(ed){kEdit=ed.dataset.kedit;kMiss=(D.kakomon.items.find(x=>x.id===kEdit).miss||[]).slice();renderKako();$("#kakoForm").scrollIntoView({block:"center"});return}
+});
+
+/* ===== 準備：やること・確認すること・スケジュール ===== */
+let fCat="all", editing=null, openDet={}; const grpOpen={};
+function renderPrep(){
+  $$("#prepSeg button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.pseg===pSeg?"true":"false"));
+  $("#pTasks").hidden=pSeg!=="tasks"; $("#pChecks").hidden=pSeg!=="checks"; $("#pSched").hidden=pSeg!=="sched";
+  ({tasks:renderTasks,checks:renderChecks,sched:renderSchedule})[pSeg]();
+}
+$("#prepSeg").addEventListener("click",e=>{const b=e.target.closest("[data-pseg]");if(!b)return;pSeg=b.dataset.pseg;editing=null;renderPrep()});
+const catChip=c=>`<span class="cat0">${c}. ${CATN[c]}</span>`;
+function grp(key,label,openDef,items,fn){if(!items.length)return "";const op=grpOpen[key]??openDef;return `<details class="grp" data-grp="${key}"${op?" open":""}><summary>${esc(label)}<span class="ct">${items.length}件</span></summary><div class="tl2">${items.map(fn).join("")}</div></details>`}
+const pencil=`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg>`;
+function renderTasks(){
+  const all=D.tasks.items;
+  $("#tFilter").innerHTML=[["all","全部"],...CATN.map((n,i)=>[String(i),`${i}. ${n}`])].map(([v,l])=>`<button type="button" class="fchip" data-fcat="${v}" aria-pressed="${fCat===v}">${esc(l)}<span class="small" style="margin-left:4px;opacity:.75">${(v==="all"?all:all.filter(t=>String(t.cat)===v)).filter(t=>t.status!=="done").length}</span></button>`).join("");
+  let items=fCat==="all"?all:all.filter(t=>String(t.cat)===fCat);
+  const order=(a,b)=>(hotOf(b)==="最初に")-(hotOf(a)==="最初に")||(!!hotOf(b))-(!!hotOf(a))||(a.month||"9999").localeCompare(b.month||"9999")||(+a.cat)-(+b.cat);
+  const g=k=>items.filter(t=>t.status===k).sort(order);
+  $("#taskList").innerHTML=(grp("todo","これから",true,g("todo"),taskRow)+grp("later","あとで",false,g("later"),taskRow)+grp("done","済み",false,g("done"),taskRow))||`<div class="empty">${loaded?"やることはありません。「＋ やることを追加」から書けます。":"読み込んでいます…"}</div>`;
+}
+function taskRow(t){
+  const ed=editing===t.id, tp=tplOf(t), hot=hotOf(t), det=!!openDet[t.id];
+  return `<div class="trow${t.status==="done"?" done":""}">
+   <button class="cb2" type="button" data-tdone="${t.id}" aria-pressed="${t.status==="done"}" aria-label="済みにする">✓</button>
+   <div class="tx"><div class="tt">${hot?`<span class="hot2">${hot}</span> `:""}${esc(t.t)}</div>
+    <div class="tm">${catChip(+t.cat)}${t.month?`<span>目安 ${esc(t.month.replace("-","/"))}</span>`:""}${t.share===false?'<span class="lock">非共有</span>':""}${tp||t.note?`<button class="more2" type="button" data-tdet="${t.id}" aria-expanded="${det}">${det?"閉じる":"詳しく"}</button>`:""}</div></div>
+   <button class="icbtn" type="button" data-tedit="${t.id}" aria-label="直す">${pencil}</button>
+   ${det&&!ed?`<div class="det">${tp?tp.d():""}${t.note?`${tp?"<br>":""}<span style="white-space:pre-wrap">${esc(t.note)}</span>`:""}</div>`:""}
+   ${ed?`<div class="editor">
+     <div class="field wide"><label for="e_t">やること</label><input class="inp" id="e_t" value="${esc(t.t)}"></div>
+     <div class="field half"><label for="e_c">分類</label><select class="inp" id="e_c">${CATN.map((n,i)=>`<option value="${i}"${+t.cat===i?" selected":""}>${i}. ${n}</option>`).join("")}</select></div>
+     <div class="field half"><label for="e_m">目安の月</label><input class="inp" type="month" id="e_m" value="${esc(t.month||"")}"></div>
+     <div class="field wide"><label for="e_n">メモ</label><textarea class="inp" id="e_n">${esc(t.note||"")}</textarea></div>
+     <label class="chk half"><input type="checkbox" id="e_l"${t.status==="later"?" checked":""}>あとでやる</label>
+     <label class="chk half"><input type="checkbox" id="e_s"${t.share===false?"":" checked"}>相談シートに載せてよい</label>
+     <div class="acts"><button class="btn btn-blue btn-sm" type="button" data-tsave="${t.id}">保存</button><button class="btn btn-line btn-sm" type="button" data-cancel>閉じる</button><span style="flex:1"></span><button class="btn btn-line btn-sm" type="button" data-tdel="${t.id}" style="color:var(--ng)">削除する</button></div>
+   </div>`:""}</div>`;
+}
+function renderChecks(){
+  const all=D.checks.items;
+  const fn=c=>{const ed=editing===c.id;return `<div class="trow${c.status==="done"?" done":""}">
+   <button class="cb2" type="button" data-cdone="${c.id}" aria-pressed="${c.status==="done"}" aria-label="確認済みにする">✓</button>
+   <div class="tx"><div class="tt">${esc(c.t)}</div><div class="tm">${catChip(+c.cat)}${c.share===false?'<span class="lock">非共有</span>':""}${c.note&&!ed?`<span style="white-space:pre-wrap">${esc(c.note)}</span>`:""}</div></div>
+   <button class="icbtn" type="button" data-cedit="${c.id}" aria-label="直す">${pencil}</button>
+   ${ed?`<div class="editor"><div class="field wide"><label for="c_t">確認すること</label><input class="inp" id="c_t" value="${esc(c.t)}"></div>
+    <div class="field half"><label for="c_c">分類</label><select class="inp" id="c_c">${CATN.map((n,i)=>`<option value="${i}"${+c.cat===i?" selected":""}>${i}. ${n}</option>`).join("")}</select></div>
+    <label class="chk half" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="c_s"${c.share===false?"":" checked"}>相談シートに載せてよい</label>
+    <div class="field wide"><label for="c_n">メモ（確かめる資料・分かったこと）</label><textarea class="inp" id="c_n">${esc(c.note||"")}</textarea></div>
+    <div class="acts"><button class="btn btn-blue btn-sm" type="button" data-csave="${c.id}">保存</button><button class="btn btn-line btn-sm" type="button" data-cancel>閉じる</button><span style="flex:1"></span><button class="btn btn-line btn-sm" type="button" data-cdel="${c.id}" style="color:var(--ng)">削除する</button></div></div>`:""}</div>`};
+  $("#checkList").innerHTML=(grp("ck-todo","まだ確かめていない",true,all.filter(c=>c.status!=="done").sort((a,b)=>(+a.cat)-(+b.cat)),fn)+grp("ck-done","確認済み",false,all.filter(c=>c.status==="done"),fn))||`<div class="empty">${loaded?"確認することはありません。":"読み込んでいます…"}</div>`;
+}
 function renderSchedule(){
   const T=targetM(); $("#aApply").value=T&&T.exact?ans().target:""; $("#aExam").value=D.settings.examMonth||"";
   const {P,cur,end,mid}=phases(); const ap=T&&T.m, ex=pm(D.settings.examMonth);
-  const start=toM(addDays(studyStart(),-1)); let last={y:2029,m:5};
-  if(ap&&mIdx(addM(ap,6))>mIdx(last)) last=addM(ap,6);
-  if(ex&&mIdx(addM(ex,3))>mIdx(last)) last=addM(ex,3);
-  const N=mIdx(last)-mIdx(start)+1, MW=window.innerWidth<700?26:34, W=N*MW;
-  const x=o=>(mIdx(o)-mIdx(start))*MW;
-  const xd=d=>((d.getFullYear()*12+d.getMonth())-mIdx(start))*MW+(d.getDate()-1)/new Date(d.getFullYear(),d.getMonth()+1,0).getDate()*MW;
-  let grid="",head="";
-  for(let i=0;i<N;i++){const o=addM(start,i);grid+=`<div class="mcell${o.m===0?" y":""}" style="left:${i*MW}px"></div>`;head+=`<span class="mlab" style="left:${i*MW}px;top:20px">${o.m+1}</span>`;if(o.m===0||i===0)head+=`<span class="ylab" style="left:${i*MW}px">${o.y}</span>`}
-  const nowX=xd(TODAY);
-  const row=(lab,inner,h=46)=>`<div class="tl-row"><div class="tl-lab">${lab}</div><div class="tl-track" style="width:${W}px;height:${h}px">${grid}${inner}<div class="nowline" style="left:${nowX}px"></div></div></div>`;
-  let html=`<div class="tl-row tl-head"><div class="tl-lab">年 / 月</div><div class="tl-track" style="width:${W}px;height:40px">${grid}${head}</div></div>`;
-  P.forEach((p,i)=>{let inner="";
-    if(p.from&&(p.to||i===1)){const to=p.to||last;const l=Math.max(0,x(p.from)),r=x(to)+MW;if(r>l)inner=`<div class="seg p${i+1}" style="left:${l}px;width:${r-l}px" title="${esc(p.when)}">${esc(p.when)}</div>`}
-    else inner=`<div class="rel-note">${esc(p.rel||"")}（希望月を入れると表示）</div>`;
-    html+=row(`${"①②③④⑤⑥"[i]} ${esc(p.s)}`,inner)});
-  let ms=`<div class="dia" style="left:${xd(mid)}px" title="中間点検 ${fmtD(mid)}"></div><div class="dia" style="left:${xd(end)}px" title="一巡 ${fmtD(end)}"></div>`;
-  ms+=`<div class="seg ref" style="left:${x({y:2028,m:0})}px;width:${12*MW}px">2029年以降の見直し目安</div><div class="dia red" style="left:${xd(new Date(2029,2,31))}px" title="特例公示の廃止規定 2029/03/31"></div>`;
-  if(ex&&ME) ms+=`<div class="dia" style="left:${x(ex)+MW/2}px" title="受験予定月 ${fmtM(ex)}"></div>`;
-  if(ap) ms+=`<div class="dia" style="left:${x(ap)+MW/2}px" title="申請の希望月 ${fmtM(ap)}"></div>`;
-  html+=row("◆ 節目",ms,52);
-  $("#timeline").innerHTML=html; $("#tlScroll").scrollLeft=Math.max(0,nowX-120);
-  const tmI=mIdx(toM(TODAY)); $("#phaseList").innerHTML=P.map((p,i)=>`<li class="${i===cur?"cur":p.to&&mIdx(p.to)<tmI?"past":""}"><div class="n">${i+1}</div><div><h4>${esc(p.n)}${i===cur?' <span class="chip st-wait" style="margin-left:6px">いまここ</span>':""}</h4><div class="when">${esc(p.when)}</div>${i===cur?`<p>${esc(p.d)}</p>`:""}</div></li>`).join("");
+  if(window.innerWidth>=700){
+    const start=toM(addDays(studyStart(),-1)); let last={y:2029,m:5};
+    if(ap&&mIdx(addM(ap,6))>mIdx(last)) last=addM(ap,6);
+    if(ex&&mIdx(addM(ex,3))>mIdx(last)) last=addM(ex,3);
+    const N=mIdx(last)-mIdx(start)+1, MW=34, W=N*MW;
+    const x=o=>(mIdx(o)-mIdx(start))*MW;
+    const xd=d=>((d.getFullYear()*12+d.getMonth())-mIdx(start))*MW+(d.getDate()-1)/new Date(d.getFullYear(),d.getMonth()+1,0).getDate()*MW;
+    let grid="",head="";
+    for(let i=0;i<N;i++){const o=addM(start,i);grid+=`<div class="mcell${o.m===0?" y":""}" style="left:${i*MW}px"></div>`;head+=`<span class="mlab" style="left:${i*MW}px;top:20px">${o.m+1}</span>`;if(o.m===0||i===0)head+=`<span class="ylab" style="left:${i*MW}px">${o.y}</span>`}
+    const nowX=xd(TODAY);
+    const row=(lab,inner,h=46)=>`<div class="tl-row"><div class="tl-lab">${lab}</div><div class="tl-track" style="width:${W}px;height:${h}px">${grid}${inner}<div class="nowline" style="left:${nowX}px"></div></div></div>`;
+    let html=`<div class="tl-row tl-head"><div class="tl-lab">年 / 月</div><div class="tl-track" style="width:${W}px;height:40px">${grid}${head}</div></div>`;
+    P.forEach((p,i)=>{let inner="";
+      if(p.from&&(p.to||i===1)){const to=p.to||last;const l=Math.max(0,x(p.from)),r=x(to)+MW;if(r>l)inner=`<div class="seg p${i+1}" style="left:${l}px;width:${r-l}px" title="${esc(p.when)}">${esc(p.when)}</div>`}
+      else inner=`<div class="rel-note">${esc(p.rel||"")}（希望月を入れると表示）</div>`;
+      html+=row(`${"①②③④⑤⑥"[i]} ${esc(p.s)}`,inner)});
+    let ms=`<div class="dia" style="left:${xd(mid)}px" title="中間点検 ${fmtD(mid)}"></div><div class="dia" style="left:${xd(end)}px" title="一巡 ${fmtD(end)}"></div>`;
+    ms+=`<div class="seg ref" style="left:${x({y:2028,m:0})}px;width:${12*MW}px">2029年以降の見直し目安</div><div class="dia red" style="left:${xd(new Date(2029,2,31))}px" title="特例公示の廃止規定 2029/03/31"></div>`;
+    if(ex) ms+=`<div class="dia" style="left:${x(ex)+MW/2}px" title="受験予定月 ${fmtM(ex)}"></div>`;
+    if(ap) ms+=`<div class="dia" style="left:${x(ap)+MW/2}px" title="申請の希望月 ${fmtM(ap)}"></div>`;
+    html+=row("◆ 節目",ms,52);
+    $("#timeline").innerHTML=html; $("#tlScroll").scrollLeft=Math.max(0,nowX-120);
+  }
+  $("#phaseList").innerHTML=P.map((p,i)=>`<li class="${i===cur?"cur":isPast(p)?"past":""}"><div class="n">${i+1}</div><div><h4>${esc(p.n)}${i===cur?' <span class="chip st-wait" style="margin-left:6px">いまここ</span>':""}</h4><div class="w">${esc(p.when)}</div><p>${esc(p.d)}</p></div></li>`).join("");
   $("#srcList").innerHTML=[
    {d:"③〜⑥",t:"6〜12か月前、3〜6か月前という区切りは作業の目安（学習計画v02）",s:"制度上の期限ではない"},
    {d:"⑤",t:"申請書類の発行時期の条件（申請日前3週間以内〜4か月以降など）",s:`${L("r07")} PDF6〜9ページ`},
@@ -1047,141 +1192,68 @@ function renderSchedule(){
 }
 $("#aApply").addEventListener("change",e=>{const v=e.target.value;if(v){D.answers.ans.target=v;delete D.answers.skip.target}save("answers");renderSchedule()});
 $("#aExam").addEventListener("change",e=>{D.settings.examMonth=e.target.value;save("settings");renderSchedule()});
-$("#aClear").addEventListener("click",()=>{delete D.answers.ans.target;D.settings.examMonth="";save("answers");save("settings");renderSchedule()});
-let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(curTab==="schedule")renderSchedule()},200)});
+$("#aClear").addEventListener("click",()=>{if(/^\d{4}-\d{2}$/.test(ans().target||""))delete D.answers.ans.target;D.settings.examMonth="";save("answers");save("settings");renderSchedule()});
+let rz;window.addEventListener("resize",()=>{clearTimeout(rz);rz=setTimeout(()=>{if(curTab==="prep"&&pSeg==="sched")renderSchedule()},200)});
 
-/* ===== やること ===== */
-let fTheme="all", editing=null; const grpOpen={}, openD={};
-const GRP=[["doing","進行中",true],["todo","未着手",true],["wait","待ち（あとで）",false],["done","完了",false]];
-function grpHtml(key,label,openDef,items,rowFn){ if(!items.length) return ""; const op=grpOpen[key]??openDef; return `<details class="grp" data-grp="${key}"${op?" open":""}><summary>${esc(label)}<span class="ct">${items.length}件</span></summary>${items.map(rowFn).join("")}</details>` }
-function phaseName(k){return ({p1:"①基礎学習",p2:"②復習",p3:"③経歴の整理",p4:"④受験・申請準備",p5:"⑤証明書・申請",p6:"⑥開業準備"})[k]||""}
-function renderTasks(){
-  $("#tasksMe").hidden=!ME; $("#tasksCo").hidden=ME;
-  if(ME){
-    const sel=$("#fTheme");
-    if(!sel.options.length){sel.innerHTML=`<option value="all">すべてのテーマ</option>`+Object.entries(THEMES).map(([k,v])=>`<option value="${k}">${k} ${esc(v)}</option>`).join("")}
-    sel.value=fTheme;
-    let items=D.tasks.items.slice(); if(fTheme!=="all") items=items.filter(t=>t.theme===fTheme);
-    items.sort((a,b)=>(a.month||"9999").localeCompare(b.month||"9999")||a.theme.localeCompare(b.theme));
-    $("#taskList").innerHTML=GRP.map(([k,l,o])=>grpHtml("t-"+k,l,o,items.filter(t=>t.status===k),taskItem)).join("")||`<div class="empty">${loaded?"条件に合うタスクはありません。":"読み込んでいます…"}</div>`;
-  } else {
-    const ts=coTasks();
-    const li=x=>{const dn=coDone(x),op=!!openD[x.k];return `<li class="${dn?"done":""}"><button class="cb" type="button" data-cotask="${x.k}" aria-pressed="${!!dn}" aria-label="済みにする">✓</button><div class="t">${x.first?'<span class="tg2 hot">最初に</span>':x.hot?'<span class="tg2 hot">気になる</span>':""}<span class="tg2${x.tr==="exam"?" exam":""}">${esc(x.th)}</span>${esc(x.t)}</div><button class="more2" type="button" data-more="${x.k}" aria-expanded="${op}">${op?"閉じる":"詳しく"}</button>${op?`<div class="d">${x.d}</div>`:""}</li>`};
-    $("#todoPrep").innerHTML=ts.filter(t=>t.tr==="prep").map(li).join("");
-    $("#todoExam").innerHTML=ts.filter(t=>t.tr==="exam").map(li).join("");
-  }
-}
-function taskItem(t){
-  const ed=editing===t.id;
-  return `<div class="row${t.status==="done"?" done":""}" data-id="${t.id}">
-   <button class="stbtn" type="button" data-cycle="${t.id}" aria-label="状態を切り替え（今：${ST_LABEL[t.status]}）">${stChip(t.status)}</button>
-   <div class="ttl">${esc(t.t)}</div>
-   <div class="sm">${tagTheme(t.theme)}${esc(TS[t.theme]||"")}${t.month?`・${esc(t.month.replace("-","/"))}`:""}${t.share===false?'<span class="lock">非共有</span>':""}</div>
-   <button class="icbtn" type="button" data-edit="${t.id}" aria-label="編集・メモを見る"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>
-   ${ed?`<div class="editor">
-     <div class="field wide"><label for="e_t">タスク</label><input class="inp" id="e_t" value="${esc(t.t)}"></div>
-     <div class="field"><label for="e_th">テーマ</label><select class="inp" id="e_th">${Object.entries(THEMES).map(([k,v])=>`<option value="${k}"${k===t.theme?" selected":""}>${k} ${esc(v)}</option>`).join("")}</select></div>
-     <div class="field"><label for="e_st">状態</label><select class="inp" id="e_st">${STATUS.map(s=>`<option value="${s}"${s===t.status?" selected":""}>${ST_LABEL[s]}</option>`).join("")}</select></div>
-     <div class="field"><label for="e_ph">フェーズ</label><select class="inp" id="e_ph"><option value="">なし</option>${["p1","p2","p3","p4","p5","p6"].map(k=>`<option value="${k}"${k===t.phase?" selected":""}>${phaseName(k)}</option>`).join("")}</select></div>
-     <div class="field"><label for="e_m">目安の月</label><input class="inp" type="month" id="e_m" value="${esc(t.month||"")}"></div>
-     <div class="field wide"><label for="e_n">メモ・根拠</label><textarea class="inp" id="e_n">${esc(t.note||"")}</textarea></div>
-     <label class="chk wide"><input type="checkbox" id="e_sh"${t.share===false?"":" checked"}>共有用出力に載せてよい</label>
-     <div class="acts"><button class="btn btn-blue btn-sm" type="button" data-savetask="${t.id}">保存</button><button class="btn btn-line btn-sm" type="button" data-cancel>閉じる</button><span class="sp" style="flex:1"></span><button class="btn btn-line btn-sm" type="button" data-deltask="${t.id}" style="color:var(--ng)">削除する</button></div>
-   </div>`:""}
-  </div>`;
-}
-
-/* ===== 学習計画 ===== */
-function renderStudy(){
-  const ti=curThemeIndex(); const st=studyStart(); const p=wpt();
-  const totalW=Math.round(12*p);
-  $("#studyInfo").textContent=`　${p>=1?`${p}週で1テーマ`:"1週で2テーマ"}・全${totalW}週`;
-  const prog=lp();
-  $("#studyList").innerHTML=STUDY.map((s,i)=>{
-    const d=D.study.done[i+1]||[]; const a=addDays(st,Math.round(i*p*7)), b=addDays(st,Math.round((i+1)*p*7)-1); const n=d.filter(Boolean).length;
-    const w0=Math.floor(i*p)+1,w1=Math.ceil((i+1)*p); const wk=w0>=w1?`${w0}`:`${w0}〜${w1}`;
-    const pg=prog[i+1]; const qz=pg&&pg.ready?`<span class="qz">教材あり（${pg.sessionsDone}/${pg.sessions}回）</span>`:"";
-    return `<div class="srow${i===ti?" cur":""}"><div class="wk">${esc(wk)}<small>週</small></div>
-     <div style="min-width:0"><div class="tt"><span class="trk ${s.tr}">${TRK[s.tr]}</span>${esc(s.t)}${n===6?' <span class="chip st-done">✓ 済み</span>':""}${qz}</div><div class="mm num">${fmtD(a).slice(5)}〜${fmtD(b).slice(5)}${i===ti?`　残すメモ：${esc(s.m)}`:""}</div></div>
-     <div class="dots" role="group" aria-label="${esc(s.t)}の6回">${[0,1,2,3,4,5].map(j=>`<button type="button" class="dot${d[j]?" on":""}" data-dot="${i+1}:${j}" aria-pressed="${d[j]?"true":"false"}" aria-label="${j+1}回目">${j+1}</button>`).join("")}</div></div>`}).join("");
-  if(ME) renderChecks();
-}
-let editingCk=null;
-function renderChecks(){
-  const items=D.checks.items.slice().sort((a,b)=>a.theme.localeCompare(b.theme));
-  const rowFn=c=>{const ed=editingCk===c.id;return `<div class="row${c.status==="done"?" done":""}">
-   <button class="stbtn" type="button" data-ckcycle="${c.id}" aria-label="状態を切り替え">${ckChip(c.status)}</button>
-   <div class="ttl">${esc(c.t)}</div>
-   <div class="sm">${tagTheme(c.theme)}${esc(TS[c.theme]||"")}${c.share===false?'<span class="lock">非共有</span>':""}</div>
-   <button class="icbtn" type="button" data-ckedit="${c.id}" aria-label="編集・メモを見る"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>
-   ${ed?`<div class="editor"><div class="field wide"><label for="c_t">確認すること</label><input class="inp" id="c_t" value="${esc(c.t)}"></div>
-   <div class="field half"><label for="c_th">テーマ</label><select class="inp" id="c_th">${Object.entries(THEMES).map(([k,v])=>`<option value="${k}"${k===c.theme?" selected":""}>${k} ${esc(v)}</option>`).join("")}</select></div>
-   <div class="field half"><label for="c_st">状態</label><select class="inp" id="c_st">${CK_STATUS.map(s=>`<option value="${s}"${s===c.status?" selected":""}>${CK_LABEL[s]}</option>`).join("")}</select></div>
-   <div class="field wide"><label for="c_n">メモ（確認に使う資料など）</label><textarea class="inp" id="c_n">${esc(c.note||"")}</textarea></div>
-   <label class="chk wide"><input type="checkbox" id="c_sh"${c.share===false?"":" checked"}>共有用出力に載せてよい</label>
-   <div class="acts"><button class="btn btn-blue btn-sm" type="button" data-saveck="${c.id}">保存</button><button class="btn btn-line btn-sm" type="button" data-cancel>閉じる</button><span style="flex:1"></span><button class="btn btn-line btn-sm" type="button" data-delck="${c.id}" style="color:var(--ng)">削除する</button></div></div>`:""}
-  </div>`};
-  const open=items.filter(c=>c.status!=="done");
-  $("#checkList").innerHTML=(grpHtml("c-rule","制度・試験で確かめること",true,open.filter(c=>c.share!==false),rowFn)+grpHtml("c-self","本人資料で確かめること（非共有）",true,open.filter(c=>c.share===false),rowFn)+grpHtml("c-done","確認済",false,items.filter(c=>c.status==="done"),rowFn))||`<div class="empty">${loaded?"確認事項はありません。":"読み込んでいます…"}</div>`;
-}
-
-/* ===== 相談（本人） ===== */
+/* ===== 相談メモ・相談シート ===== */
 let editingQ=null;
 function renderConsult(){
-  const items=D.consult.items.slice();
+  const items=D.consult.items;
   $("#qList").innerHTML=items.length?items.map(q=>{const ed=editingQ===q.id;return `<div class="item">
-   <span class="chip ${q.a?"st-done":"st-todo"}">${q.a?"✓ 回答あり":"未回答"}</span>
-   <div style="min-width:0"><div class="ttl">${esc(q.q)}</div><div class="meta">${q.date?`<span>${esc(q.date.replace(/-/g,"/"))}</span>`:""}${q.share===false?'<span class="lock">非共有</span>':""}</div>${q.a&&!ed?`<div class="note">答え：${esc(q.a)}</div>`:""}</div>
-   <button class="icbtn" type="button" data-qedit="${q.id}" aria-label="編集"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20h4L19 9l-4-4L4 16z"/></svg></button>
+   <span class="chip ${q.a?"st-done":"st-todo"}">${q.a?"✓ 聞いた":"まだ"}</span>
+   <div style="min-width:0"><div class="ttl">${esc(q.q||"（未記入）")}</div><div class="meta">${q.date?`<span>${esc(q.date.replace(/-/g,"/"))}</span>`:""}${q.share===false?'<span class="lock">非共有</span>':""}</div>${q.a&&!ed?`<div class="note">答え：${esc(q.a)}</div>`:""}</div>
+   <button class="icbtn" type="button" data-qedit="${q.id}" aria-label="直す">${pencil}</button>
    ${ed?`<div class="editor"><div class="field wide"><label for="q_q">質問</label><textarea class="inp" id="q_q">${esc(q.q)}</textarea></div>
-   <div class="field wide"><label for="q_a">聞いた答え（共有用出力には載りません）</label><textarea class="inp" id="q_a">${esc(q.a||"")}</textarea></div>
+   <div class="field wide"><label for="q_a">聞いた答え（相談シートには載りません）</label><textarea class="inp" id="q_a">${esc(q.a||"")}</textarea></div>
    <div class="field half"><label for="q_d">聞いた日</label><input class="inp" type="date" id="q_d" value="${esc(q.date||"")}"></div>
-   <label class="chk half" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="q_sh"${q.share===false?"":" checked"}>質問を共有用出力に載せてよい</label>
+   <label class="chk half" style="align-self:end;padding-bottom:10px"><input type="checkbox" id="q_sh"${q.share===false?"":" checked"}>質問を相談シートに載せてよい</label>
    <div class="acts"><button class="btn btn-blue btn-sm" type="button" data-saveq="${q.id}">保存</button><button class="btn btn-line btn-sm" type="button" data-cancel>閉じる</button><span style="flex:1"></span><button class="btn btn-line btn-sm" type="button" data-delq="${q.id}" style="color:var(--ng)">削除する</button></div></div>`:""}
-  </div>`}).join(""):`<div class="empty">${loaded?"質問はまだありません。「＋ 質問を追加」から書き始めます。":"読み込んでいます…"}</div>`;
+  </div>`}).join(""):`<div class="empty">質問はまだありません。「＋ 質問を追加」から書き始めます。<br>例：新規許可と譲渡譲受、どちらで開業しましたか。選んだ理由は？</div>`;
 }
-
-/* ===== 相談シート（本人） ===== */
 function shareOpts(){return {prof:$("#sProfile").checked,phase:$("#sPhase").checked,sched:$("#sSched").checked,tasks:$("#sTasks").checked,checks:$("#sChecks").checked,qs:$("#sQs").checked}}
+const regionL=()=>ans().region?ansLabel(Q[4],ans().region):"", ageL=()=>ans().age?ansLabel(Q[2],ans().age):"";
 function paperHTML(){
-  const o=shareOpts(); const {P,cur}=phases(); const p=P[cur];
-  const prog=STUDY.reduce((a,s,i)=>a+(D.study.done[i+1]||[]).filter(Boolean).length,0);
-  const ex=trackData("exam"), pr=trackData("prep");
+  const o=shareOpts(); const {P,cur}=phases(); const LP=KL()?KL().progress(D.learn):null;
   let h=`<div class="ph"><div><div style="font-size:11px;color:#4B5280;letter-spacing:.1em;font-weight:700">個人タクシー開業準備</div><h1>相談シート</h1></div><div class="d">作成日 ${fmtD(TODAY)}<br>個人情報は含めていません</div></div><div class="goldline"></div>`;
-  if(o.prof){const r=D.profile.region,a=D.profile.ageClass; if(r||a) h+=`<table><tr><th style="width:120px">区域</th><td>${esc(r||"—")}</td><th style="width:120px">年齢区分</th><td>${esc(a||"—")}</td></tr></table>`}
-  if(o.phase){h+=`<h2>いまの段階</h2><p style="margin:0 0 6px"><b>フェーズ${cur+1}：${esc(p.n)}</b>（全6フェーズ）</p><table><tr><th style="width:120px">開業準備</th><td>${pr.done}/6テーマ　やること ${pr.tasks.d}/${pr.tasks.n}</td></tr><tr><th>試験対策</th><td>${ex.done}/6テーマ</td></tr><tr><th>学習の回数</th><td>${prog}/72回（12テーマ×6回）</td></tr></table>`}
-  if(o.sched){h+=`<h2>準備の順番</h2><table><tr><th style="width:40px">#</th><th>フェーズ</th><th style="width:210px">時期の目安</th></tr>${P.map((x,i)=>`<tr${i===cur?' style="background:#FFF3D1"':""}><td>${i+1}</td><td><b>${esc(x.n)}</b><div class="qa">${esc(x.d)}</div></td><td>${esc(x.when)}</td></tr>`).join("")}</table><div class="qa">③〜⑥は希望月からの逆算で、制度上の期限ではありません。</div>`}
-  if(o.tasks){const ord={doing:0,wait:1,todo:2,done:3};const ts=D.tasks.items.filter(t=>t.share!==false).sort((a,b)=>(ord[a.status]-ord[b.status])||a.theme.localeCompare(b.theme));
-    h+=`<h2>タスクの状況</h2>${ts.length?`<table><tr><th style="width:74px">状態</th><th style="width:150px">区分</th><th>内容</th></tr>${ts.map(t=>`<tr><td><span class="pill">${ST_LABEL[t.status]}</span></td><td>${TRK[meTr(t)]}・${esc(TS[t.theme]||"")}</td><td>${esc(t.t)}</td></tr>`).join("")}</table>`:`<p>共有できるタスクはありません。</p>`}`}
-  if(o.checks){const cs=D.checks.items.filter(c=>c.share!==false&&c.status!=="done");h+=`<h2>まだ確認できていないこと</h2>${cs.length?`<ul style="margin:0;padding-left:18px">${cs.map(c=>`<li>${esc(c.t)}</li>`).join("")}</ul>`:"<p>なし</p>"}`}
-  if(o.qs){const qs=D.consult.items.filter(q=>q.share!==false);h+=`<h2>相談したいこと</h2>${qs.length?`<ol>${qs.map(q=>`<li>${esc(q.q)}</li>`).join("")}</ol>`:"<p>なし</p>"}`}
-  h+=`<div class="foot">制度の日付は関東運輸局の公式資料（${CHECKED}確認）によります。申請可能日は証明資料で確認していないため、このシートでは示していません。</div>`;
+  if(o.prof&&(regionL()||ageL())) h+=`<table><tr><th style="width:120px">区域</th><td>${esc(regionL()||"—")}</td><th style="width:120px">申請時の年齢</th><td>${esc(ageL()||"—")}</td></tr></table>`;
+  if(o.phase){h+=`<h2>いまの段階</h2><p style="margin:0 0 6px"><b>${cur+1}. ${esc(PH[cur].n)}</b>（全6段階）</p>`;
+    if(LP) h+=`<table><tr><th style="width:150px">分類</th><th>読んだ項目</th><th>覚えたカード</th><th>やること（済み）</th></tr>${LP.cats.map(c=>{const ts=D.tasks.items.filter(t=>+t.cat===c.n&&t.share!==false);return `<tr><td>${c.n}. ${esc(c.short)}</td><td>${c.read}/${c.ready}${c.items>c.ready?`（準備中 ${c.items-c.ready}）`:""}</td><td>${c.known}/${c.cards}</td><td>${ts.filter(t=>t.status==="done").length}/${ts.length}</td></tr>`}).join("")}</table>`;
+    if(D.kakomon.items.length) h+=`<p class="qa">過去問の記録 ${D.kakomon.items.length}件</p>`;}
+  if(o.sched){h+=`<h2>準備の順番</h2><table><tr><th style="width:40px">#</th><th>段階</th><th style="width:210px">時期の目安</th></tr>${P.map((x,i)=>`<tr${i===cur?' style="background:#FFF3D1"':""}><td>${i+1}</td><td><b>${esc(x.n)}</b><div class="qa">${esc(x.d)}</div></td><td>${esc(x.when)}</td></tr>`).join("")}</table><div class="qa">③〜⑥は希望月からの逆算で、制度上の期限ではありません。</div>`}
+  if(o.tasks){const ord={todo:0,later:1,done:2};const ts=D.tasks.items.filter(t=>t.share!==false).sort((a,b)=>(ord[a.status]-ord[b.status])||(+a.cat)-(+b.cat));
+    h+=`<h2>やること</h2>${ts.length?`<table><tr><th style="width:74px">状態</th><th style="width:110px">分類</th><th>内容</th></tr>${ts.map(t=>`<tr><td><span class="pill">${{todo:"これから",later:"あとで",done:"済み"}[t.status]}</span></td><td>${+t.cat}. ${CATN[+t.cat]}</td><td>${esc(t.t)}</td></tr>`).join("")}</table>`:`<p>なし</p>`}`}
+  if(o.checks){const cs=D.checks.items.filter(c=>c.share!==false&&c.status!=="done");h+=`<h2>まだ確かめていないこと</h2>${cs.length?`<ul style="margin:0;padding-left:18px">${cs.map(c=>`<li>${esc(c.t)}</li>`).join("")}</ul>`:"<p>なし</p>"}`}
+  if(o.qs){const qs=D.consult.items.filter(q=>q.share!==false&&q.q);h+=`<h2>相談したいこと</h2>${qs.length?`<ol>${qs.map(q=>`<li>${esc(q.q)}</li>`).join("")}</ol>`:"<p>なし</p>"}`}
+  h+=`<div class="foot">制度の日付は関東運輸局の公式資料（${CHECKED}確認）によります。申請できる日は証明資料で確かめていないため、このシートでは示していません。</div>`;
   return h;
 }
-function renderShare(){$("#paper").innerHTML=paperHTML()}
+function renderShare(){$("#exclMe").hidden=!ME;$("#paper").innerHTML=paperHTML()}
 function shareText(){
-  const o=shareOpts(); const {P,cur}=phases(); const ex=trackData("exam"), pr=trackData("prep");
+  const o=shareOpts(); const {P,cur}=phases(); const LP=KL()?KL().progress(D.learn):null;
   let t=`【個人タクシー開業準備 相談シート】${fmtD(TODAY)}\n`;
-  if(o.prof&&(D.profile.region||D.profile.ageClass)) t+=`区域：${D.profile.region||"—"}／年齢区分：${D.profile.ageClass||"—"}\n`;
-  if(o.phase) t+=`\n■いまの段階\nフェーズ${cur+1}：${P[cur].n}（全6）\n開業準備 ${pr.done}/6テーマ・試験対策 ${ex.done}/6テーマ\n`;
-  if(o.tasks){const ts=D.tasks.items.filter(x=>x.share!==false&&(x.status==="doing"||x.status==="wait"));if(ts.length)t+=`\n■進めていること\n${ts.map(x=>`・${x.t}（${ST_LABEL[x.status]}）`).join("\n")}\n`}
-  if(o.checks){const cs=D.checks.items.filter(c=>c.share!==false&&c.status!=="done");if(cs.length)t+=`\n■まだ確認できていないこと\n${cs.map(x=>`・${x.t}`).join("\n")}\n`}
-  if(o.qs){const qs=D.consult.items.filter(q=>q.share!==false);if(qs.length)t+=`\n■相談したいこと\n${qs.map((x,i)=>`${i+1}. ${x.q}`).join("\n")}\n`}
+  if(o.prof&&(regionL()||ageL())) t+=`区域：${regionL()||"—"}／申請時の年齢：${ageL()||"—"}\n`;
+  if(o.phase){t+=`\n■いまの段階\n${cur+1}. ${P[cur].n}（全6段階）\n`; if(LP) t+=LP.cats.map(c=>`${c.n}. ${c.short}：読んだ ${c.read}/${c.ready}`).join("\n")+"\n";}
+  if(o.tasks){const ts=D.tasks.items.filter(x=>x.share!==false&&x.status==="todo");if(ts.length)t+=`\n■これからやること\n${ts.map(x=>`・${x.t}`).join("\n")}\n`}
+  if(o.checks){const cs=D.checks.items.filter(c=>c.share!==false&&c.status!=="done");if(cs.length)t+=`\n■まだ確かめていないこと\n${cs.map(x=>`・${x.t}`).join("\n")}\n`}
+  if(o.qs){const qs=D.consult.items.filter(q=>q.share!==false&&q.q);if(qs.length)t+=`\n■相談したいこと\n${qs.map((x,i)=>`${i+1}. ${x.q}`).join("\n")}\n`}
   return t.trim();
 }
 async function capture(){const cap=$("#cap");cap.innerHTML=`<div class="paper" style="box-shadow:none">${paperHTML()}</div>`;try{if(document.fonts&&document.fonts.ready)await document.fonts.ready}catch(e){}const c=await window.html2canvas(cap.firstElementChild,{scale:2,backgroundColor:"#ffffff",useCORS:true,logging:false});cap.innerHTML="";return c}
 const fname=ext=>`相談シート_${fmtD(TODAY).replace(/\//g,"")}.${ext}`;
+async function giveFile(name,blob){
+  if(downloads){const r=await downloads.save({filename:name,data:blob});return r&&r.status==="saved"?"保存しました。":"渡しました。"}
+  const u=URL.createObjectURL(blob);const a=document.createElement("a");a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return "保存しました（ダウンロードを確かめてください）。";
+}
 async function dl(kind){
   const msg=$("#shareMsg");
-  if(!downloads){msg.textContent="この表示ではファイル保存が使えません。文章のコピーを使ってください。";return}
-  if(!window.html2canvas||(kind==="pdf"&&!window.jspdf)){msg.textContent="出力用の部品を読み込めませんでした。通信状態を確認して開き直してください。";return}
+  if(!window.html2canvas||(kind==="pdf"&&!window.jspdf)){msg.textContent="出力用の部品を読み込めませんでした。通信状態を確認して開き直すか、文章のコピーを使ってください。";return}
   msg.textContent="作成しています…";
   try{const c=await capture();let blob;
     if(kind==="png") blob=await new Promise(r=>c.toBlob(r,"image/png"));
     else{const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:"mm",format:"a4",orientation:"portrait"});const pw=210,ph=297,ppm=c.width/pw,pageH=Math.floor(ph*ppm);
       for(let y=0,i=0;y<c.height;y+=pageH,i++){const h=Math.min(pageH,c.height-y);const pc=document.createElement("canvas");pc.width=c.width;pc.height=h;const ctx=pc.getContext("2d");ctx.fillStyle="#fff";ctx.fillRect(0,0,pc.width,h);ctx.drawImage(c,0,y,c.width,h,0,0,c.width,h);if(i>0)pdf.addPage();pdf.addImage(pc.toDataURL("image/jpeg",0.92),"JPEG",0,0,pw,h/ppm)}
       blob=pdf.output("blob")}
-    const r=await downloads.save({filename:fname(kind),data:blob}); msg.textContent=r&&r.status==="saved"?"保存しました。":"渡しました。";
+    msg.textContent=await giveFile(fname(kind),blob);
   }catch(e){const c=e&&e.code;msg.textContent=c==="declined"?"保存を取りやめました。":c==="rate_limited"?"少し待ってからもう一度押してください。":"作成できませんでした（"+(c||e&&e.message||"error")+"）。"}
 }
 
@@ -1191,100 +1263,98 @@ function renderSettings(){
   applySize();
   $("#sStart").value=D.settings.studyStart||ymd(studyStart());
   $("#updList").innerHTML=UPDATES.map(u=>`<li><b>${u.d}</b>${esc(u.t)}</li>`).join("");
-  $$(".co-only").forEach(e=>e.hidden=ME);
-  if(ME){const p=D.profile;$("#pNick").value=p.nickname||"";$("#pRegion").value=p.region||"";$("#pAge").value=p.ageClass||"";$("#pStartD").value=p.startDate||"";$("#pFunds").value=p.funds||"";$("#pMemo").value=p.memo||""}
+  $("#qCountS").textContent=D.consult.items.length?`（${D.consult.items.length}）`:"";
+  $("#condList").innerHTML=Q.map(q=>{const v=ans()[q.id];return `<li><span class="k">${esc(q.k)}</span><span class="v${v==null?" skip":""}">${v==null?"未回答":esc(ansLabel(q,v))}</span><button class="btn btn-line btn-sm" type="button" data-ask="${q.id}">${v==null?"答える":"直す"}</button></li>`}).join("");
+  if(ME){const p=D.profile;$("#pNick").value=p.nickname||"";$("#pStartD").value=p.startDate||"";$("#pFunds").value=p.funds||"";$("#pMemo").value=p.memo||""}
 }
 $$("#sizeCtl button").forEach(b=>b.addEventListener("click",()=>{lsSet("kotaku-navi:size",b.dataset.size);applySize()}));
 $("#sStart").addEventListener("change",e=>{D.settings.studyStart=e.target.value;save("settings")});
-$("#reAsk").addEventListener("click",()=>openQ(0));
-[["#pNick","nickname"],["#pRegion","region"],["#pAge","ageClass"],["#pStartD","startDate"],["#pFunds","funds"],["#pMemo","memo"]].forEach(([id,k])=>{const el=$(id);const f=()=>{D.profile[k]=el.value;save("profile")};el.addEventListener("input",f);el.addEventListener("change",f)});
-function copyText(t,msgEl,ok){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>msgEl.textContent=ok,()=>fallback())}else fallback();function fallback(){msgEl.innerHTML=`コピーできませんでした。下の文章を選んでコピーしてください。<textarea class="inp codebox" readonly>${esc(t)}</textarea>`;const ta=msgEl.querySelector("textarea");ta.focus();ta.select()}}
-$("#bkCopy").addEventListener("click",()=>{const code="KTN1:"+btoa(unescape(encodeURIComponent(JSON.stringify({answers:D.answers,settings:D.settings,study:D.study,learn:D.learn,tdone:D.tdone}))));copyText(code,$("#bkMsg"),"コピーしました。メモ帳やLINEの自分あてに貼っておいてください。")});
+$("#reAsk").addEventListener("click",()=>{D.answers.mode="full";save("answers");openQ(0)});
+[["#pNick","nickname"],["#pStartD","startDate"],["#pFunds","funds"],["#pMemo","memo"]].forEach(([id,k])=>{const el=$(id);const f=()=>{D.profile[k]=el.value;save("profile")};el.addEventListener("input",f);el.addEventListener("change",f)});
+function copyText(t,msgEl,ok){const fb=()=>{msgEl.innerHTML=`コピーできませんでした。下の文章を選んでコピーしてください。<textarea class="inp codebox" readonly>${esc(t)}</textarea>`;const ta=msgEl.querySelector("textarea");ta.focus();ta.select()};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(()=>msgEl.textContent=ok,fb)}else fb()}
+const bkObj=()=>{const o={};CO_KEYS.forEach(k=>o[k]=D[k]);return o};
+$("#bkCopy").addEventListener("click",()=>copyText("KTN3:"+btoa(unescape(encodeURIComponent(JSON.stringify(bkObj())))),$("#bkMsg"),"コピーしました。メモ帳やLINEの自分あてに貼っておいてください。"));
 $("#bkOpen").addEventListener("click",()=>{$("#bkArea").hidden=false});
 let bkData=null;
-$("#bkCheck").addEventListener("click",()=>{const v=$("#bkIn").value.trim();try{if(!v.startsWith("KTN1:"))throw 0;bkData=JSON.parse(decodeURIComponent(escape(atob(v.slice(5)))));$("#bkConfirm").hidden=false;$("#bkMsg").textContent=""}catch(e){bkData=null;$("#bkConfirm").hidden=true;$("#bkMsg").textContent="控えのコードとして読み取れませんでした。全部コピーできているか確かめてください。"}});
-$("#bkDo").addEventListener("click",()=>{if(!bkData)return;["answers","settings","study","learn","tdone"].forEach(k=>{if(bkData[k])D[k]=bkData[k]});save();learnUI=null;$("#learnMount").innerHTML="";$("#bkConfirm").hidden=true;$("#bkArea").hidden=true;$("#bkMsg").textContent="記録を戻しました。";});
-$("#fbCopy").addEventListener("click",()=>copyText(`個タク準備ナビを使ってみた感想\n1. 質問は答えやすかった？迷ったところは？\n→ \n2. 「いまやること」は役に立ちそう？\n→ \n3. 「学ぶ」の1回（10分）はやってみてどうだった？\n→ \n4. ほかにあったらいいなと思うことは？\n→ `,$("#fbMsg"),"コピーしました。LINEなどに貼って送ってください。"));
+$("#bkCheck").addEventListener("click",()=>{const v=$("#bkIn").value.trim();try{const m=/^KTN([13]):/.exec(v);if(!m)throw 0;const o=JSON.parse(decodeURIComponent(escape(atob(v.slice(5)))));
+  bkData=m[1]==="3"?o:{answers:o.answers,settings:o.settings,learn:KL()?KL().migrate(o.learn||{}):{},tdone:o.tdone};$("#bkConfirm").hidden=false;$("#bkMsg").textContent=""}catch(e){bkData=null;$("#bkConfirm").hidden=true;$("#bkMsg").textContent="控えのコードとして読み取れませんでした。全部コピーできているか確かめてください。"}});
+$("#bkDo").addEventListener("click",()=>{if(!bkData)return;CO_KEYS.forEach(k=>{if(bkData[k])D[k]=bkData[k]});if(bkData.tdone){D.tasks={items:[],auto:{}};syncAuto();D.tasks.items.forEach(t=>{if(bkData.tdone[t.key])t.status="done"})}save();try{localStorage.removeItem("kotaku-navi-v2")}catch(e){}location.reload()});
+$("#fbCopy").addEventListener("click",()=>copyText(`個タク準備ナビを使ってみた感想\n1. 最初の質問は答えやすかった？迷ったところは？\n→ \n2. ホームの「次にやること」は役に立ちそう？\n→ \n3. 「学ぶ」「問題」はやってみてどうだった？\n→ \n4. ほかにあったらいいなと思うことは？\n→ `,$("#fbMsg"),"コピーしました。LINEなどに貼って送ってください。"));
 $("#reset").addEventListener("click",()=>{$("#resetBox").hidden=false});
 $("#resetNo").addEventListener("click",()=>{$("#resetBox").hidden=true});
-$("#resetYes").addEventListener("click",()=>{try{localStorage.removeItem(LKEY);localStorage.removeItem("kotaku-navi-v1")}catch(e){}location.reload()});
+$("#resetYes").addEventListener("click",()=>{try{["kotaku-navi-v3","kotaku-navi-v2","kotaku-navi-v1"].forEach(k=>localStorage.removeItem(k))}catch(e){}location.reload()});
 $("#installClose").addEventListener("click",()=>{lsSet("kotaku-navi:installClosed","1");$("#install").hidden=true});
-async function exportJson(){if(downloads){try{await downloads.save({filename:`個タク準備ナビ_控え_${fmtD(TODAY).replace(/\//g,"")}.json`,data:JSON.stringify({exported:fmtD(TODAY),...D},null,2)})}catch(e){}}}
+$("#exportJson").addEventListener("click",async()=>{try{await giveFile(`個タク準備ナビ_控え_${fmtD(TODAY).replace(/\//g,"")}.json`,new Blob([JSON.stringify({exported:fmtD(TODAY),...D},null,2)],{type:"application/json"}))}catch(e){}});
 
 /* ===== 操作 ===== */
-function cycleTask(id){const t=D.tasks.items.find(x=>x.id===id);if(!t)return;t.status=STATUS[(STATUS.indexOf(t.status)+1)%4];save("tasks");renderAll()}
 document.addEventListener("click",e=>{
-  const g=e.target.closest("[data-go]"); if(g){e.preventDefault();go(g.dataset.go);return}
-  const tb=e.target.closest(".tab"); if(tb){go(tb.dataset.tab);return}
-  const ak=e.target.closest("[data-ask]"); if(ak){const id=ak.dataset.ask;let qs=qList();let i=qs.findIndex(q=>q.id===id);if(i<0){D.answers.mode="full";save("answers");qs=qList();i=qs.findIndex(q=>q.id===id)}openQ(i,true);return}
-  const ct=e.target.closest("[data-cotask]"); if(ct){const k=ct.dataset.cotask;const x=coTasks().find(t=>t.k===k);D.tdone[k]=!(x&&coDone(x));save();renderAll();return}
-  const mo=e.target.closest("[data-more]"); if(mo){openD[mo.dataset.more]=!openD[mo.dataset.more];renderTasks();return}
-  const cy=e.target.closest("[data-cycle]"); if(cy){cycleTask(cy.dataset.cycle);return}
-  const ed=e.target.closest("[data-edit]"); if(ed){editing=editing===ed.dataset.edit?null:ed.dataset.edit;renderTasks();return}
-  if(e.target.closest("[data-cancel]")){editing=editingCk=editingQ=null;renderAll();return}
-  const sv=e.target.closest("[data-savetask]"); if(sv){const t=D.tasks.items.find(x=>x.id===sv.dataset.savetask);if(t){t.t=$("#e_t").value.trim()||t.t;t.theme=$("#e_th").value;t.status=$("#e_st").value;t.phase=$("#e_ph").value;t.month=$("#e_m").value;t.note=$("#e_n").value;t.share=$("#e_sh").checked;save("tasks")}editing=null;renderAll();return}
-  const dt=e.target.closest("[data-deltask]"); if(dt){if(dt.dataset.armed){D.tasks.items=D.tasks.items.filter(x=>x.id!==dt.dataset.deltask);save("tasks");editing=null;renderAll()}else{dt.dataset.armed="1";dt.textContent="もう一度押すと削除"}return}
-  if(e.target.closest("#addTask")){const t={id:uid(),t:"新しいタスク",theme:fTheme!=="all"?fTheme:"00",status:"todo",phase:"",month:"",note:"",share:true};D.tasks.items.push(t);save("tasks");editing=t.id;grpOpen["t-todo"]=true;renderTasks();const f=$("#e_t");f&&(f.focus(),f.select());return}
-  const dot=e.target.closest("[data-dot]"); if(dot){const [k,j]=dot.dataset.dot.split(":");const a=(D.study.done[k]||[false,false,false,false,false,false]).slice();a[+j]=!a[+j];D.study.done[k]=a;save("study");renderStudy();return}
-  const ckc=e.target.closest("[data-ckcycle]"); if(ckc){const c=D.checks.items.find(x=>x.id===ckc.dataset.ckcycle);if(c){c.status=CK_STATUS[(CK_STATUS.indexOf(c.status)+1)%3];save("checks");renderChecks()}return}
-  const cke=e.target.closest("[data-ckedit]"); if(cke){editingCk=editingCk===cke.dataset.ckedit?null:cke.dataset.ckedit;renderChecks();return}
-  const cks=e.target.closest("[data-saveck]"); if(cks){const c=D.checks.items.find(x=>x.id===cks.dataset.saveck);if(c){c.t=$("#c_t").value.trim()||c.t;c.theme=$("#c_th").value;c.status=$("#c_st").value;c.note=$("#c_n").value;c.share=$("#c_sh").checked;save("checks")}editingCk=null;renderChecks();return}
-  const ckd=e.target.closest("[data-delck]"); if(ckd){if(ckd.dataset.armed){D.checks.items=D.checks.items.filter(x=>x.id!==ckd.dataset.delck);save("checks");editingCk=null;renderChecks()}else{ckd.dataset.armed="1";ckd.textContent="もう一度押すと削除"}return}
-  if(e.target.closest("#addCheck")){const c={id:uid(),t:"新しい確認事項",theme:"03",status:"todo",note:"",share:true};D.checks.items.push(c);save("checks");editingCk=c.id;renderChecks();const f=$("#c_t");f&&(f.focus(),f.select());return}
+  const li=e.target.closest("[data-learnitem]"); if(li){go("learn");KL()&&KL().openItem(li.dataset.learnitem);return}
+  const g=e.target.closest("[data-go]"); if(g){e.preventDefault();go(g.dataset.go,g.dataset.sub);return}
+  const tb=e.target.closest(".tab"); if(tb){go(tb.dataset.tab);if(tb.dataset.tab==="learn"&&KL()&&!KL().busy())KL().showList();return}
+  const ak=e.target.closest("[data-ask]"); if(ak){const id=ak.dataset.ask;D.answers.mode="full";const i=qList().findIndex(q=>q.id===id);openQ(i,true);return}
+  const fc=e.target.closest("[data-fcat]"); if(fc){fCat=fc.dataset.fcat;renderTasks();return}
+  const td=e.target.closest("[data-tdone]"); if(td){const t=D.tasks.items.find(x=>x.id===td.dataset.tdone);t.status=t.status==="done"?"todo":"done";save("tasks");renderTasks();return}
+  const tt=e.target.closest("[data-tdet]"); if(tt){openDet[tt.dataset.tdet]=!openDet[tt.dataset.tdet];renderTasks();return}
+  const te=e.target.closest("[data-tedit]"); if(te){editing=editing===te.dataset.tedit?null:te.dataset.tedit;renderTasks();return}
+  if(e.target.closest("[data-cancel]")){editing=editingQ=null;curTab==="consult"?renderConsult():renderPrep();return}
+  const ts=e.target.closest("[data-tsave]"); if(ts){const t=D.tasks.items.find(x=>x.id===ts.dataset.tsave);t.t=$("#e_t").value.trim()||t.t;t.cat=+$("#e_c").value;t.month=$("#e_m").value;t.note=$("#e_n").value;t.share=$("#e_s").checked;if(t.status!=="done")t.status=$("#e_l").checked?"later":"todo";save("tasks");editing=null;renderTasks();return}
+  const tdl=e.target.closest("[data-tdel]"); if(tdl){if(tdl.dataset.armed){const t=D.tasks.items.find(x=>x.id===tdl.dataset.tdel);if(t.key)D.tasks.auto[t.key]="removed";D.tasks.items=D.tasks.items.filter(x=>x!==t);save("tasks");editing=null;renderTasks()}else{tdl.dataset.armed="1";tdl.textContent="もう一度押すと削除"}return}
+  if(e.target.closest("#addTask")){const t={id:uid(),t:"新しいやること",cat:fCat!=="all"?+fCat:0,status:"todo",month:"",note:"",share:true};D.tasks.items.push(t);save("tasks");editing=t.id;grpOpen.todo=true;renderTasks();const f=$("#e_t");f&&(f.focus(),f.select());return}
+  const cd=e.target.closest("[data-cdone]"); if(cd){const c=D.checks.items.find(x=>x.id===cd.dataset.cdone);c.status=c.status==="done"?"todo":"done";save("checks");renderChecks();return}
+  const ce=e.target.closest("[data-cedit]"); if(ce){editing=editing===ce.dataset.cedit?null:ce.dataset.cedit;renderChecks();return}
+  const cs=e.target.closest("[data-csave]"); if(cs){const c=D.checks.items.find(x=>x.id===cs.dataset.csave);c.t=$("#c_t").value.trim()||c.t;c.cat=+$("#c_c").value;c.note=$("#c_n").value;c.share=$("#c_s").checked;save("checks");editing=null;renderChecks();return}
+  const cdl=e.target.closest("[data-cdel]"); if(cdl){if(cdl.dataset.armed){const c=D.checks.items.find(x=>x.id===cdl.dataset.cdel);if(c.key)D.checks.auto[c.key]="removed";D.checks.items=D.checks.items.filter(x=>x!==c);save("checks");editing=null;renderChecks()}else{cdl.dataset.armed="1";cdl.textContent="もう一度押すと削除"}return}
+  if(e.target.closest("#addCheck")){const c={id:uid(),t:"新しい確認すること",cat:0,status:"todo",note:"",share:true};D.checks.items.push(c);save("checks");editing=c.id;renderChecks();const f=$("#c_t");f&&(f.focus(),f.select());return}
   const qe=e.target.closest("[data-qedit]"); if(qe){editingQ=editingQ===qe.dataset.qedit?null:qe.dataset.qedit;renderConsult();return}
-  const qs=e.target.closest("[data-saveq]"); if(qs){const q=D.consult.items.find(x=>x.id===qs.dataset.saveq);if(q){q.q=$("#q_q").value.trim()||q.q;q.a=$("#q_a").value;q.date=$("#q_d").value;q.share=$("#q_sh").checked;save("consult")}editingQ=null;renderConsult();return}
+  const qs=e.target.closest("[data-saveq]"); if(qs){const q=D.consult.items.find(x=>x.id===qs.dataset.saveq);q.q=$("#q_q").value.trim();q.a=$("#q_a").value;q.date=$("#q_d").value;q.share=$("#q_sh").checked;save("consult");editingQ=null;renderConsult();return}
   const qd=e.target.closest("[data-delq]"); if(qd){if(qd.dataset.armed){D.consult.items=D.consult.items.filter(x=>x.id!==qd.dataset.delq);save("consult");editingQ=null;renderConsult()}else{qd.dataset.armed="1";qd.textContent="もう一度押すと削除"}return}
-  if(e.target.closest("#addQ")){const q={id:uid(),q:"",a:"",date:"",share:true};D.consult.items.unshift(q);editingQ=q.id;renderConsult();const f=$("#q_q");f&&f.focus();return}
+  if(e.target.closest("#addQ")){const q={id:uid(),q:"",a:"",date:"",share:true};D.consult.items.unshift(q);save("consult");editingQ=q.id;renderConsult();const f=$("#q_q");f&&f.focus();return}
   if(e.target.closest("#dlPdf")){dl("pdf");return}
   if(e.target.closest("#dlPng")){dl("png");return}
   if(e.target.closest("#cpTxt")){copyText(shareText(),$("#shareMsg"),"コピーしました。LINEなどに貼り付けられます。");return}
-  if(e.target.closest("#exportJson")){exportJson();return}
 });
-$("#fTheme").addEventListener("change",e=>{fTheme=e.target.value;renderTasks()});
 ["#sProfile","#sPhase","#sSched","#sTasks","#sChecks","#sQs"].forEach(id=>$(id).addEventListener("change",renderShare));
 document.addEventListener("toggle",e=>{const d=e.target;if(d.classList&&d.classList.contains("grp"))grpOpen[d.dataset.grp]=d.open},true);
-{const g=$("#guide");if(lsGet("kotaku-navi:guideOpen")==="1")g.open=true;g.addEventListener("toggle",()=>lsSet("kotaku-navi:guideOpen",g.open?"1":"0"))}
-function isTyping(){const a=document.activeElement;return a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest("main")}
-let pendingRender=false;
-document.addEventListener("focusout",()=>{setTimeout(()=>{if(pendingRender&&!isTyping()){pendingRender=false;renderAll()}},50)});
+const isTyping=()=>{const a=document.activeElement;return a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)&&a.closest("main")};
+let pending=false;
+document.addEventListener("focusout",()=>{setTimeout(()=>{if(pending&&!isTyping()){pending=false;renderAll()}},50)});
 
 /* ===== 起動 ===== */
 $("#today").textContent=`今日 ${fmtD(TODAY)}（${WD[TODAY.getDay()]}）`;
+$("#ckDate").textContent=CHECKED; $("#updDate").textContent=UPDATES[0].d;
 applySize();
 function setMode(me){
-  ME=me;
-  $("#meBadge").hidden=!ME; $("#shareBtn").hidden=!ME;
+  ME=me; $("#meBadge").hidden=!ME;
   $("#subTitle").textContent=ME?"本人用（claude.aiで同期）":"記録はこの端末だけに保存";
   $$(".me-only").forEach(e=>e.hidden=!ME); $$(".co-only").forEach(e=>e.hidden=ME);
 }
 function startUI(){
-  const hash=(location.hash||"").slice(1);
-  if(!D.answers.created){ showOnly("v-start"); return }
-  go(["home","quiz","schedule","tasks","study","consult","share","settings"].includes(hash)?hash:"home");
+  if(!D.answers.created){showOnly("v-start");return}
+  syncAuto(); seedChecks();
+  const h=(location.hash||"").slice(1);
+  go(["home","learn","quiz","prep","settings","consult","share"].includes(h)?h:"home");
 }
 function applyDoc(id,data){
-  if(!data) return;
-  if(id==="settings"||id==="profile"||id==="answers") D[id]=Object.assign({},D[id],JSON.parse(JSON.stringify(data)));
-  else if(id==="study") D.study=Object.assign({done:{}},JSON.parse(JSON.stringify(data)));
-  else if(id==="learn"){ D.learn=JSON.parse(JSON.stringify(data)); if(learnUI) learnUI.update(D.learn); }
-  else D[id]={items:Array.isArray(data.items)?data.items.map(x=>Object.assign({},x)):[]};
+  const k=Object.keys(DOC).find(x=>DOC[x]===id); if(!k||!data) return;
+  const v=JSON.parse(JSON.stringify(data));
+  if(k==="learn"){D.learn=v;if(learnReady)KL().update(v);return}
+  if(["tasks","checks","consult","kakomon"].includes(k)){D[k]=Object.assign({items:[],auto:{}},v);if(!Array.isArray(D[k].items))D[k].items=[];return}
+  D[k]=Object.assign({},D[k],v);
 }
 (async()=>{
   const C=window.claude;
-  if(!C||!C.use){ setMode(false); loadLocal(); loaded=true; startUI(); return; }
+  const local=()=>{setMode(false);loadLocal();loaded=true;startUI()};
+  if(!C||!C.use) return local();
   try{downloads=await C.use("downloads")}catch(e){downloads=null}
   try{db=await C.use("db")}catch(e){db=null}
-  if(!db){ setMode(false); loadLocal(); loaded=true; startUI(); return; }
+  if(!db) return local();
   setMode(true); setSync("","読み込み中");
-  ["#dlPdf","#dlPng","#exportJson"].forEach(s=>{const b=$(s);if(b&&!downloads)b.disabled=true});
   let first=true;
   db.collection("kotaku").onSnapshot(snap=>{
-    snap.docChanges().forEach(ch=>{ if(ch.type!=="removed"&&!ch.doc.metadata.hasPendingWrites) applyDoc(ch.doc.id,ch.doc.data()); });
-    // 旧版の希望月を引き継ぐ
-    if(D.settings.applyMonth&&!(D.answers.ans||{}).target){D.answers.ans=D.answers.ans||{};D.answers.ans.target=D.settings.applyMonth;}
+    snap.docChanges().forEach(ch=>{if(ch.type!=="removed"&&!ch.doc.metadata.hasPendingWrites)applyDoc(ch.doc.id,ch.doc.data())});
     loaded=true; setSync("ok","同期済み");
-    if(first){first=false; startUI(); return}
-    if(isTyping()) pendingRender=true; else renderAll();
+    if(first){first=false;startUI();return}
+    if(isTyping()) pending=true; else renderAll();
   },err=>{setSync("warn","同期が止まりました");banner("同期が止まりました（"+esc(err&&err.code||"error")+"）。ページを開き直してください。")});
 })();
 })();
