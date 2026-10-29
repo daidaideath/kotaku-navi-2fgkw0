@@ -133,6 +133,30 @@ const SHOT = process.argv[2] || "";
     check("再読み込みしても記録が残る", !(await page.isHidden("#tabs")));
     await page.close();
   }
+  // 共有用と本人用の見分け（本人用は claude.ai の保存領域を試験用の偽物に置き換えて確かめる）
+  {
+    vpName = "mode";
+    const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+    await page.route(u => !u.href.startsWith("file:"), r => r.abort());
+    page.on("pageerror", e => errors.push(`[mode] ${e.message}`));
+    await page.goto(URL); await page.waitForTimeout(300);
+    const co = await page.evaluate(() => ({ badge: document.querySelector("#meBadge").textContent, title: document.title, mode: document.documentElement.dataset.mode }));
+    check("共有用は「共有用」の札・紺のヘッダー", co.badge === "共有用" && co.mode === "co" && co.title === "個タク準備ナビ", JSON.stringify(co));
+    await page.close();
+
+    const me = await browser.newPage({ viewport: { width: 900, height: 700 } });
+    await me.route(u => !u.href.startsWith("file:"), r => r.abort());
+    me.on("pageerror", e => errors.push(`[mode] ${e.message}`));
+    await me.addInitScript(() => {
+      const fakeDb = { collection: () => ({ onSnapshot: cb => { setTimeout(() => cb({ docChanges: () => [] }), 0); return () => {}; } }), doc: () => ({ set: async () => {} }) };
+      window.claude = { use: async name => { if (name === "db") return fakeDb; throw new Error("none"); } };
+    });
+    await me.goto(URL); await me.waitForTimeout(300);
+    const r = await me.evaluate(() => ({ badge: document.querySelector("#meBadge").textContent, title: document.title, mode: document.documentElement.dataset.mode, logo: document.querySelector(".logo .q").textContent, icon: document.querySelector("#favicon").href.includes("3B1F8F"), bg: getComputedStyle(document.querySelector(".top")).backgroundColor }));
+    check("本人用は「本人用」の札・紫のヘッダー・「本」のマーク・タブ名とアイコン", r.badge === "本人用" && r.mode === "me" && r.title === "個タク準備ナビ（本人用）" && r.logo === "本" && r.icon && r.bg === "rgb(59, 31, 143)", JSON.stringify(r));
+    if (SHOT) await me.screenshot({ path: path.join(SHOT, "mode-me.png") });
+    await me.close();
+  }
   await browser.close();
 
   let bad = 0;
