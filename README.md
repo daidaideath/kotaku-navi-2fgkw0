@@ -29,7 +29,7 @@ PDF・PNG の出力には外部の CDN（cdnjs）から html2canvas と jsPDF �
 
 **学ぶの項目を公開する**（`kotaku-learn.js`）
 
-1. `SESSIONS` に回を足す（会話・予想の問題・説明・確認の問題）。根拠は `SRC` の公式資料で確かめたものだけにする
+1. `SESSIONS` に回を足す（会話・予想の問題・説明・確認の問題）。根拠は `SRC` の公式資料・法令（e-Gov法令検索）で本文を確かめたものだけにし、回に `checked`（確認日）を付ける。カードと○×問題にも同じ確認日が表示される
 2. `ITEMS` の該当する項目に `sid`（回の番号）を付ける。`sid` のない項目は「準備中」と表示される
 3. `CARDS[回の番号]` に覚えるカード、`OX` に○×問題を足す
 4. `ORDER`（おすすめの順番）に項目の id を足す。「次に読む」と前後ボタンはこの順番で進む
@@ -38,7 +38,7 @@ PDF・PNG の出力には外部の CDN（cdnjs）から html2canvas と jsPDF �
 **制度の確認日を更新する**：公式資料を確かめ直したら、次の日付を直す。
 
 - `index.html` の `CHECKED`
-- `kotaku-learn.js` の `CHECKED`（説明・予想・確認の問題）と `CARD_CHECKED`（カード・○×）
+- `kotaku-learn.js` の `CHECKED`（最初の6項目の説明・予想・確認の問題）、`CARD_CHECKED`（最初の6項目のカード・○×）、`ADDED_CHECKED`（2026/10/29に追加した10項目）
 
 **過去問の回を足す**：配布元に新しい回が載ったら、`index.html` の `KAI` の先頭に足す。
 

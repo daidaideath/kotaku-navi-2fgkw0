@@ -640,6 +640,7 @@ html[data-size="large"] .top,html[data-size="large"] main,html[data-size="large"
    このファイルに個人情報は入れない
    ============================================================ */
 const UPDATES=[
+ {d:"2026/10/29",t:"「学ぶ」の準備中だった10項目を公開しました（法令6項目、申請書類、許可の後、開業後にくり返す手続き、記録と保存期間）。カード30枚・問題30問を追加しました。内容は関東運輸局の公示とe-Gov法令検索の条文で確認しています。"},
  {d:"2026/10/29",t:"細かな不具合を直しました。「学ぶ」の前後ボタンがおすすめの順番で進むようにし、設定から1問だけ答え直しても質問の数（4問・8問）が変わらないようにしました。回答を直して条件に合わなくなったやることには「今の回答では対象外」と表示し、ホームや相談シートには出さないようにしました。"},
  {d:"2026/10/22",t:"メニューを5つに整理しました。「学ぶ」は4つの分類から好きな項目を読む形に、問題は「クイズ」と「過去問」に分けました。相談メモと相談シートを誰でも使えるようにしました。"},
  {d:"2026/10/22",t:"学習に「覚えるカード」と○×問題を追加しました。"},
@@ -693,7 +694,7 @@ const TT=[
  {k:"exam",cat:2,when:a=>a.route==="new",hot:"exam",t:"法令試験の申込時期を知っておく",d:()=>`申込は原則年3回（4/1〜5/31→7月、8/1〜9/30→11月、12/1〜1/31→3月の試験）。実際の日程は個別の公示で確認します。合格証には有効期限があります。出典：${L("r03")}（PDF7〜8ページ）`},
  {k:"transfer",cat:1,when:a=>a.route==="transfer",t:"譲渡譲受の条件を確かめる",d:()=>`ゆずり受ける人にも審査基準があります。譲渡する人が75歳以上80歳未満の場合、ゆずり受ける人は60歳以下という条件もあります。出典：${L("r01")}`},
  {k:"age65",cat:1,first:true,when:a=>a.age==="a4",t:"年齢の条件を最初に確認する",d:()=>`審査基準では申請日現在で65歳未満が条件です。出典：${L("r01")}（PDF6ページ）`},
- {k:"law",cat:2,pre:"law",hot:"exam",t:"法令の基礎を少しずつ",d:()=>"道路運送法・運輸規則・車両法・タクシー業務適正化特別措置法・運賃と約款。「学ぶ」の分類2で順に追加します。"},
+ {k:"law",cat:2,pre:"law",hot:"exam",t:"法令の基礎を少しずつ",d:()=>"道路運送法・運輸規則・車両法・タクシー業務適正化特別措置法・運賃と約款。「学ぶ」の分類2の項目で読めます。"},
  {k:"kako",cat:2,hot:"exam",t:"過去問を1回分解いてみる",d:()=>`「問題」→「過去問」から配布元のPDFを開けます。点数と間違えた分野を記録しておくと、本格的な演習のときに役立ちます。出典：${L("nik")}`},
  {k:"money",cat:1,pre:"money",hot:"money",t:"お金を三つに分けて考える",d:()=>`開業時の費用・営業中の費用・生活費。審査基準では設備資金80万円以上・運転資金80万円以上などを合計した所要資金の100%以上の自己資金が必要とされています。出典：${L("r01")}（PDF7〜8ページ）`},
  {k:"garage",cat:1,pre:"garage",hot:"garage",t:"営業所（自宅）と車庫の条件を知る",d:()=>`住居と営業所が同じであること、車庫は営業所から直線2km以内で1年以上使えることなどの条件があります。出典：${L("r01")}（PDF8ページ）`},
@@ -910,7 +911,7 @@ function renderHome(){
   } else if(P&&P.total.miss){
     h=`<span class="l">次にやること</span><div class="t">間違えた問題を解き直す（${P.total.miss}問）</div><div class="s">問題・クイズ</div><div class="acts"><button class="btn btn-gold" type="button" data-go="quiz" data-sub="quiz">クイズを開く</button></div>`;
   } else {
-    h=`<span class="l">次にやること</span><div class="t">${openTasks().length?esc(openTasks()[0].t):"クイズと過去問で仕上げる"}</div><div class="s">公開中の項目はひと通り読みました。新しい項目は順に追加します</div><div class="acts"><button class="btn btn-gold" type="button" data-go="prep" data-sub="tasks">やることを開く</button><button class="btn btn-line btn-sm" type="button" data-go="quiz" data-sub="kako">過去問</button></div>`;
+    h=`<span class="l">次にやること</span><div class="t">${openTasks().length?esc(openTasks()[0].t):"クイズと過去問で仕上げる"}</div><div class="s">「学ぶ」の項目はひと通り読みました。カードとクイズで思い出す練習を続けます</div><div class="acts"><button class="btn btn-gold" type="button" data-go="prep" data-sub="tasks">やることを開く</button><button class="btn btn-line btn-sm" type="button" data-go="quiz" data-sub="kako">過去問</button></div>`;
   }
   $("#next1").innerHTML=h;
   // 進み具合（4分類）
