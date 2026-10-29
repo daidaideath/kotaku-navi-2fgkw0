@@ -152,7 +152,7 @@ const SHOT = process.argv[2] || "";
       window.claude = { use: async name => { if (name === "db") return fakeDb; throw new Error("none"); } };
     });
     await me.goto(URL); await me.waitForTimeout(300);
-    const r = await me.evaluate(() => ({ badge: document.querySelector("#meBadge").textContent, title: document.title, mode: document.documentElement.dataset.mode, logo: document.querySelector(".logo .q").textContent, icon: document.querySelector("#favicon").href.includes("3B1F8F"), bg: getComputedStyle(document.querySelector(".top")).backgroundColor }));
+    const r = await me.evaluate(() => ({ badge: document.querySelector("#meBadge").textContent, title: document.title, mode: document.documentElement.dataset.mode, logo: document.querySelector(".logo .q").textContent, icon: document.querySelector("#favicon").href.endsWith("icon-me-180.png"), bg: getComputedStyle(document.querySelector(".top")).backgroundColor }));
     check("本人用は「本人用」の札・紫のヘッダー・「本」のマーク・タブ名とアイコン", r.badge === "本人用" && r.mode === "me" && r.title === "個タク準備ナビ（本人用）" && r.logo === "本" && r.icon && r.bg === "rgb(59, 31, 143)", JSON.stringify(r));
     if (SHOT) await me.screenshot({ path: path.join(SHOT, "mode-me.png") });
     await me.close();
