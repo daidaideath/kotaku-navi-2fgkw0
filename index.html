@@ -379,6 +379,8 @@ html[data-size="large"] .top,html[data-size="large"] main,html[data-size="large"
 .trow.done .tt{color:var(--ink-soft);text-decoration:line-through;text-decoration-thickness:1px}
 .trow .tm{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:3px;font-size:12px;color:var(--ink-soft)}
 .cat0{font-family:var(--f-disp);font-weight:400;font-size:11px;border-radius:5px;padding:1px 7px;background:var(--navy);color:var(--on-navy);white-space:nowrap}
+.off2{font-size:11px;font-weight:700;color:var(--ink-soft);border:1px dashed var(--ink-soft);border-radius:4px;padding:0 5px;white-space:nowrap}
+.trow.off .tt{color:var(--ink-soft)}
 .hot2{font-size:11px;font-weight:800;border-radius:5px;padding:1px 7px;background:var(--gold);color:var(--gold-ink);white-space:nowrap}
 .cb2{appearance:none;width:30px;height:30px;border-radius:8px;border:2px solid var(--rule);background:var(--sheet);cursor:pointer;display:grid;place-items:center;font-weight:900;color:transparent;font-size:16px;margin-top:1px}
 .cb2[aria-pressed="true"]{background:var(--ok);border-color:var(--ok);color:#fff}
@@ -638,7 +640,7 @@ html[data-size="large"] .top,html[data-size="large"] main,html[data-size="large"
    このファイルに個人情報は入れない
    ============================================================ */
 const UPDATES=[
- {d:"2026/10/29",t:"細かな不具合を直しました。「学ぶ」の前後ボタンがおすすめの順番で進むようにし、設定から1問だけ答え直しても質問の数（4問・8問）が変わらないようにしました。"},
+ {d:"2026/10/29",t:"細かな不具合を直しました。「学ぶ」の前後ボタンがおすすめの順番で進むようにし、設定から1問だけ答え直しても質問の数（4問・8問）が変わらないようにしました。回答を直して条件に合わなくなったやることには「今の回答では対象外」と表示し、ホームや相談シートには出さないようにしました。"},
  {d:"2026/10/22",t:"メニューを5つに整理しました。「学ぶ」は4つの分類から好きな項目を読む形に、問題は「クイズ」と「過去問」に分けました。相談メモと相談シートを誰でも使えるようにしました。"},
  {d:"2026/10/22",t:"学習に「覚えるカード」と○×問題を追加しました。"},
  {d:"2026/10/17",t:"クイズを専用の画面にし、表示を整理しました。"},
@@ -815,7 +817,11 @@ function seedChecks(){
   if(n) save("checks");
 }
 const tplOf=t=>t.key?TT.find(x=>x.k===t.key):null;
-const hotOf=t=>{const x=tplOf(t);if(!x)return "";const w=ans().worry;if(x.first)return "最初に";return x.hot&&Array.isArray(w)&&w.includes(x.hot)?"気になる":""};
+/* 自動で入ったやることのうち、今の回答では条件に合わなくなったもの（消さずに目印を付け、後ろに回す） */
+const offOf=t=>{const x=tplOf(t);return !!(x&&x.when&&!x.when(ans()))};
+/* 数えたり相談シートに載せたりするやること（対象外で済んでいないものは除く） */
+const liveTasks=()=>D.tasks.items.filter(t=>!(offOf(t)&&t.status!=="done"));
+const hotOf=t=>{const x=tplOf(t);if(!x||offOf(t))return "";const w=ans().worry;if(x.first)return "最初に";return x.hot&&Array.isArray(w)&&w.includes(x.hot)?"気になる":""};
 
 /* ===== 画面切替 ===== */
 let curTab="home", qSeg="quiz", pSeg="tasks";
@@ -885,7 +891,7 @@ function msHtml(items){return items.map(i=>{const days=Math.round((i.d-TODAY)/86
   const dl=i.yr?"2028年":i.mon?fmtM(toM(i.d)):(i.d.getFullYear()!==TODAY.getFullYear()?fmtD(i.d):fmtD(i.d).slice(5));
   const left=i.yr?"年内":days>=0&&days<400?`あと${days}日`:"";
   return `<li><span class="d">${dl}</span><span>${i.red?'<span class="lock" style="margin-right:4px">制度</span>':""}${esc(i.t)}</span><span class="left">${left}</span></li>`}).join("")}
-function openTasks(){return D.tasks.items.filter(t=>t.status==="todo")}
+function openTasks(){return liveTasks().filter(t=>t.status==="todo")}
 function renderHome(){
   const standalone=(window.matchMedia&&matchMedia("(display-mode: standalone)").matches)||navigator.standalone;
   $("#install").hidden=ME||standalone||lsGet("kotaku-navi:installClosed")==="1";
@@ -909,7 +915,7 @@ function renderHome(){
   $("#next1").innerHTML=h;
   // 進み具合（4分類）
   if(P){
-    $("#prog4").innerHTML=P.cats.map(c=>{const ts=D.tasks.items.filter(t=>+t.cat===c.n);const td=ts.filter(t=>t.status==="done").length;const pct=c.ready?Math.round(c.read/c.ready*100):0;
+    $("#prog4").innerHTML=P.cats.map(c=>{const ts=liveTasks().filter(t=>+t.cat===c.n);const td=ts.filter(t=>t.status==="done").length;const pct=c.ready?Math.round(c.read/c.ready*100):0;
       return `<li><span class="no">${c.n}</span><div class="hd">${esc(c.short)}<span>読んだ ${c.read}/${c.ready}${c.items>c.ready?`（準備中 ${c.items-c.ready}）`:""}</span></div><div class="bar1"><i style="width:${pct}%"></i></div><div class="sub">カード ${c.known}/${c.cards}・クイズ ${c.tried}/${c.qs}・やること ${td}/${ts.length}</div></li>`}).join("");
     const kk=D.kakomon.items.length;
     $("#progNote").textContent=`過去問の記録 ${kk}件`+(kk?`（最新 ${esc(D.kakomon.items.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""))[0].kai)}）`:"");
@@ -991,18 +997,18 @@ function renderTasks(){
   const all=D.tasks.items;
   $("#tFilter").innerHTML=[["all","全部"],...CATN.map((n,i)=>[String(i),`${i}. ${n}`])].map(([v,l])=>`<button type="button" class="fchip" data-fcat="${v}" aria-pressed="${fCat===v}">${esc(l)}<span class="small" style="margin-left:4px;opacity:.75">${(v==="all"?all:all.filter(t=>String(t.cat)===v)).filter(t=>t.status!=="done").length}</span></button>`).join("");
   let items=fCat==="all"?all:all.filter(t=>String(t.cat)===fCat);
-  const order=(a,b)=>(hotOf(b)==="最初に")-(hotOf(a)==="最初に")||(!!hotOf(b))-(!!hotOf(a))||(a.month||"9999").localeCompare(b.month||"9999")||(+a.cat)-(+b.cat);
+  const order=(a,b)=>offOf(a)-offOf(b)||(hotOf(b)==="最初に")-(hotOf(a)==="最初に")||(!!hotOf(b))-(!!hotOf(a))||(a.month||"9999").localeCompare(b.month||"9999")||(+a.cat)-(+b.cat);
   const g=k=>items.filter(t=>t.status===k).sort(order);
   $("#taskList").innerHTML=(grp("todo","これから",true,g("todo"),taskRow)+grp("later","あとで",false,g("later"),taskRow)+grp("done","済み",false,g("done"),taskRow))||`<div class="empty">${loaded?"やることはありません。「＋ やることを追加」から書けます。":"読み込んでいます…"}</div>`;
 }
 function taskRow(t){
-  const ed=editing===t.id, tp=tplOf(t), hot=hotOf(t), det=!!openDet[t.id];
-  return `<div class="trow${t.status==="done"?" done":""}">
+  const ed=editing===t.id, tp=tplOf(t), hot=hotOf(t), det=!!openDet[t.id], off=offOf(t)&&t.status!=="done";
+  return `<div class="trow${t.status==="done"?" done":""}${off?" off":""}">
    <button class="cb2" type="button" data-tdone="${t.id}" aria-pressed="${t.status==="done"}" aria-label="済みにする">✓</button>
    <div class="tx"><div class="tt">${hot?`<span class="hot2">${hot}</span> `:""}${esc(t.t)}</div>
-    <div class="tm">${catChip(+t.cat)}${t.month?`<span>目安 ${esc(t.month.replace("-","/"))}</span>`:""}${t.share===false?'<span class="lock">非共有</span>':""}${tp||t.note?`<button class="more2" type="button" data-tdet="${t.id}" aria-expanded="${det}">${det?"閉じる":"詳しく"}</button>`:""}</div></div>
+    <div class="tm">${catChip(+t.cat)}${t.month?`<span>目安 ${esc(t.month.replace("-","/"))}</span>`:""}${t.share===false?'<span class="lock">非共有</span>':""}${off?'<span class="off2">今の回答では対象外</span>':""}${tp||t.note?`<button class="more2" type="button" data-tdet="${t.id}" aria-expanded="${det}">${det?"閉じる":"詳しく"}</button>`:""}</div></div>
    <button class="icbtn" type="button" data-tedit="${t.id}" aria-label="直す">${pencil}</button>
-   ${det&&!ed?`<div class="det">${tp?tp.d():""}${t.note?`${tp?"<br>":""}<span style="white-space:pre-wrap">${esc(t.note)}</span>`:""}</div>`:""}
+   ${det&&!ed?`<div class="det">${off?"最初の回答に合わせて入った項目ですが、今の回答（設定の「あなたの条件」）では対象外です。数や相談シートには入りません。要らなければ「直す」から削除できます。<br>":""}${tp?tp.d():""}${t.note?`${tp?"<br>":""}<span style="white-space:pre-wrap">${esc(t.note)}</span>`:""}</div>`:""}
    ${ed?`<div class="editor">
      <div class="field wide"><label for="e_t">やること</label><input class="inp" id="e_t" value="${esc(t.t)}"></div>
      <div class="field half"><label for="e_c">分類</label><select class="inp" id="e_c">${CATN.map((n,i)=>`<option value="${i}"${+t.cat===i?" selected":""}>${i}. ${n}</option>`).join("")}</select></div>
@@ -1087,10 +1093,10 @@ function paperHTML(){
   let h=`<div class="ph"><div><div style="font-size:11px;color:#4B5280;letter-spacing:.1em;font-weight:700">個人タクシー開業準備</div><h1>相談シート</h1></div><div class="d">作成日 ${fmtD(TODAY)}<br>個人情報は含めていません</div></div><div class="goldline"></div>`;
   if(o.prof&&(regionL()||ageL())) h+=`<table><tr><th style="width:120px">区域</th><td>${esc(regionL()||"—")}</td><th style="width:120px">申請時の年齢</th><td>${esc(ageL()||"—")}</td></tr></table>`;
   if(o.phase){h+=`<h2>いまの段階</h2><p style="margin:0 0 6px"><b>${cur+1}. ${esc(PH[cur].n)}</b>（全6段階）</p>`;
-    if(LP) h+=`<table><tr><th style="width:150px">分類</th><th>読んだ項目</th><th>覚えたカード</th><th>やること（済み）</th></tr>${LP.cats.map(c=>{const ts=D.tasks.items.filter(t=>+t.cat===c.n&&t.share!==false);return `<tr><td>${c.n}. ${esc(c.short)}</td><td>${c.read}/${c.ready}${c.items>c.ready?`（準備中 ${c.items-c.ready}）`:""}</td><td>${c.known}/${c.cards}</td><td>${ts.filter(t=>t.status==="done").length}/${ts.length}</td></tr>`}).join("")}</table>`;
+    if(LP) h+=`<table><tr><th style="width:150px">分類</th><th>読んだ項目</th><th>覚えたカード</th><th>やること（済み）</th></tr>${LP.cats.map(c=>{const ts=liveTasks().filter(t=>+t.cat===c.n&&t.share!==false);return `<tr><td>${c.n}. ${esc(c.short)}</td><td>${c.read}/${c.ready}${c.items>c.ready?`（準備中 ${c.items-c.ready}）`:""}</td><td>${c.known}/${c.cards}</td><td>${ts.filter(t=>t.status==="done").length}/${ts.length}</td></tr>`}).join("")}</table>`;
     if(D.kakomon.items.length) h+=`<p class="qa">過去問の記録 ${D.kakomon.items.length}件</p>`;}
   if(o.sched){h+=`<h2>準備の順番</h2><table><tr><th style="width:40px">#</th><th>段階</th><th style="width:210px">時期の目安</th></tr>${P.map((x,i)=>`<tr${i===cur?' style="background:#FFF3D1"':""}><td>${i+1}</td><td><b>${esc(x.n)}</b><div class="qa">${esc(x.d)}</div></td><td>${esc(x.when)}</td></tr>`).join("")}</table><div class="qa">③〜⑥は希望月からの逆算で、制度上の期限ではありません。</div>`}
-  if(o.tasks){const ord={todo:0,later:1,done:2};const ts=D.tasks.items.filter(t=>t.share!==false).sort((a,b)=>(ord[a.status]-ord[b.status])||(+a.cat)-(+b.cat));
+  if(o.tasks){const ord={todo:0,later:1,done:2};const ts=liveTasks().filter(t=>t.share!==false).sort((a,b)=>(ord[a.status]-ord[b.status])||(+a.cat)-(+b.cat));
     h+=`<h2>やること</h2>${ts.length?`<table><tr><th style="width:74px">状態</th><th style="width:110px">分類</th><th>内容</th></tr>${ts.map(t=>`<tr><td><span class="pill">${{todo:"これから",later:"あとで",done:"済み"}[t.status]}</span></td><td>${+t.cat}. ${CATN[+t.cat]}</td><td>${esc(t.t)}</td></tr>`).join("")}</table>`:`<p>なし</p>`}`}
   if(o.checks){const cs=D.checks.items.filter(c=>c.share!==false&&c.status!=="done");h+=`<h2>まだ確かめていないこと</h2>${cs.length?`<ul style="margin:0;padding-left:18px">${cs.map(c=>`<li>${esc(c.t)}</li>`).join("")}</ul>`:"<p>なし</p>"}`}
   if(o.qs){const qs=D.consult.items.filter(q=>q.share!==false&&q.q);h+=`<h2>相談したいこと</h2>${qs.length?`<ol>${qs.map(q=>`<li>${esc(q.q)}</li>`).join("")}</ol>`:"<p>なし</p>"}`}
@@ -1103,7 +1109,7 @@ function shareText(){
   let t=`【個人タクシー開業準備 相談シート】${fmtD(TODAY)}\n`;
   if(o.prof&&(regionL()||ageL())) t+=`区域：${regionL()||"—"}／申請時の年齢：${ageL()||"—"}\n`;
   if(o.phase){t+=`\n■いまの段階\n${cur+1}. ${P[cur].n}（全6段階）\n`; if(LP) t+=LP.cats.map(c=>`${c.n}. ${c.short}：読んだ ${c.read}/${c.ready}`).join("\n")+"\n";}
-  if(o.tasks){const ts=D.tasks.items.filter(x=>x.share!==false&&x.status==="todo");if(ts.length)t+=`\n■これからやること\n${ts.map(x=>`・${x.t}`).join("\n")}\n`}
+  if(o.tasks){const ts=liveTasks().filter(x=>x.share!==false&&x.status==="todo");if(ts.length)t+=`\n■これからやること\n${ts.map(x=>`・${x.t}`).join("\n")}\n`}
   if(o.checks){const cs=D.checks.items.filter(c=>c.share!==false&&c.status!=="done");if(cs.length)t+=`\n■まだ確かめていないこと\n${cs.map(x=>`・${x.t}`).join("\n")}\n`}
   if(o.qs){const qs=D.consult.items.filter(q=>q.share!==false&&q.q);if(qs.length)t+=`\n■相談したいこと\n${qs.map((x,i)=>`${i+1}. ${x.q}`).join("\n")}\n`}
   return t.trim();

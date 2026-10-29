@@ -103,6 +103,19 @@ const SHOT = process.argv[2] || "";
     const modeAfter = await page.evaluate(() => JSON.parse(localStorage.getItem("kotaku-navi-v3")).answers.mode);
     check("1問だけ答え直しても回答モードが変わらない", modeBefore === modeAfter, `${modeBefore} → ${modeAfter}`);
 
+    // 回答を変えて条件に合わなくなった自動のやることは、消さずに「対象外」の目印が付く
+    if (vp.mode === "full") {
+      await page.click('[data-ask="route"]');
+      await page.click("#qAns .ans >> nth=1"); // 新規許可 → 譲渡譲受
+      await page.waitForSelector("#v-settings:not([hidden])");
+      await tab("prep"); await page.click('#prepSeg [data-pseg="tasks"]');
+      const offRow = await page.$('#taskList .trow.off:has-text("法令試験の申込時期")');
+      check("回答を変えると対象外の目印が付く（消えない）", !!offRow);
+      const home = (await (async () => { await tab("home"); return page.textContent("#next1"); })());
+      check("対象外のやることはホームの「次にやること」に出ない", !home.includes("法令試験の申込時期"));
+      await tab("prep"); await shot("prep-tasks-off");
+      await tab("settings");
+    }
     await page.click('#v-settings [data-go="consult"]');
     await page.click("#addQ"); await page.fill("#q_q", "テストの質問"); await page.click("[data-saveq]");
     await shot("consult");
