@@ -1,6 +1,6 @@
 /* 個タク学習モジュール kotaku-learn.js（2026-10-16作成・2026-10-22 v03・Claude）
    個タク準備ナビに組み込む共通の学習機能（学ぶ・クイズ）。説明と問題はClaude版「個タク開業クイズ」v01（2026/10/11）を引き継ぐ。
-   このファイルが学習教材の正本。内容を直すときはこのファイルだけを直し、両ボードに同じファイルを置く。 */
+   このファイルが学習教材の正本。教材を直すときはこのファイルを直す（index.html から読み込む）。 */
 (function(){
 "use strict";
 const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-deep:#C98F00; --a:#2459E0; --b:#B35F00; --c:#7041E0; --big:#3B1F8F;
@@ -12,7 +12,6 @@ const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-d
 .klq .timetable td.big{ color:var(--big) !important; }
 .klq .note{ background:none; padding:0; border-radius:0; margin:0; }
 .klq .btn-ghost{ text-decoration:none; color:var(--ink); padding-inline:22px; }
-.klq .stage{ background:var(--bg); }
 .klq h2,.klq h3,.klq h4{ line-height:1.4; margin:0; }
 .klq .kfoot{ border-top:1px solid var(--rule); margin-top:24px; padding-top:12px; font-size:.85rem; color:var(--ink-soft); }
 .klq .kfoot p{ margin:0; }
@@ -37,13 +36,6 @@ const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-d
 .klq .oxb.is-right{ border-color:var(--ok); background:var(--ok-bg); }
 .klq .oxb.is-wrong{ border-color:var(--ng); background:var(--ng-bg); }
 .klq .oxb[disabled]{ cursor:default; }
-.klq .stop.tai{ background:linear-gradient(160deg,#7041E0,#3B1F8F); box-shadow:0 4px 0 #24125E; }
-.klq .stop.tai.done{ background:linear-gradient(160deg,#FFD866,var(--gold)); color:var(--gold-ink); box-shadow:0 4px 0 var(--gold-deep); }
-.klq .sub-acts{ margin-top:10px; }
-.klq .sub-acts .btn{ min-height:44px; font-size:.95rem; }
-.klq .kdiary{ margin-top:26px; }
-.klq .kdiary>summary{ cursor:pointer; font-family:var(--round); font-weight:800; font-size:1.1rem; margin-bottom:10px; }
-.klq .stage-no{ font-size:1.1rem; }
 .klq .sr{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 /* テロップ文字（番組の字幕の縁取り） */
 .klq .telop{
@@ -72,8 +64,6 @@ const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-d
 .klq .kseg{ flex:1; height:8px; border-radius:4px; background:rgba(255,255,255,.18); }
 .klq .kseg.on{ background:#4CD38A; }
 .klq .kseg.now{ background:var(--gold); }
-.klq .seg-labels{ display:flex; gap:4px; font-size:11px; color:#C9CEF5; margin-top:2px; white-space:nowrap; line-height:1.4; }
-.klq .seg-labels span{ flex:1; text-align:center; }
 .klq .icon-btn{ flex:none; background:none; border:1.5px solid rgba(255,255,255,.4); color:#fff; border-radius:999px; padding:6px 12px; cursor:pointer; font-size:14px; white-space:nowrap; }
 @media (max-width:440px){ .klq .lamp{ font-size:15px; min-width:4.8em; padding:8px 8px; } .klq .meter{ gap:8px; } }
 
@@ -228,47 +218,10 @@ const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-d
 .klq .hello{ display:flex; gap:12px; align-items:flex-start; margin:4px 0 6px; }
 .klq .start-box{ background:var(--sheet); border-radius:18px; padding:16px; margin:14px 0 26px; box-shadow:0 0 0 3px var(--studio); }
 .klq .start-box .next-label{ font-size:.85rem; color:var(--ink-soft); font-weight:700; }
-.klq .start-box .next-title{ font-family:var(--round); font-weight:800; font-size:1.3rem; line-height:1.45; margin:2px 0 4px; }
-.klq .sec-title{ font-family:var(--round); font-weight:800; font-size:1.25rem; margin:28px 0 10px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-.klq .sec-title small{ font-family:var(--font); font-weight:400; font-size:.85rem; color:var(--ink-soft); }
-
-.klq .stages{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:10px; }
-.klq .stage{ display:flex; gap:12px; align-items:flex-start; background:var(--sheet); border:2px solid var(--rule); border-radius:16px; padding:12px; }
-.klq .stage.open{ border-color:var(--studio); border-width:3px; }
-.klq .stage.locked{ opacity:.78; }
-.klq .stage-no{ flex:none; width:44px; height:44px; border-radius:12px; background:var(--rule-soft); color:var(--ink-soft); display:flex; align-items:center; justify-content:center; font-family:var(--round); font-weight:800; font-size:1.3rem; }
-.klq .stage.open .stage-no{ background:var(--studio); color:#fff; }
-.klq .stage.done .stage-no{ background:var(--gold); color:var(--gold-ink); }
-.klq .stage-main{ flex:1; min-width:0; }
-.klq .stage h3{ font-size:1.08rem; }
-.klq .stage .weeks{ font-size:.8rem; color:var(--ink-soft); font-weight:400; margin-left:6px; }
-.klq .stage p{ margin:2px 0 0; font-size:.92rem; color:var(--ink-soft); }
-.klq .stops{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:8px; margin-top:10px; }
-.klq .stop{
-  text-align:left; border:0; border-radius:12px; background:linear-gradient(160deg,#2D39B5,var(--studio)); color:#fff; padding:9px 11px; cursor:pointer; line-height:1.45; font-weight:700;
-  box-shadow:0 4px 0 #0E1347;
-}
-.klq .stop small{ display:block; font-size:.75rem; font-weight:400; color:#C9CEF5; }
-.klq .stop.done{ background:linear-gradient(160deg,#FFD866,var(--gold)); color:var(--gold-ink); box-shadow:0 4px 0 var(--gold-deep); }
-.klq .stop.done small{ color:#5A4300; }
-.klq .stop.done small::after{ content:"　クリア"; font-weight:700; }
-.klq .stop.now{ outline:3px solid var(--gold); outline-offset:2px; }
-.klq .soon{ display:inline-block; font-size:.75rem; border:1px solid var(--rule); border-radius:99px; padding:0 8px; margin-top:4px; color:var(--ink-soft); }
 
 /* 記録 */
-.klq .nippo{ background:var(--sheet); border-radius:14px; overflow:hidden; box-shadow:0 0 0 2px var(--rule); }
-.klq .nippo-head{ display:flex; justify-content:space-between; align-items:center; padding:8px 12px; background:linear-gradient(90deg,var(--studio),var(--studio-2)); color:#fff; font-weight:700; }
-.klq .nippo table{ width:100%; border-collapse:collapse; font-size:.92rem; }
-.klq .nippo th, .klq .nippo td{ border-bottom:1px solid var(--rule); border-right:1px solid var(--rule); padding:7px 8px; text-align:left; vertical-align:top; line-height:1.55; }
-.klq .nippo th:last-child, .klq .nippo td:last-child{ border-right:none; }
-.klq .nippo th{ background:var(--rule-soft); font-weight:700; font-size:.8rem; }
-.klq .nippo td.d{ white-space:nowrap; }
-.klq .nippo .kempty{ padding:14px 12px; color:var(--ink-soft); }
 
 /* エンディング */
-.klq .alight-input{ width:100%; min-height:84px; padding:10px 12px; font:inherit; border:2px solid var(--rule); border-radius:12px; background:var(--sheet); color:var(--ink); resize:vertical; }
-.klq .chips{ display:flex; flex-wrap:wrap; gap:8px; margin:8px 0; }
-.klq .chip-btn{ border:2px dashed var(--ink-soft); background:transparent; border-radius:12px; padding:6px 10px; cursor:pointer; text-align:left; font-size:.9rem; line-height:1.5; }
 .klq .finale{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin:6px 0 14px; }
 .klq .finale figure{ margin:0; text-align:center; }
 .klq .finale img{ width:100%; max-width:120px; aspect-ratio:1; border-radius:50%; object-fit:cover; background:#DCE3FF; border:3px solid var(--gold); }
@@ -283,7 +236,6 @@ const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-d
 .klq .kpanel h3{ font-size:1.1rem; margin-bottom:6px; }
 .klq .srclist{ padding-left:1.2em; }
 .klq .srclist li{ margin:8px 0; line-height:1.6; }
-.klq .toast{ position:sticky; bottom:90px; margin:10px auto 0; width:max-content; max-width:100%; display:block; background:var(--studio); color:#fff; padding:10px 16px; border-radius:999px; font-size:.9rem; z-index:9; }
 @media (prefers-reduced-motion: reduce){ .klq *{ animation:none !important; transition:none !important; } }
 
 /* v03：太すぎて読みにくい文字を直す（見出しは本文の書体の太字、番組風の大きな字だけ表示用の書体） */
@@ -292,7 +244,7 @@ const CSS = `.klq{ --studio:#1B2272; --studio-2:#3B1F8F; --ray:#232C8E; --gold-d
 .klq .khero .hero-t{ font-size:2rem; text-shadow:3px 0 0 var(--studio),-3px 0 0 var(--studio),0 3px 0 var(--studio),0 -3px 0 var(--studio),0 6px 0 var(--gold-deep); }
 .klq .qnum{ text-shadow:none; color:var(--gold); }
 .klq .lamp{ font-weight:700; letter-spacing:.04em; }
-.klq .screen-title,.klq .fb-title,.klq .kguide h3,.klq .start-box .next-title,.klq .sec-title{ font-weight:700; }
+.klq .screen-title,.klq .fb-title,.klq .kguide h3{ font-weight:700; }
 .klq .lch .no,.klq .isec span,.klq .lch .pr b,.klq .ftag,.klq .oxb{ font-family:var(--disp); font-weight:400; font-synthesis:none; }
 .klq.klearn{ font-size:15px; }
 .klq .kapp2{ display:flex; flex-direction:column; gap:14px; }
@@ -369,18 +321,6 @@ const SRC = {
   W01:{ n:"タクシー事業を始めるには（個人タクシー欄）", d:"関東運輸局Webページ。更新表示2026/09/30", u:"https://wwwtb.mlit.go.jp/kanto/jidou_koutu/tabi2/taxi_jigyoukaisi/index.htm" }
 };
 const CHECKED = "2026/10/11";
-
-/* ---------- 7つのステージ ---------- */
-const STATIONS = [
-  { id:"flow",  name:"開業までの流れ", weeks:"第1〜2週", desc:"いつ、何を準備するかの地図を持つ", open:true },
-  { id:"exam",  name:"試験（法令）", weeks:"第3〜8週・第13〜18週", desc:"道路運送法・運輸規則・車両法・業務適正化特措法・運賃と約款" },
-  { id:"money", name:"資金", weeks:"第9〜10週", desc:"開業時の費用・毎月の費用・家計を分けて考える" },
-  { id:"place", name:"営業所・車庫・車両", weeks:"第11〜14週", desc:"住まい・車庫・車を選ぶ前の確認の順番" },
-  { id:"apply", name:"申請", weeks:"第19〜20週", desc:"書類の種類・取る時期・相談の順番" },
-  { id:"ready", name:"開業準備", weeks:"第21〜22週", desc:"許可から営業開始までにすること" },
-  { id:"after", name:"開業後の経営", weeks:"第23〜24週", desc:"記帳・収支の管理と、24週の振り返り" }
-];
-const STEP_NAMES = ["開幕","読む","覚える","解く","終幕"];
 
 /* ---------- ステージ1「開業までの流れ」6回 ---------- */
 const SESSIONS = [
@@ -725,8 +665,10 @@ const ITEMS = [
   { id:"3-2", cat:3, title:"記帳と収支の管理" }
 ];
 ITEMS.forEach(it => { const s = it.sid && SESSIONS.find(x=>x.id===it.sid); if(s){ it.title = s.title; it.short = s.short; it.goal = s.goal; } it.ready = !!s; });
-/* 読むおすすめの順番（もとの第1〜6回の順） */
+/* 読むおすすめの順番（もとの第1〜6回の順）。項目を公開したらここにも足す */
 const ORDER = ["0-1","0-2","2-1","1-1","1-2","0-3"];
+/* 公開中の項目をおすすめの順番に並べる（ORDERにない項目は後ろに分類順で） */
+const readyInOrder = () => ORDER.map(id=>ITEMS.find(x=>x.id===id)).filter(x=>x && x.ready).concat(ITEMS.filter(x=>x.ready && !ORDER.includes(x.id)));
 
 /* ---------- 覚えるカード（回ごと。根拠は案件フォルダの公式原本で2026/10/22に本文確認） ---------- */
 const CARDS = {
@@ -776,7 +718,7 @@ const OX = [
    v03（2026/10/22）：「学ぶ」（分類→項目を読む・覚える）と
    「クイズ」（問題だけ）を別の画面にした。保存はアプリ側に任せる
    ============================================================ */
-const fresh = () => ({ v:3, read:{}, cards:{}, q:{}, lastItem:null, last:null, prevLast:null });
+const fresh = () => ({ v:3, read:{}, cards:{}, q:{}, lastItem:null, last:null });
 let S = fresh(), OPT = {};
 const esc = s => String(s==null?"":s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 function save(){ try{ OPT.save && OPT.save(JSON.parse(JSON.stringify(S))); }catch(e){} }
@@ -879,7 +821,7 @@ function renderLearn(){
 function openItem(id){
   const it = itemById(id); if(!it || !it.ready) return;
   L.view = "item"; L.id = id; L.deck = null;
-  S.lastItem = id; S.prevLast = S.last; S.last = Date.now(); save();
+  S.lastItem = id; S.last = Date.now(); save();
   renderItem(); scrollTop(L.root);
 }
 function renderItem(){
@@ -887,7 +829,7 @@ function renderItem(){
   const cs = cardsOf(it);
   if(!L.deck) L.deck = { q: cs.filter(x=>!(S.cards[x.id]&&S.cards[x.id].k)).map(x=>x.id).concat(cs.filter(x=>S.cards[x.id]&&S.cards[x.id].k).map(x=>x.id)), flipped:false, all:cs.length, done:0 };
   const qn = QS.filter(q=>q.item===it.id).length;
-  const sib = ITEMS.filter(x=>x.ready); const i = sib.indexOf(it);
+  const sib = readyInOrder(); const i = sib.indexOf(it);
   const prev = sib[i-1], next = sib[i+1];
   const rd = !!S.read[it.id];
   L.root.innerHTML = `<div class="klq klearn"><div class="kapp2 item">
@@ -1064,8 +1006,8 @@ function record(ok){
   const a = S.q[e.qid] || { first:null, tries:0, last:null, miss:false };
   if(a.first===null) a.first = ok;
   a.tries++; a.last = ok; a.t = Date.now();
+  /* 「間違えた」かどうかはその回の1回目の答えで決める（解き直して正解しても、次回もう一度出す） */
   if(!r.seen[e.qid]){ r.seen[e.qid] = true; a.miss = !ok; if(ok) r.ok++; }
-  else if(ok && a.miss && r.mode!=="miss"){ /* 同じ回で直せても、次回もう一度出す */ }
   S.q[e.qid] = a; save();
   const nb = Z.root.querySelector(".nextbtn"); if(nb) nb.disabled = false;
   changed();
