@@ -208,6 +208,18 @@ body.sub .band-ink,body.sub .band-blue{display:none}
 .pager a.nx{text-align:right;background:var(--k-yellow)}
 .pager a.nx small{color:#333}
 @media(min-width:760px){.wrap{max-width:760px}}
+
+@media print{
+  @page{size:A4;margin:12mm}
+  html,body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .bands,.chips,.pager,[data-noexport],#busy,#ov{display:none!important}
+  .chap,.chap.on{display:block!important;margin:0;padding-top:0;break-before:page}
+  .chap.cover{break-before:auto}
+  .only-export{display:block!important}
+  .wrap{max-width:none}
+  .tbl-wrap,.dg,.box,.say,.qa,.srcs,tr,.nd,.kv,h2,h3{break-inside:avoid}
+  h2,h3{break-after:avoid}
+}
 </style>
 </head>
 <body>
