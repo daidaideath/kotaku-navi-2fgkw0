@@ -506,6 +506,7 @@ html[data-mode="me"] .badge-me{font-size:13px;padding:2px 10px}
       <div class="next1 span" id="next1"></div>
       <div class="card"><h2><span class="tag">PROGRESS</span>進み具合<button class="more" type="button" data-go="learn">学ぶへ</button></h2><ul class="p4" id="prog4"></ul><p class="small muted" id="progNote" style="margin:8px 0 0"></p></div>
       <div class="card when1"><h2><span class="tag">NOW</span>いまの段階<button class="more" type="button" data-go="prep" data-sub="sched">スケジュール</button></h2><div id="when1"></div><h2 style="margin-top:16px"><span class="tag">NEXT</span>次の節目</h2><ul class="plain nx" id="milestones"></ul></div>
+      <div class="card span"><h2><span class="tag">GUIDE</span>読み物：開業ガイド</h2><p class="small" style="margin:0 0 10px">四人組が、開業までの流れ・試験・開業後・法人との違いを案内します。1枚まとめ、よくある疑問、用語集つき。</p><a class="btn btn-gold" id="guideLink" href="guide.html" target="_blank" rel="noopener">開業ガイドを読む</a></div>
     </div>
   </section>
 
@@ -648,6 +649,7 @@ html[data-mode="me"] .badge-me{font-size:13px;padding:2px 10px}
    このファイルに個人情報は入れない
    ============================================================ */
 const UPDATES=[
+ {d:"2026/11/12",t:"ホームに「読み物：開業ガイド」を追加しました。四人組が、開業までの流れ・試験・開業後・法人との違いを案内する読み物です（1枚まとめ、よくある疑問、用語集つき）。"},
  {d:"2026/10/29",t:"本人用と共有用を見分けやすくしました。本人用はヘッダーが紫で「本人用」の札、共有用は紺で「共有用」の札が付きます。ブラウザーのタブのアイコン（濃い青の背景に、黄色の表示灯と「個人」／緑の表示灯と「本人」）と名前も分けました。"},
  {d:"2026/10/29",t:"「学ぶ」の準備中だった10項目を公開しました（法令6項目、申請書類、許可の後、開業後にくり返す手続き、記録と保存期間）。カード31枚・問題31問を追加しました。内容は関東運輸局の公示とe-Gov法令検索の条文で確認しています。"},
  {d:"2026/10/29",t:"最初からあった6項目とアプリ内の制度の説明を、最新の公示（2026/2/17改正）と照らし直しました。内容の変更はなく、確認日と資料のページ番号を更新しました。"},
@@ -1211,6 +1213,8 @@ document.addEventListener("focusout",()=>{setTimeout(()=>{if(pending&&!isTyping(
 $("#today").textContent=`今日 ${fmtD(TODAY)}（${WD[TODAY.getDay()]}）`;
 $("#ckDate").textContent=CHECKED; $("#updDate").textContent=UPDATES[0].d;
 applySize();
+const GUIDE_ME="https://claude.ai/artifact/L6TDaQxwdTHEycRPq3cMqJ";   /* 開業ガイド（本人用：claude.ai上の非公開ページ） */
+const GUIDE_CO="guide.html";   /* 開業ガイド（共有用：同じ場所に置いた guide.html） */
 const ME_ICON="icon-me-180.png";   /* 本人用のアイコン（緑の表示灯に「本人」）。共有用は icon-180.png（黄色の表示灯に「個人」） */
 function setMode(me){
   ME=me; const b=$("#meBadge"); b.hidden=false; b.textContent=ME?"本人用":"共有用"; b.classList.toggle("co",!ME);
@@ -1220,6 +1224,7 @@ function setMode(me){
   if(ME){$("#favicon").href=ME_ICON;$("#touchicon").href=ME_ICON;const tc=document.querySelector('meta[name="theme-color"]');if(tc)tc.content="#3B1F8F"}
   $("#subTitle").textContent=ME?"記録はclaude.aiに保存（PC・iPhoneで同じ）":"記録はこの端末だけに保存";
   $$(".me-only").forEach(e=>e.hidden=!ME); $$(".co-only").forEach(e=>e.hidden=ME);
+  const gl=$("#guideLink"); if(gl) gl.href=ME?GUIDE_ME:GUIDE_CO;
 }
 function startUI(){
   if(!D.answers.created){showOnly("v-start");return}
