@@ -190,6 +190,10 @@ dl.gl dd{margin:0;padding:6px 10px 8px;background:#fff;border-bottom:1px solid v
 .chap.tmp{display:block!important;position:absolute;left:0;top:0;width:var(--pw,390px);z-index:-1;opacity:0;pointer-events:none}
 .chap.cover{padding-top:0}
 body.sub .band-ink,body.sub .band-blue{display:none}
+.band-pink{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.bp-t{color:inherit;text-decoration:none}
+.bp-navi{flex:none;text-shadow:none;background:var(--k-yellow);color:var(--k-ink);border:2px solid var(--k-ink);box-shadow:2px 2px 0 var(--k-ink);padding:0 10px;min-height:40px;display:inline-flex;align-items:center;font-size:13px;font-weight:900;text-decoration:none;white-space:nowrap}
+.navi-back{display:flex;align-items:center;justify-content:center;min-height:52px;margin:18px 0 4px;background:var(--k-yellow);border:2px solid var(--k-ink);box-shadow:3px 3px 0 var(--k-ink);color:var(--k-ink);font-size:15px;font-weight:900;text-decoration:none}
 .chip{min-height:40px;display:inline-flex;align-items:center}
 .chip.cur{background:var(--k-ink);color:var(--k-yellow);border-color:var(--k-ink)}
 .toc{display:grid;gap:8px;margin:10px 0 16px}
@@ -209,8 +213,8 @@ body.sub .band-ink,body.sub .band-blue{display:none}
 <body>
 <div class="wrap" id="page">
 
-<div class="bands" aria-hidden="true">
-  <div class="band-pink"><a href="#top" style="color:inherit;text-decoration:none">個タク準備ナビ ガイドブック</a></div>
+<div class="bands">
+  <div class="band-pink"><a href="#top" class="bp-t">開業ガイドブック</a><a class="bp-navi" href="https://daidaideath.github.io/kotaku-navi-2fgkw0/#home" target="_blank" rel="noopener">← 個タク準備ナビへ戻る</a></div>
   <div class="band-ink">特別区・武三エリア ／ 基準日 2026/11/12</div>
   <div class="band-blue">制度・税・保険は、変わることがあります。手続きの前に公式の最新情報を確認してください。</div>
 </div>
@@ -248,7 +252,7 @@ body.sub .band-ink,body.sub .band-blue{display:none}
 </div>
 
   <div class="row" data-noexport>
-    <a class="btn btn-y" href="https://daidaideath.github.io/kotaku-navi-2fgkw0/#home" target="_blank" rel="noopener">個タク準備ナビを開く</a>
+    <a class="btn btn-y" href="https://daidaideath.github.io/kotaku-navi-2fgkw0/#home" target="_blank" rel="noopener">← 個タク準備ナビにもどる</a>
     <button class="btn btn-o" type="button" id="allpng">全章をPNGにする</button>
   </div>
   <p class="small" data-noexport>各ページの下の「この章をPNGにする」で、そのページの画像を作れます。</p>
@@ -818,6 +822,7 @@ body.sub .band-ink,body.sub .band-blue{display:none}
   </div>
 </section>
 <div class="pad" data-noexport>
+  <a class="navi-back" href="https://daidaideath.github.io/kotaku-navi-2fgkw0/#home" target="_blank" rel="noopener">← 個タク準備ナビにもどる</a>
   <div class="box box-note" style="margin-top:28px">
     <div class="box-t">この読み物について</div>
     <p>内容の基準日は2026年11月12日です。制度は変わることがあるため、申請・手続きの前に、関東運輸局・国税庁・各自治体の最新の案内で確認してください。この読み物は、開業できるかどうかの判定や、税務・法律の助言ではありません。</p>
@@ -894,7 +899,7 @@ ORDER.forEach(function(id,i){
   var p=ORDER[i-1],n=ORDER[i+1];
   var nav=document.createElement("nav");nav.className="pager";nav.setAttribute("data-noexport","");
   nav.innerHTML='<a href="#'+p+'"><small>前へ</small>'+esc(LABEL[p])+'</a>'+(n?'<a class="nx" href="#'+n+'"><small>次へ</small>'+esc(LABEL[n])+'</a>':'<a class="nx" href="#top"><small>おわり</small>目次にもどる</a>');
-  var foot=e.querySelector(".chap-foot");var body=e.querySelector(".chap-body")||e;
+  nav.insertAdjacentHTML('beforeend','');var foot=e.querySelector(".chap-foot");var body=e.querySelector(".chap-body")||e;
   if(foot)foot.parentNode.insertBefore(nav,foot);else body.appendChild(nav);
 });
 
